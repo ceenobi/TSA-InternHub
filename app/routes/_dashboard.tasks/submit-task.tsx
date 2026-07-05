@@ -14,6 +14,7 @@ import type { TaskData } from "~/types";
 
 const submitSchema = z.object({
   content: z.string().min(10, "Submission must be at least 10 characters"),
+  repoUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
 });
 
 type SubmitSchemaType = z.infer<typeof submitSchema>;
@@ -176,6 +177,24 @@ export function SubmitTaskModal({
             <p className="text-[11px] text-muted-foreground">
               Add links to your work (Google Docs, GitHub repos, Figma files,
               etc.)
+            </p>
+          </div>
+
+          {/* GitHub Repo URL */}
+          <div className="mt-4 space-y-2">
+            <FormBox
+              label="GitHub Repository (optional)"
+              type="url"
+              placeholder="https://github.com/username/repo"
+              id="repoUrl"
+              register={form.register}
+              errors={form.formState.errors}
+              control={form.control}
+              name="repoUrl"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Link your GitHub repo so a commit status is set when your work is
+              graded.
             </p>
           </div>
 

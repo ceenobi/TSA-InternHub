@@ -139,6 +139,10 @@ const createAuth = (db: any, client: any) =>
           type: "string",
           required: false,
         },
+        imagePublicId: {
+          type: "string",
+          required: false,
+        },
         cohort: {
           type: "string",
           required: false,

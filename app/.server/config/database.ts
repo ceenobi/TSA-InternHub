@@ -45,11 +45,12 @@ export const connectToDB = async (): Promise<void> => {
   const connectionOptions: ConnectOptions = {
     dbName: env.databaseName,
     serverSelectionTimeoutMS: 45000,
-    socketTimeoutMS: 5000,
+    socketTimeoutMS: 15000,
     retryWrites: true,
     retryReads: true,
     maxPoolSize: 50,
     minPoolSize: 1,
+    autoIndex: env.nodeEnv !== "production",
     monitorCommands: env.nodeEnv === "development",
   };
   try {

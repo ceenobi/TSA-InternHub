@@ -19,7 +19,10 @@ type NotificationType =
   | "profile_updated"
   | "cohort_assigned"
   | "role_updated"
-  | "account_deleted";
+  | "account_deleted"
+  | "hub_team_leader_assigned"
+  | "hub_task_assigned"
+  | "announcement";
 
 interface SendOptions {
   userId: string;

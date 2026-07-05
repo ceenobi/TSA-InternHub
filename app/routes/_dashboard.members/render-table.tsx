@@ -1,5 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
+import { getOptimizedImageUrl } from "~/lib/cloudinary";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import TableView from "~/components/ui/table-view";
 import type { UserData } from "~/types";
@@ -25,7 +26,7 @@ export default function RenderTable({ data }: { data: UserData[] }) {
           return (
             <div className="flex items-center gap-2">
               <Avatar>
-                <AvatarImage src={row.original.image} />
+                <AvatarImage src={getOptimizedImageUrl(row.original.image, 40)} />
                 <AvatarFallback className="bg-primary/10 text-primary">
                   {row.original.name.charAt(0)}
                 </AvatarFallback>
@@ -44,7 +45,7 @@ export default function RenderTable({ data }: { data: UserData[] }) {
           return (
             <a
               href={`mailto:${row.original.email}`}
-              className="text-xs font-medium text-muted-foreground"
+              className="text-xs font-medium text-muted-foreground hover:underline"
               title={`Send email to:${row.original.email}`}
             >
               {row.original.email}
@@ -58,7 +59,7 @@ export default function RenderTable({ data }: { data: UserData[] }) {
         cell: ({ row }) => {
           return (
             <span
-              className="cursor-pointer text-xs font-medium text-muted-foreground"
+              className="cursor-pointer text-xs font-medium text-muted-foreground hover:underline"
               onClick={() => window.open(`tel:${row.original.phone}`, "_blank")}
               title={`Call: ${row.original.phone}`}
             >

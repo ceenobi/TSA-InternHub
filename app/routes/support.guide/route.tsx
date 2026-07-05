@@ -26,26 +26,11 @@ export default function KnowledgeBase() {
   const [inputValue, setInputValue] = useState(urlQuery);
   const [selectedArticle, setSelectedArticle] =
     useState<KnowledgeBaseArticle | null>(null);
-  // const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // useEffect(() => {
-  //   if (syncTimer.current) clearTimeout(syncTimer.current);
-  //   syncTimer.current = setTimeout(() => {
-  //     if (inputValue) {
-  //       setSearchParams({ query: inputValue }, { replace: true });
-  //     } else {
-  //       setSearchParams({}, { replace: true });
-  //     }
-  //   }, 300);
-  //   return () => {
-  //     if (syncTimer.current) clearTimeout(syncTimer.current);
-  //   };
-  // }, [inputValue, setSearchParams]);
 
   const debouncedSubmit = useDebouncedCallback((value: string) => {
     setInputValue(value);
-    if (inputValue) {
-      setSearchParams({ query: inputValue }, { replace: true });
+    if (value) {
+      setSearchParams({ query: value }, { replace: true });
     } else {
       setSearchParams({}, { replace: true });
     }
@@ -126,7 +111,7 @@ export default function KnowledgeBase() {
         {/* Category Sections */}
         {filtered === null &&
           categories.map(([category, categoryArticles]) => (
-            <section key={category}>
+            <section key={category} className="max-w-3xl mx-auto">
               <h2 className="text-lg font-semibold tracking-tight mb-4 flex items-center gap-2">
                 <RiBookOpenFill
                   size={18}

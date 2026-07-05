@@ -76,7 +76,7 @@ export default function InviteMember({ cohort }: { cohort: CohortDataType }) {
     <>
       <Button
         onClick={() => setIsOpen(true)}
-        className="px-4 h-10 rounded-sm border dark:border-darkBlue bg-mainBlue dark:bg-darkBlue/20 hover:bg-mainBlue/90 hover:dark:bg-darkBlue/30 text-white"
+        className="px-4 h-10 rounded-sm border dark:border-darkBlue/50 bg-mainBlue dark:bg-darkBlue/20 hover:bg-mainBlue/90 hover:dark:bg-darkBlue/30 text-white"
       >
         Invite Member <RiUserAddLine className="ml-1" />
       </Button>

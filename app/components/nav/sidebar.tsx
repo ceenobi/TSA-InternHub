@@ -24,7 +24,7 @@ export default function Sidebar({
     <aside
       className={cn(
         `hidden lg:flex flex-col bg-darkWhite dark:bg-mainDark border-r dark:border-white/10 top-0 fixed z-50 transition-all duration-300 ease-in-out min-h-svh`,
-        isOpenSidebar ? "lg:w-62.5" : "lg:w-12",
+        isOpenSidebar ? "lg:w-58" : "lg:w-12",
         "dark:bg-linear-to-r/decreasing from-mainBlue/30 to-mainDark",
       )}
     >

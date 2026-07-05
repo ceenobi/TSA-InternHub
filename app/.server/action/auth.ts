@@ -8,6 +8,7 @@ import {
   signInSchema,
   signUpSchema,
   updateProfileSchema,
+  updateUserAvatarSchema,
 } from "~/lib/schemaValidation";
 import { tryCatchWrapper } from "~/lib/tryCatchWrapper";
 import { generateInviteCode } from "~/lib/utils";
@@ -20,6 +21,7 @@ import type {
   SignInSchemaType,
   SignUpSchemaType,
   UpdateProfileSchemaType,
+  UpdateUserAvatarSchemaType,
 } from "~/types";
 import { env } from "../config/keys";
 import logger from "../config/logger";
@@ -29,7 +31,7 @@ import User from "../model/user";
 import { AuditLogService } from "../services/auditlog.service";
 import { auth } from "../services/better-auth";
 import { NotificationService } from "../services/notification.service";
-import { invalidateCache } from "../utils/cache";
+import { fetchWithCache, invalidateCache } from "../utils/cache";
 import { checkRateLimit } from "../utils/rate-limit";
 import { workflowClient } from "../workflows/client";
 
@@ -623,6 +625,74 @@ export async function updateProfileRequest(
     );
   });
 }
+export async function updateAvatarRequest(
+  request: Request,
+  payload: UpdateUserAvatarSchemaType,
+) {
+  return tryCatchWrapper(async () => {
+    await checkRateLimit(request, "strict");
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
+    if (!session) {
+      logger.error("Unauthorized");
+      return Response.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 },
+      );
+    }
+
+    const result = updateUserAvatarSchema.safeParse(payload);
+    if (!result.success) {
+      logger.error("Invalid data format");
+      return Response.json(
+        {
+          success: false,
+          message: "Invalid dataschema",
+          errors: z.treeifyError(result.error),
+        },
+        { status: 400 },
+      );
+    }
+    const response = await auth.api.updateUser({
+      body: {
+        image: result.data.image,
+        imagePublicId: result.data.imagePublicId,
+      },
+      headers: request.headers,
+      asResponse: true,
+    });
+    if (!response.ok) {
+      logger.error(
+        { status: response.status },
+        "Failed to update profile avatar",
+      );
+      return response;
+    }
+    // Record audit log
+    await AuditLogService.record(request, {
+      action: "PROFILE_UPDATE",
+      category: "security",
+      description: "Updated profile avatar",
+      details: {
+        image: result.data.image,
+        imagePublicId: result.data.imagePublicId,
+      },
+    });
+
+    NotificationService.send({
+      userId: session.user.id,
+      type: "profile_updated",
+      title: "Profile Updated",
+      message: "Your profile avatar has been updated.",
+    });
+
+    return Response.json(
+      { success: true, message: "Avatar updated successfully" },
+      { status: 200 },
+    );
+  });
+}
 
 export async function forgotPasswordRequest(
   request: Request,
@@ -984,6 +1054,44 @@ export async function updateAdminRole(
         success: true,
         message: `Role updated for ${findUser.name}`,
         user,
+      },
+      { status: 200 },
+    );
+  });
+}
+
+export async function getAMember(
+  request: Request,
+  memberId: string,
+) {
+  return tryCatchWrapper(async () => {
+    await checkRateLimit(request, "general");
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
+    if (!session) {
+      logger.error("Unauthorized, session not found");
+      return Response.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 },
+      );
+    }
+    const cacheKey = `member-profile:${memberId}`;
+    const member = await fetchWithCache(cacheKey, 3600, async () => {
+      return await User.findById(memberId).lean();
+    });
+    if (!member) {
+      logger.error("Member not found");
+      return Response.json(
+        { success: false, message: "Member not found" },
+        { status: 404 },
+      );
+    }
+    return Response.json(
+      {
+        success: true,
+        message: "Member profile retrieved",
+        body:member,
       },
       { status: 200 },
     );

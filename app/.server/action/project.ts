@@ -409,3 +409,152 @@ export async function getProjectStages(
     return Response.json({ success: true, body }, { status: 200 });
   });
 }
+
+
+export async function getProjectTaskScoreBoard(request: Request) {
+  return tryCatchWrapper(async () => {
+    await checkRateLimit(request, "general");
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
+    if (!session) {
+      logger.error("Unauthorized");
+      return Response.json(
+        { success: false, message: "Unauthorized, session expired" },
+        { status: 401 },
+      );
+    }
+    const { program, role } = session.user;
+    const isSuperAdmin = role === "super_admin";
+
+    const cacheKey = `scoreboard:${isSuperAdmin ? "all" : "pg" + program}`;
+    const body = await fetchWithCache(cacheKey, 300, async () => {
+      const cohortFilter: Record<string, any> = {};
+      if (!isSuperAdmin) cohortFilter.program = program;
+
+      const cohorts = await Cohort.find(cohortFilter)
+        .populate({ path: "members", select: "name email image" })
+        .lean();
+
+      const cohortIds = cohorts.map((c) => c._id);
+
+      const projects = await Project.find({ cohort: { $in: cohortIds } })
+        .select("_id title cohort")
+        .lean();
+
+      const projectIds = projects.map((p) => p._id);
+      const projectMap = new Map(
+        projects.map((p) => [p._id.toString(), p]),
+      );
+
+      const stages = await Stage.find({ project: { $in: projectIds } })
+        .sort({ project: 1, order: 1 })
+        .lean();
+
+      const stageIds = stages.map((s) => s._id);
+
+      const allMemberIds = cohorts.flatMap((c) =>
+        c.members.map((m: any) => m._id),
+      );
+
+      const progressEntries = await StageProgress.find({
+        user: { $in: allMemberIds },
+        stage: { $in: stageIds },
+      }).lean();
+
+      const progressByUser = new Map<string, typeof progressEntries>();
+      for (const p of progressEntries) {
+        const key = p.user.toString();
+        if (!progressByUser.has(key)) progressByUser.set(key, []);
+        progressByUser.get(key)!.push(p);
+      }
+
+      const stageMap = new Map(
+        stages.map((s) => [s._id.toString(), s]),
+      );
+
+      return cohorts.map((cohort) => {
+        const cohortId = cohort._id.toString();
+        const cohortProjects = projects.filter(
+          (p) => p.cohort.toString() === cohortId,
+        );
+        const cohortStageIds = new Set(
+          stages
+            .filter((s) =>
+              cohortProjects.some(
+                (p) => p._id.toString() === s.project.toString(),
+              ),
+            )
+            .map((s) => s._id.toString()),
+        );
+
+        const users = (cohort.members as any[]).map((member) => {
+          const memberProgress =
+            progressByUser.get(member._id.toString()) || [];
+          const stageResults = stages
+            .filter((s) => cohortStageIds.has(s._id.toString()))
+            .map((stage) => {
+              const progress = memberProgress.find(
+                (p) => p.stage.toString() === stage._id.toString(),
+              );
+              return {
+                stage: {
+                  _id: stage._id.toString(),
+                  title: stage.title,
+                  order: stage.order,
+                  project: {
+                    _id: stage.project.toString(),
+                    title:
+                      projectMap.get(stage.project.toString())?.title ?? "",
+                  },
+                },
+                totalScore: progress?.totalScore ?? 0,
+                maxPossibleScore: progress?.maxPossibleScore ?? 0,
+                percentage: progress?.percentage ?? 0,
+                status: progress?.status ?? "locked",
+              };
+            });
+
+          const gradedStages = stageResults.filter(
+            (s) => s.status === "completed" || s.status === "failed",
+          );
+          const average =
+            gradedStages.length > 0
+              ? Math.round(
+                  gradedStages.reduce((sum, s) => sum + s.percentage, 0) /
+                    gradedStages.length,
+                )
+              : 0;
+
+          return {
+            user: {
+              _id: member._id.toString(),
+              name: member.name,
+              email: member.email,
+              image: member.image,
+            },
+            average,
+            stages: stageResults,
+          };
+        });
+
+        return {
+          cohort: {
+            _id: cohort._id.toString(),
+            name: cohort.cohort,
+            program: cohort.program,
+            status: cohort.status,
+          },
+          users,
+        };
+      });
+    });
+
+    return Response.json({
+      success: true,
+      message: "Scoreboard fetched successfully",
+      body,
+    });
+  });
+}
+

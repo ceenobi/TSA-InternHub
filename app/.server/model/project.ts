@@ -10,6 +10,7 @@ export interface IProject extends Document {
   startDate?: Date;
   endDate?: Date;
   progress: number;
+  meetingUrl?: string;
 }
 
 const projectSchema = new Schema<IProject>(
@@ -53,6 +54,7 @@ const projectSchema = new Schema<IProject>(
       min: 0,
       max: 100,
     },
+    meetingUrl: { type: String }
   },
   {
     timestamps: true,

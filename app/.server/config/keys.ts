@@ -22,8 +22,7 @@ const ENV_VARS: EnvSpec[] = [
   { key: "QSTASH_TOKEN" },
   { key: "QSTASH_URL" },
   { key: "BREVO_API_KEY", required: false },
-  // Add optional vars like this:
-  { key: "OPTIONAL_VAR", required: false },
+  { key: "GOOGLE_SERVICE_ACCOUNT_KEY", required: false },
 ];
 
 function getEnvVar(): Record<string, string> {

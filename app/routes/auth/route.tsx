@@ -12,7 +12,7 @@ export default function AuthLayout() {
       <div className="fixed z-30 top-4 right-4">
         <ThemeToggle />
       </div>
-      <div className="absolute inset-0 z-0 h-full w-full bg-white dark:bg-accentBlack bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff14_1px,transparent_1px),linear-gradient(to_bottom,#ffffff14_1px,transparent_1px)] bg-size-[6rem_4rem]" />
+      <div className="absolute inset-0 z-0 opacity-30 h-full w-full bg-white dark:bg-accentBlack/5 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff14_1px,transparent_1px),linear-gradient(to_bottom,#ffffff14_1px,transparent_1px)] bg-size-[6rem_4rem]" />
       <div className="min-h-dvh">
         <PageWrapper className="py-20 px-4 space-y-8 flex flex-col justify-center items-center">
           <Logo classname="relative z-20" />

@@ -2,6 +2,7 @@ import { RiCloseLine, RiSearchLine, RiTeamLine } from "@remixicon/react";
 import { useState } from "react";
 import { Form, Link } from "react-router";
 import { useDebouncedCallback } from "use-debounce";
+import { getOptimizedImageUrl } from "~/lib/cloudinary";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { Input } from "~/components/ui/input";
@@ -139,11 +140,11 @@ export default function ListCohort({
                     <Link
                       key={member._id}
                       className="my-4 flex justify-between items-center p-4 hover:bg-accent hover:rounded-md"
-                      to={`/dashboard/members/cohorts/${member._id}/member`}
+                      to={`/members/cohorts/${member._id}/profile`}
                     >
                       <div className="flex items-center gap-2">
                         <Avatar>
-                          <AvatarImage src={member.image} />
+                          <AvatarImage src={getOptimizedImageUrl(member.image, 40)} />
                           <AvatarFallback className="bg-primary/10 text-primary">
                             {member.name.charAt(0)}
                           </AvatarFallback>

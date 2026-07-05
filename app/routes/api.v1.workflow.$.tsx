@@ -19,6 +19,7 @@ import {
   sendTicketConfirmationWorkflow,
   sendTicketResolvedWorkflow,
 } from "~/.server/workflows/notification.workflow";
+import { runDashboardRefreshWorkflow } from "~/.server/workflows/dashboard.workflow";
 import { runStatusUpdatesWorkflow } from "~/.server/workflows/status.workflow";
 
 const verifyAccount = createWorkflow(sendVerifyAccountWorkflow);
@@ -37,6 +38,7 @@ const ticketAssigned = createWorkflow(sendTicketAssignedWorkflow);
 const ticketResolved = createWorkflow(sendTicketResolvedWorkflow);
 const securityNotification = createWorkflow(sendSecurityNotificationWorkflow);
 const runStatusUpdates = createWorkflow(runStatusUpdatesWorkflow);
+const runDashboardRefresh = createWorkflow(runDashboardRefreshWorkflow);
 
 export const handler = serveMany(
   {
@@ -56,6 +58,7 @@ export const handler = serveMany(
     "ticket-resolved": ticketResolved,
     "security-notification": securityNotification,
     "run-status-updates": runStatusUpdates,
+    "run-dashboard-refresh": runDashboardRefresh,
   },
   {
     qstashClient: workflowClient as any,

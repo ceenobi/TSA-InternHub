@@ -93,12 +93,12 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
         </div>
       </PageSection>
       <PageSection index={1} className="mt-8 space-y-8 xl:px-8">
-        {["/projects", "/projects/all", "/projects/stats"].includes(
+        {["/projects", "/projects/all", "/projects/records"].includes(
           location.pathname,
         ) && (
           <div className="flex gap-6 md:gap-8 mb-8 border-b w-full">
-            {["Projects", "All", "Stats"].filter((s) => {
-              if (["All", "Stats"].includes(s)) {
+            {["Projects", "All", "Records"].filter((s) => {
+              if (["All","Records"].includes(s)) {
                 return hasPermission(user.role, "MANAGE_COHORTS");
               }
               return true;

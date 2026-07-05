@@ -1,6 +1,8 @@
 import { tryCatchWrapper } from "~/lib/tryCatchWrapper";
 import { env } from "../config/keys";
 import logger from "../config/logger";
+import { dispatchIntegrationEvent } from "../integrations/registry";
+import Project from "../model/project";
 import Stage from "../model/stage";
 import StageProgress from "../model/stageProgress";
 import Submission from "../model/submission";
@@ -97,6 +99,15 @@ export async function gradeTask(
         { status: 401 },
       );
     }
+
+    const Cohort = (await import("../model/cohort")).default;
+    const activeCohort = await Cohort.findOne({
+      status: "active",
+      program: (session.user as any).program,
+    })
+      .select("_id")
+      .lean();
+    const cohortId = activeCohort?._id.toString();
 
     const { submissionId, score, feedback, status } = payload as {
       submissionId: string;
@@ -215,6 +226,41 @@ export async function gradeTask(
         { user: submission.user, stage: task.stage },
         { $set: updateData },
       );
+
+      // Recalculate project progress
+      if (stage && cohortId) {
+        const projectStages = await Stage.find({ project: stage.project })
+          .select("_id")
+          .lean();
+        const projectStageIds = projectStages.map((s) => s._id);
+        const projectCohort = await Cohort.findById(cohortId)
+          .select("members")
+          .lean();
+        if (projectCohort?.members?.length && projectStages.length > 0) {
+          const progressCounts = await StageProgress.aggregate([
+            {
+              $match: {
+                stage: { $in: projectStageIds },
+                status: "completed",
+              },
+            },
+            { $group: { _id: "$user", count: { $sum: 1 } } },
+          ]);
+          const totalCompletedStages = progressCounts.reduce(
+            (sum, p) => sum + p.count,
+            0,
+          );
+          const projectProgress = Math.round(
+            (totalCompletedStages /
+              (projectStages.length * projectCohort.members.length)) *
+              100,
+          );
+          await Project.updateOne(
+            { _id: stage.project },
+            { $set: { progress: projectProgress } },
+          );
+        }
+      }
     }
 
     const userProgram = (session.user as any).program as string | undefined;
@@ -271,6 +317,19 @@ export async function gradeTask(
             err,
           ),
         );
+
+      if (cohortId) {
+        dispatchIntegrationEvent("submission_graded", {
+          cohortId,
+          userName: (submission as any).user?.name || "A user",
+          taskTitle,
+          score: parsedScore,
+          maxScore: submission.maxScore,
+          repoUrl: submission.repoUrl,
+          feedback: feedback?.trim(),
+          fileUrls: submission.fileUrls,
+        });
+      }
     }
 
     return Response.json({

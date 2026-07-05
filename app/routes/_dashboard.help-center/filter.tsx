@@ -1,5 +1,7 @@
+import { RiEraserFill } from "@remixicon/react";
 import { useState } from "react";
 import { useSearchParams } from "react-router";
+import { Button } from "~/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -7,9 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
-import { RiEraserFill } from "@remixicon/react";
 
 export default function Filter() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -64,13 +64,15 @@ export default function Filter() {
       >
         <Select
           value={filters.status}
-          onValueChange={(value) => handleFilterChange("status", value as string)}
+          onValueChange={(value) =>
+            handleFilterChange("status", value as string)
+          }
           defaultValue={status}
         >
           <SelectTrigger className="gap-2 w-fit rounded-sm border-none focus:outline-blue-500 focus:ring-blue-500">
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="rounded-sm">
             {["open", "in-progress", "resolved", "closed"]?.map((item) => (
               <SelectItem key={item} value={item} className="capitalize">
                 {item}
@@ -81,30 +83,34 @@ export default function Filter() {
         <Separator orientation="vertical" />
         <Select
           value={filters.category}
-          onValueChange={(value) => handleFilterChange("category", value as string)}
+          onValueChange={(value) =>
+            handleFilterChange("category", value as string)
+          }
           defaultValue={category}
         >
           <SelectTrigger className="gap-2 w-fit rounded-sm border-none focus:outline-blue-500 focus:ring-blue-500">
-            <SelectValue placeholder="Select category"/>
+            <SelectValue placeholder="Select category" />
           </SelectTrigger>
-          <SelectContent>
-            {["technical", "event", "payment", "other"].map((item) => (
+          <SelectContent className="rounded-sm">
+            {["account", "security", "task", "other"].map((item) => (
               <SelectItem key={item} value={item} className="capitalize">
                 {item}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <Separator orientation="vertical" className="hidden md:block"/>
+        <Separator orientation="vertical" className="hidden md:block" />
         <Select
           value={filters.priority}
-          onValueChange={(value) => handleFilterChange("priority", value as string)}
+          onValueChange={(value) =>
+            handleFilterChange("priority", value as string)
+          }
           defaultValue={priority}
         >
           <SelectTrigger className="gap-2 w-fit rounded-sm border-none focus:outline-blue-500 focus:ring-blue-500">
-            <SelectValue placeholder="Select priority"/>
+            <SelectValue placeholder="Select priority" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="rounded-sm">
             {["low", "medium", "high", "critical"].map((item) => (
               <SelectItem key={item} value={item} className="capitalize">
                 {item}
@@ -128,7 +134,7 @@ export default function Filter() {
           type="submit"
           form="filter"
           variant="link"
-          className="cursor-pointer underline text-velvet hover:text-velvet"
+          className="cursor-pointer underline"
           disabled={!filters.status && !filters.category && !filters.priority}
         >
           Apply

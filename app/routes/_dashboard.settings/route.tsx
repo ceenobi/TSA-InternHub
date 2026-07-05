@@ -2,13 +2,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
+  NavLink,
   Outlet,
   useFetcher,
   useLocation,
-  useNavigate,
   useOutletContext,
 } from "react-router";
 import {
+  updateAvatarRequest,
   updatePasswordRequest,
   updateProfileRequest,
 } from "~/.server/action/auth";
@@ -35,6 +36,7 @@ import type {
   UserData,
 } from "~/types";
 import type { Route } from "../_dashboard.settings/+types/route";
+import UploadAvatar from "./upload-avatar";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -54,10 +56,12 @@ export async function action({ request }: Route.ActionArgs) {
   if (payload.intent === "update-password") {
     return await updatePasswordRequest(request, payload);
   }
+  if (payload.intent === "upload-avatar") {
+    return await updateAvatarRequest(request, payload);
+  }
 }
 
 export default function Settings() {
-  const [step, setStep] = useState<number>(1);
   const [activeForm, setActiveForm] = useState<
     "profile-form" | "password-form"
   >("profile-form");
@@ -65,7 +69,6 @@ export default function Settings() {
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const { user } = useOutletContext() as { user: UserData };
   const fetcher = useFetcher();
-  const navigate = useNavigate();
   const location = useLocation();
 
   const profileForm = useForm<UpdateProfileSchemaType>({
@@ -142,7 +145,7 @@ export default function Settings() {
               Manage your account settings, cohorts, staff and preferences.
             </p>
           </div>
-          {step === 1 && currentPath && (
+          {currentPath && (
             <ActionButton
               text="Save changes"
               type="submit"
@@ -162,147 +165,147 @@ export default function Settings() {
           />
         )}
         <div className="flex gap-4 md:gap-8 mb-8 border-b w-full">
-          {["Profile", "Security", "Cohorts", "Staff"]
+          {["settings", "integrations", "security", "cohorts", "staff"]
             .filter((s) => {
-              if (["Cohorts", "Staff"].includes(s)) {
+              if (["integrations"].includes(s)) {
+                return hasPermission(user.role, "MANAGE_INTEGRATIONS");
+              }
+              if (["cohorts", "staff"].includes(s)) {
                 return hasPermission(user.role, "MANAGE_COHORTS");
               }
               return true;
             })
-            .map((s, i) => (
-              <button
+            .map((s) => (
+              <NavLink
                 key={s}
-                onClick={
-                  ["Security", "Cohorts", "Staff"].includes(s)
-                    ? () => {
-                        navigate(`/settings/${s.toLowerCase()}`);
-                        setStep(i + 1);
-                      }
-                    : () => {
-                        navigate(`/settings`);
-                        setStep(i + 1);
-                      }
+                to={s === "settings" ? "/settings" : `/settings/${s}`}
+                prefetch="intent"
+                end
+                className={({ isActive }) =>
+                  cn(
+                    "capitalize py-2 font-bold text-sm border-b-2 transition-colors duration-300 ease-in-out truncate",
+                    isActive
+                      ? "border-mainBlue dark:border-darkBlue text-mainBlue dark:text-darkBlue"
+                      : "border-transparent text-muted-foreground hover:border-mainBlue/40 dark:hover:border-darkBlue/40",
+                  )
                 }
-                className={cn(
-                  "py-2 font-bold text-sm border-b-2 transition-colors duration-300 ease-in-out truncate",
-                  location.pathname === `/settings/${s.toLowerCase()}` ||
-                    (location.pathname === "/settings" &&
-                      ((s === "Profile" && step === 1) ||
-                        (s === "Security" && step === 2)))
-                    ? "border-mainBlue dark:border-darkBlue text-mainBlue dark:text-darkBlue"
-                    : "border-transparent text-muted-foreground hover:border-mainBlue/40 dark:hover:border-darkBlue/40",
-                )}
               >
-                {s}
-              </button>
+                {s === "settings" ? "Profile" : s}
+              </NavLink>
             ))}
         </div>
         {currentPath ? (
           <>
-            {step === 1 && (
-              <>
-                <PageSection index={1} className="space-y-6">
-                  <Card
-                    onClick={() => setActiveForm("profile-form")}
-                    className="border rounded-sm dark:bg-muted/30"
-                  >
-                    <CardHeader>
-                      <CardTitle>Profile Details</CardTitle>
-                      <CardDescription>
-                        <fetcher.Form
-                          id="profile-form"
-                          onSubmit={profileForm.handleSubmit(onFormSubmit)}
-                        >
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                            {filterProfileFields.map((field) => (
-                              <FormBox
-                                key={field.name}
-                                label={field.label}
-                                type={field.type}
-                                placeholder={field.placeholder}
-                                id={field.name}
-                                register={profileForm.register}
-                                control={profileForm.control}
-                                errors={profileForm.formState.errors}
-                                name={
-                                  field.name as keyof UpdateProfileSchemaType
-                                }
-                                classname={cn(
-                                  field.type === "checkbox" && "mt-8",
-                                )}
-                                options={field.options}
-                              />
-                            ))}
-                            <div>
-                              <h1 className="text-xs font-medium dark:text-white/80">
-                                Email
-                              </h1>
-                              <p>{user.email}</p>
-                            </div>
-                            <div>
-                              <h1 className="text-xs font-medium dark:text-white/80">
-                                Role
-                              </h1>
-                              <p>{user.role}</p>
-                            </div>
-                            <div>
-                              <h1 className="text-xs font-medium dark:text-white/80">
-                                Cohort
-                              </h1>
-                              <p>{user.cohort || "N/A"}</p>
-                            </div>
+            <>
+              <PageSection index={1} className="space-y-6">
+                <div className="space-y-2">
+                  <h2 className="text-xl font-bold tracking-tight text-foreground">
+                    Manage
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Update your profile details, and as well change your
+                    password if needed.
+                  </p>
+                </div>
+                <UploadAvatar />
+                <Card
+                  onClick={() => setActiveForm("profile-form")}
+                  className="border rounded-sm dark:bg-muted/30"
+                >
+                  <CardHeader>
+                    <CardTitle>Profile Details</CardTitle>
+                    <CardDescription>
+                      <fetcher.Form
+                        id="profile-form"
+                        onSubmit={profileForm.handleSubmit(onFormSubmit)}
+                      >
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                          {filterProfileFields.map((field) => (
+                            <FormBox
+                              key={field.name}
+                              label={field.label}
+                              type={field.type}
+                              placeholder={field.placeholder}
+                              id={field.name}
+                              register={profileForm.register}
+                              control={profileForm.control}
+                              errors={profileForm.formState.errors}
+                              name={field.name as keyof UpdateProfileSchemaType}
+                              classname={cn(
+                                field.type === "checkbox" && "mt-8",
+                              )}
+                              options={field.options}
+                            />
+                          ))}
+                          <div>
+                            <h1 className="text-xs font-medium dark:text-white/80">
+                              Email
+                            </h1>
+                            <p>{user.email}</p>
                           </div>
-                        </fetcher.Form>
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>
-                  <Card
-                    className="border rounded-sm dark:bg-muted/30"
-                    onClick={() => setActiveForm("password-form")}
-                  >
-                    <CardHeader>
-                      <CardTitle>Update Password</CardTitle>
-                      <CardDescription>
-                        <fetcher.Form
-                          id="password-form"
-                          onSubmit={passwordForm.handleSubmit(onFormSubmit)}
-                        >
-                          <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                            {filterPasswordFields.map((field) => (
-                              <FormBox
-                                key={field.name}
-                                label={field.label}
-                                type={field.type}
-                                placeholder={field.placeholder}
-                                id={field.name}
-                                register={passwordForm.register}
-                                control={passwordForm.control}
-                                errors={passwordForm.formState.errors}
-                                name={
-                                  field.name as keyof ChangePasswordSchemaType
-                                }
-                                isVisible={isVisible}
-                                setIsVisible={setIsVisible}
-                                showLabel={false}
-                              />
-                            ))}
+                          <div>
+                            <h1 className="text-xs font-medium dark:text-white/80">
+                              Role
+                            </h1>
+                            <p>{user.role}</p>
                           </div>
-                        </fetcher.Form>
-                        <p className="text-[11px] font-medium text-muted-foreground">
-                          Updating your password will log you out of all your
-                          sessions.
-                        </p>
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>
-                </PageSection>
-              </>
-            )}
+                          <div>
+                            <h1 className="text-xs font-medium dark:text-white/80">
+                              Cohort
+                            </h1>
+                            <p>{user.cohort || "N/A"}</p>
+                          </div>
+                        </div>
+                      </fetcher.Form>
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+                <Card
+                  className="border rounded-sm dark:bg-muted/30"
+                  onClick={() => setActiveForm("password-form")}
+                >
+                  <CardHeader>
+                    <CardTitle>Update Password</CardTitle>
+                    <CardDescription>
+                      <fetcher.Form
+                        id="password-form"
+                        onSubmit={passwordForm.handleSubmit(onFormSubmit)}
+                      >
+                        <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                          {filterPasswordFields.map((field) => (
+                            <FormBox
+                              key={field.name}
+                              label={field.label}
+                              type={field.type}
+                              placeholder={field.placeholder}
+                              id={field.name}
+                              register={passwordForm.register}
+                              control={passwordForm.control}
+                              errors={passwordForm.formState.errors}
+                              name={
+                                field.name as keyof ChangePasswordSchemaType
+                              }
+                              isVisible={isVisible}
+                              setIsVisible={setIsVisible}
+                              showLabel={false}
+                            />
+                          ))}
+                        </div>
+                      </fetcher.Form>
+                      <p className="text-[11px] font-medium text-muted-foreground">
+                        Updating your password will log you out of all your
+                        sessions.
+                      </p>
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              </PageSection>
+            </>
           </>
         ) : (
           <Outlet context={{ user }} />
         )}
-        {step === 1 && currentPath && (
+        {currentPath && (
           <div className="flex justify-end">
             <ActionButton
               text="Save changes"
@@ -310,7 +313,7 @@ export default function Settings() {
               form={activeForm}
               disabled={!isDirty || fetcher.state !== "idle"}
               loading={fetcher.state !== "idle"}
-              classname="md:hidden rounded-sm border dark:border-darkBlue bg-mainBlue dark:bg-darkBlue/20 text-white min-w-37.5"
+              classname="md:hidden rounded-sm border dark:border-darkBlue bg-mainBlue dark:bg-darkBlue/20 text-white w-full"
             />
           </div>
         )}

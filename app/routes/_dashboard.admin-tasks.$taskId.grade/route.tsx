@@ -6,6 +6,7 @@ import {
 } from "@remixicon/react";
 import { dehydrate } from "@tanstack/react-query";
 import { Suspense, useState } from "react";
+import { getOptimizedImageUrl } from "~/lib/cloudinary";
 import { Await, useFetcher } from "react-router";
 import { gradeTask } from "~/.server/action/grade";
 import ActionButton from "~/components/ui/action-button";
@@ -94,6 +95,7 @@ function GradeTaskInner({
   );
 
   const isSubmitting = fetcher.state !== "idle";
+  let status: "graded" | "returned" | undefined;
 
   const handleGrade = (submissionId: string, status: "graded" | "returned") => {
     const score = scoreValues[submissionId];
@@ -204,7 +206,7 @@ function GradeTaskInner({
                       className="size-12 ring-2 ring-border group-hover:ring-mainBlue/30 dark:group-hover:ring-darkBlue/40 transition-all"
                     >
                       <AvatarImage
-                        src={submission.user.image}
+                        src={getOptimizedImageUrl(submission.user.image, 48)}
                         alt={submission.user.name}
                       />
                       <AvatarFallback className="bg-mainBlue/10 dark:bg-darkBlue/20 text-mainBlue dark:text-darkBlue font-semibold text-sm">
@@ -353,7 +355,7 @@ function GradeTaskInner({
                             Return
                           </>
                         }
-                        loading={isSubmitting}
+                        loading={isSubmitting || status === "returned"}
                         onClick={() => handleGrade(submission._id, "returned")}
                         variant="outline"
                       />
@@ -364,7 +366,7 @@ function GradeTaskInner({
                             Grade
                           </>
                         }
-                        loading={isSubmitting}
+                        loading={isSubmitting || status === "graded"}
                         onClick={() => handleGrade(submission._id, "graded")}
                         variant="default"
                       />

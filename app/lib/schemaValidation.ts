@@ -441,3 +441,74 @@ export const createTicketSchema = z.object({
     .optional()
     .default("low"),
 });
+
+export const hubTaskSchema = z.object({
+  title: z
+    .string({ message: "Task title is required" })
+    .min(3, { message: "Title must be at least 3 characters" })
+    .max(100, { message: "Title cannot exceed 100 characters" }),
+  description: z
+    .string()
+    .max(500, { message: "Description cannot exceed 500 characters" })
+    .optional(),
+  priority: z.enum(["low", "medium", "high"]).default("low"),
+  dueDate: z.string().optional(),
+  assignedTo: z.array(z.string()).optional().default([]),
+});
+
+export const assignTeamLeaderSchema = z.object({
+  userId: z.string({ message: "User ID is required" }),
+  cohortId: z.string({ message: "Cohort ID is required" }),
+});
+
+export const updateHubTaskStatusSchema = z.object({
+  taskId: z.string({ message: "Task ID is required" }),
+  status: z.enum(["todo", "in-progress", "in-review", "done"]),
+});
+
+export const updateMeetingUrlSchema = z.object({
+  meetingUrl: z
+    .string()
+    .url({ message: "Must be a valid URL" })
+    .or(z.literal(""))
+    .optional(),
+});
+
+export const createAnnouncementSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters").max(150),
+  content: z.string().min(1, "Content is required").max(5000),
+  target: z.enum(["all", "cohort", "program"]),
+  targetCohort: z.string().optional(),
+  targetProgram: z
+    .enum(["full-stack", "product-design", "data-analysis", "cyber-security"])
+    .optional(),
+  priority: z.enum(["low", "normal", "high", "urgent"]).default("normal"),
+  pinned: z.boolean().default(false),
+  expiresAt: z.string().optional(),
+});
+
+export const UploadSignatureSchema = z.object({
+  folder: z.string().min(2, {
+    message: "Folder name is required and should be at least 2 characters long",
+  }),
+});
+
+export const uploadSchema = z.object({
+  files: z.array(z.string()).min(1, {
+    message: "At least one file is required",
+  }),
+  folder: z.string().min(1, {
+    message: "Folder is required",
+  }),
+});
+
+export const deleteMediaSchema = z.object({
+  publicIds: z.array(z.string()).min(1, {
+    message: "At least one public ID is required",
+  }),
+});
+
+export const updateUserAvatarSchema = z.object({
+  image: z.string().optional(),
+  imagePublicId: z.string().optional(),
+});

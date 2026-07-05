@@ -6,6 +6,7 @@ export interface ISubmission extends Document {
   user: mongoose.Types.ObjectId;
   content?: string;
   fileUrls: { name: string; url: string }[];
+  repoUrl?: string;
   status: "submitted" | "graded" | "returned";
   score?: number;
   maxScore: number;
@@ -41,6 +42,9 @@ const submissionSchema = new Schema<ISubmission>(
         _id: false,
       },
     ],
+    repoUrl: {
+      type: String,
+    },
     status: {
       type: String,
       enum: ["submitted", "graded", "returned"],

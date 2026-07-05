@@ -1,3 +1,4 @@
+import { getAMember } from "~/.server/action/auth";
 import { fetchCohorts, getActiveCohortWithMembers, getProgramCoordinators } from "~/.server/action/cohort";
 import type { CohortDataType, UsePaginateProps, UserData } from "~/types";
 
@@ -56,6 +57,21 @@ export const getProgramCoordinatorsQuery = (request: Request) => {
       }
       const data = await response.json();
       return data.body as UserData[];
+    },
+  };
+};
+
+export const getAMemberQuery = (request: Request, memberId: string) => {
+  return {
+    queryKey: ["member-profile", memberId],
+    queryFn: async () => {
+      const response = await getAMember(request, memberId);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to fetch member");
+      }
+      const data = await response.json();
+      return data.body as UserData;
     },
   };
 };

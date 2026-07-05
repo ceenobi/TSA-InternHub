@@ -1,4 +1,5 @@
 import { RiMailLine, RiPhoneLine, RiUserLine } from "@remixicon/react";
+import { getOptimizedImageUrl } from "~/lib/cloudinary";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -20,6 +21,7 @@ type MembersListProps = {
 
 export default function MembersList({ cohort }: MembersListProps) {
   const isMobile = useIsMobile({ MOBILE_BREAKPOINT: 567 });
+
   return (
     <>
       {!cohort ? (
@@ -55,7 +57,7 @@ export default function MembersList({ cohort }: MembersListProps) {
                             size="lg"
                             className="size-12 ring-2 ring-border group-hover:ring-mainBlue/30 dark:group-hover:ring-darkBlue/40 transition-all"
                           >
-                            <AvatarImage src={member.image} />
+                            <AvatarImage src={getOptimizedImageUrl(member.image, 48)} />
                             <AvatarFallback className="bg-mainBlue/10 dark:bg-darkBlue/20 text-mainBlue dark:text-darkBlue font-semibold text-sm">
                               {member.name.charAt(0)}
                             </AvatarFallback>

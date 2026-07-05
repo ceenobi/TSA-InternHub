@@ -14,6 +14,8 @@ import {
   RiTicketFill,
   RiTimeLine,
   RiTodoFill,
+  RiBuilding3Fill,
+  RiMegaphoneFill
 } from "@remixicon/react";
 import type { CohortDataType, ProjectData, UserData } from "~/types";
 
@@ -175,6 +177,11 @@ export const sidebarLinks = [
     icon: RiTodoFill,
   },
   {
+    name: "Hub",
+    href: "/hub",
+    icon: RiBuilding3Fill,
+  },
+  {
     title: "General",
     children: [
       {
@@ -200,7 +207,7 @@ export const sidebarLinks = [
       {
         name: "announcements",
         href: "/announcements",
-        icon: RiBookFill,
+        icon: RiMegaphoneFill,
       },
       {
         name: "Audit Logs",
@@ -251,6 +258,12 @@ export const permissions = {
   CREATE_TICKET: [roles.user],
   MANAGE_TICKETS: [roles.super_admin, roles.admin],
   ASSIGN_TICKET: [roles.super_admin],
+  MANAGE_INTEGRATIONS: [roles.admin, roles.super_admin],
+  HUB_CREATE_TASK: [roles.user, roles.admin, roles.super_admin],
+  HUB_ASSIGN_TASK: [roles.admin, roles.super_admin],
+  HUB_MANAGE_TASKS: [roles.admin, roles.super_admin],
+  ASSIGN_TEAM_LEADER: [roles.admin, roles.super_admin],
+  VIEW_HUB: [roles.user, roles.admin, roles.super_admin],
 } as const;
 
 export type Permission = keyof typeof permissions;
@@ -520,3 +533,13 @@ export const getTicketStatusIcon = (status: string) => {
       return RiQuestionLine;
   }
 };
+
+
+
+export const programLabel: Record<string, string> = {
+  "full-stack": "Full Stack",
+  "product-design": "Product Design",
+  "data-analysis": "Data Analysis",
+  "cyber-security": "Cyber Security",
+};
+

@@ -70,7 +70,7 @@ export function AuditLogList({
               <SelectTrigger className="rounded-sm border-none bg-transparent h-fit p-0 focus:ring-0 shadow-none text-xs font-bold uppercase tracking-widest min-w-32">
                 <SelectValue placeholder="Filter Category" />
               </SelectTrigger>
-              <SelectContent className="rounded-md">
+              <SelectContent className="rounded-sm">
                 {categories.map((cat) => (
                   <SelectItem
                     key={cat.value}

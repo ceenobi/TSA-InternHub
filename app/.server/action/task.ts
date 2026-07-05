@@ -186,6 +186,7 @@ export async function submitTask(
     taskId: string;
     content?: string;
     fileUrls?: { name: string; url: string }[];
+    repoUrl?: string;
   },
 ) {
   return tryCatchWrapper(async () => {
@@ -199,7 +200,7 @@ export async function submitTask(
       );
     }
     const { id: userId, program } = session.user;
-    const { taskId, content, fileUrls } = payload;
+    const { taskId, content, fileUrls, repoUrl } = payload;
 
     const task = await Task.findById(taskId).lean();
     if (!task) {
@@ -232,6 +233,7 @@ export async function submitTask(
       user: userId,
       content: content || "",
       fileUrls: cleanUrls,
+      repoUrl: repoUrl || undefined,
       maxScore: task.maxScore,
       attemptNumber: submissionCount + 1,
       status: "submitted",
@@ -685,7 +687,10 @@ function emptyStats() {
   };
 }
 
-export async function getTaskStatsForAdmins(request: Request) {
+export async function getTaskStatsForAdmins(
+  request: Request,
+  programOverride?: string,
+) {
   return tryCatchWrapper(async () => {
     await checkRateLimit(request, "general");
     const session = await auth.api.getSession({ headers: request.headers });
@@ -696,7 +701,8 @@ export async function getTaskStatsForAdmins(request: Request) {
       );
     }
 
-    const { program, id: adminId } = session.user;
+    const { program: sessionProgram, id: adminId } = session.user;
+    const program = programOverride ?? sessionProgram;
     const cacheKey = `task-stats-admin:pg${program}`;
 
     const body = await fetchWithCache(cacheKey, 600, async () => {

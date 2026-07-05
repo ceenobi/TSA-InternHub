@@ -4,8 +4,6 @@ import { tryCatchWrapper } from "~/lib/tryCatchWrapper";
 import type { CohortSchemaType } from "~/types";
 import logger from "../config/logger";
 import Cohort from "../model/cohort";
-import InviteCode from "../model/inviteCode";
-import User from "../model/user";
 import { AuditLogService } from "../services/auditlog.service";
 import { auth } from "../services/better-auth";
 import { fetchWithCache, invalidateCache } from "../utils/cache";
@@ -229,7 +227,10 @@ export async function updateCohortStatus(
   });
 }
 
-export async function getActiveCohortWithMembers(request: Request) {
+export async function getActiveCohortWithMembers(
+  request: Request,
+  programOverride?: string,
+) {
   return tryCatchWrapper(async () => {
     await checkRateLimit(request, "general");
     const session = await auth.api.getSession({
@@ -242,13 +243,14 @@ export async function getActiveCohortWithMembers(request: Request) {
         { status: 401 },
       );
     }
-    const { program, cohort } = session.user;
+    const { program: sessionProgram, cohort } = session.user;
+    const program = programOverride ?? sessionProgram;
     const cacheKey = `cohort-active:pg${program}:co${cohort ?? ""}`;
     const activeCohort = await fetchWithCache(cacheKey, 3600, async () => {
       return await Cohort.findOne({ status: "active", cohort, program })
         .populate({
           path: "members",
-          select: "name email phone role",
+          select: "name email phone role gender",
         })
         .sort({ createdAt: -1 });
     });
@@ -274,9 +276,11 @@ export async function getCohortsStats(request: Request) {
       );
     }
     const { program } = session.user;
+    const User = (await import("../model/user")).default;
     const cohortStats = await fetchWithCache("cohortStats", 3600, async () => {
       // 1. Active Cohort Stats
       const activeCohort = await Cohort.findOne({ status: "active", program });
+      const InviteCode = (await import("../model/inviteCode")).default;
       let activeCohortStats = null;
       if (activeCohort) {
         const totalInvites = await InviteCode.countDocuments({
@@ -367,7 +371,6 @@ export async function getCohortsStats(request: Request) {
       // 4. Trends (Last 30 days)
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
       const trendData = await User.aggregate([
         { $match: { createdAt: { $gte: thirtyDaysAgo } } },
         {
@@ -403,6 +406,7 @@ export async function getProgramCoordinators(request: Request) {
       );
     }
     const roles = ["admin", "super_admin"];
+    const User = (await import("../model/user")).default;
     const coordinators = await fetchWithCache(
       "coordinators",
       3600,

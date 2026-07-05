@@ -28,12 +28,12 @@ export default function Notification() {
             className="relative h-8 w-8 cursor-pointer"
           >
             {unreadCount > 0 ? (
-              <RiNotificationFill className="h-[1.2rem] w-[1.2rem]" />
+              <RiNotificationFill className="text-mainBlue dark:text-darkBlue h-[1.2rem] w-[1.2rem]" />
             ) : (
               <RiNotificationOffFill className="h-[1.2rem] w-[1.2rem] text-muted-foreground" />
             )}
             {unreadCount > 0 && (
-              <Badge className="bg-mainPurple text-CottonCandy absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 text-[10px] rounded-full">
+              <Badge className="bg-darkBlue dark:bg-mainGold absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 text-[10px] rounded-full">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </Badge>
             )}

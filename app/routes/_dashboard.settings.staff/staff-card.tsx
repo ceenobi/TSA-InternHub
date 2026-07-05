@@ -8,6 +8,7 @@ import {
   RiVerifiedBadgeFill,
 } from "@remixicon/react";
 import { useEffect, useState } from "react";
+import { getOptimizedImageUrl } from "~/lib/cloudinary";
 import { useFetcher } from "react-router";
 import AlertBox from "~/components/provider/alert-box";
 import { CanPermit } from "~/components/provider/rbac-permit";
@@ -113,7 +114,7 @@ export default function StaffCard({
               size="lg"
               className="size-12 ring-2 ring-border group-hover:ring-mainBlue/30 dark:group-hover:ring-darkBlue/40 transition-all"
             >
-              <AvatarImage src={coordinators.image} alt={coordinators.name} />
+              <AvatarImage src={getOptimizedImageUrl(coordinators.image, 48)} alt={coordinators.name} />
               <AvatarFallback className="bg-mainBlue/10 dark:bg-darkBlue/20 text-mainBlue dark:text-darkBlue font-semibold text-sm">
                 {getInitials(coordinators.name)}
               </AvatarFallback>

@@ -8,6 +8,8 @@ export interface IUser extends Document {
   password: string;
   emailVerified: boolean;
   phone: string;
+  image: string;
+  imagePublicId: string;
   role: "user" | "admin";
   gender?: "male" | "female" | "other";
   program?:
@@ -59,6 +61,14 @@ const UserSchema = new Schema<IUser>(
     isSuspended: {
       type: Boolean,
       default: false,
+    },
+    image: {
+      type: String,
+      trim: true,
+    },
+    imagePublicId: {
+      type: String,
+      trim: true,
     },
     role: {
       type: String,

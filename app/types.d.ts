@@ -13,6 +13,10 @@ import type {
   stageSchema,
   taskSchema,
   updateProfileSchema,
+  UploadSignatureSchema,
+  uploadSchema,
+  deleteMediaSchema,
+  updateUserAvatarSchema 
 } from "./lib/schemaValidation";
 
 export type SignUpSchemaType = z.infer<typeof signUpSchema>;
@@ -28,6 +32,11 @@ export type AdminInviteSchemaType = z.infer<typeof adminInviteSchema>;
 export type TaskSchemaType = z.infer<typeof taskSchema>;
 export type StageSchemaType = z.infer<typeof stageSchema>;
 export type CreateTicketSchemaType = z.infer<typeof createTicketSchema>;
+export type UploadSignatureSchemaType = z.infer<typeof UploadSignatureSchema>;
+export type UploadSchemaType = z.infer<typeof uploadSchema>;
+export type DeleteMediaSchemaType = z.infer<typeof deleteMediaSchema>;
+export type UpdateUserAvatarSchemaType = z.infer<typeof updateUserAvatarSchema>;
+
 
 export type UserData = {
   _id: string;
@@ -38,9 +47,14 @@ export type UserData = {
   customRoleId?: string;
   emailVerified: boolean;
   image?: string;
+  imagePublicId?: string;
   phone?: string;
   gender?: string;
   cohort?: string;
+  program?: string;
+  isSuspended?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type UsePaginateProps = {
@@ -84,6 +98,7 @@ export type ProjectData = {
   startDate?: string;
   endDate?: string;
   progress: number;
+  meetingUrl?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -182,12 +197,23 @@ export type GradeTaskData = {
   }[];
 };
 
+export type IntegrationData = {
+  _id: string;
+  cohortId: string;
+  provider: string;
+  label: string;
+  config: Record<string, any>;
+  enabledEvents: string[];
+  enabled: boolean;
+};
+
 export type SubmissionData = {
   _id: string;
   task: string;
   user: UserData;
   content?: string;
   fileUrls: { name: string; url: string }[];
+  repoUrl?: string;
   status: "submitted" | "graded" | "returned";
   score?: number;
   maxScore: number;
@@ -213,4 +239,178 @@ export type TicketData = {
   assignedTo: UserData;
   createdAt: Date;
   updatedAt: Date;
+};
+
+export type ScoreBoardStage = {
+  _id: string;
+  title: string;
+  order: number;
+  project: { _id: string; title: string };
+};
+
+export type ScoreBoardUserStage = {
+  stage: ScoreBoardStage;
+  totalScore: number;
+  maxPossibleScore: number;
+  percentage: number;
+  status: string;
+};
+
+export type ScoreBoardUser = {
+  user: Pick<UserData, "_id" | "name" | "email" | "image">;
+  average: number;
+  stages: ScoreBoardUserStage[];
+};
+
+export type ScoreBoardEntry = {
+  cohort: {
+    _id: string;
+    name: string;
+    program: string;
+    status: string;
+  };
+  users: ScoreBoardUser[];
+};
+
+export type AnnouncementData = {
+  _id: string;
+  title: string;
+  content: string;
+  createdBy: { _id: string; name: string; email: string; image?: string };
+  target: "all" | "cohort" | "program";
+  targetCohort?: { _id: string; cohort: string };
+  targetProgram?: string;
+  priority: "low" | "normal" | "high" | "urgent";
+  pinned: boolean;
+  expiresAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AnnouncementsQueryResult = {
+  announcements: AnnouncementData[];
+  meta: { totalPages: number; hasMore: boolean; currentPage: number };
+};
+
+export type HubTeamData = {
+  _id: string;
+  cohort: string;
+  stage5: string;
+  teamLeader?: Pick<UserData, "_id" | "name" | "email" | "image">;
+  members: Pick<UserData, "_id" | "name" | "email" | "image">[];
+  meetingUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type HubTaskData = {
+  _id: string;
+  hubTeam: string;
+  title: string;
+  description?: string;
+  assignedTo: Pick<UserData, "_id" | "name" | "email" | "image">[];
+  createdBy: Pick<UserData, "_id" | "name" | "email" | "image">;
+  status: "todo" | "in-progress" | "in-review" | "done";
+  priority: "low" | "medium" | "high";
+  dueDate?: string;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type HubLoaderData = {
+  isQualified: boolean;
+  isTeamLeader: boolean;
+  isAdmin: boolean;
+  hubTeam: HubTeamData | null;
+  tasks: HubTaskData[];
+  members: Pick<UserData, "_id" | "name" | "email" | "image">[];
+  stage5Task: TaskData | null;
+  stage5Deadline: string | null;
+};
+
+export type UserDashboardData = {
+  role: "user";
+  summary: {
+    tasksCompleted: number;
+    averageScore: number;
+    onTimeRate: number;
+    stageProgress: number;
+    tasksSubmitted: number;
+    tasksReturned: number;
+    totalTasks: number;
+  };
+  scoreTrend: {
+    date: string;
+    score: number;
+    maxScore: number;
+    percentage: number;
+    taskTitle: string;
+  }[];
+  stageBreakdown: {
+    stageId: string;
+    stageTitle: string;
+    order: number;
+    score: number;
+    maxScore: number;
+    percentage: number;
+    status: string;
+    passed: boolean;
+    passPercentage: number;
+  }[];
+  calendar: {
+    project: ProjectData | null;
+    stages: StageData[];
+    tasks: TaskData[];
+    events: CalendarEvent[];
+  } | null;
+  scoreboard: ScoreBoardEntry[];
+  cohortName: string;
+  announcements: AnnouncementData[];
+};
+
+export type AdminDashboardData = {
+  role: "admin";
+  isSuperAdmin: boolean;
+  programs: string[];
+  selectedProgram: string | null;
+  summary: {
+    totalUsers: number;
+    activeUsers: number;
+    suspendedUsers: number;
+    totalSubmissions: number;
+    pendingCount: number;
+    averageScore: number;
+    onTimeRate: number;
+    totalTasks: number;
+  };
+  scoreDistribution: { label: string; count: number }[];
+  submissionActivity: { date: string; count: number }[];
+  stageCompletion: {
+    stageId: string;
+    stageTitle: string;
+    order: number;
+    totalUsers: number;
+    completedCount: number;
+    activeCount: number;
+    failedCount: number;
+    passPercentage: number;
+    hasTasks: boolean;
+  }[];
+  topUsers: {
+    userId: string;
+    userName: string;
+    averageScore: number;
+    submissionsGraded: number;
+  }[];
+  cohort: unknown;
+  scoreboard: ScoreBoardEntry[];
+  tickets: {
+    open: number;
+    inProgress: number;
+    resolved: number;
+    recent: unknown[];
+  };
+  auditLogs: AuditLogData[];
+  announcements: AnnouncementData[];
 };

@@ -1,6 +1,7 @@
 import { WorkflowContext } from "@upstash/workflow";
 import { env } from "../config/keys.js";
 import logger from "../config/logger.js";
+import { dispatchIntegrationEvent } from "../integrations/registry";
 import Cohort from "../model/cohort";
 import Project from "../model/project";
 import Stage from "../model/stage";
@@ -15,6 +16,7 @@ type StatusUpdateResult = {
   projectsCompleted: number;
   stagesAutoFailed: number;
   submissionsMarkedLate: number;
+  projectsProgressUpdated: number;
 };
 
 export const runStatusUpdatesWorkflow = async (
@@ -30,6 +32,7 @@ export const runStatusUpdatesWorkflow = async (
         projectsCompleted: 0,
         stagesAutoFailed: 0,
         submissionsMarkedLate: 0,
+        projectsProgressUpdated: 0,
       };
 
       // ── 1. Project transitions ──
@@ -83,6 +86,14 @@ export const runStatusUpdatesWorkflow = async (
                 );
             }
           }
+          dispatchIntegrationEvent("project_started", {
+            cohortId: cohort!._id.toString(),
+            projectTitle: project.title,
+            startDate: project.startDate?.toISOString(),
+            endDate: project.endDate?.toISOString(),
+            description: project.description,
+            projectId: project._id.toString(),
+          });
         }
       }
 
@@ -125,6 +136,11 @@ export const runStatusUpdatesWorkflow = async (
                 );
             }
           }
+          dispatchIntegrationEvent("project_completed", {
+            cohortId: cohort!._id.toString(),
+            projectTitle: project.title,
+            endDate: project.endDate?.toISOString(),
+          });
         }
       }
 
@@ -185,6 +201,14 @@ export const runStatusUpdatesWorkflow = async (
               );
           }
         }
+        dispatchIntegrationEvent("project_started", {
+          cohortId: cohort!._id.toString(),
+          projectTitle: project.title,
+          startDate: project.startDate?.toISOString(),
+          endDate: project.endDate?.toISOString(),
+          description: project.description,
+          projectId: project._id.toString(),
+        });
       }
 
       // ── 2. Auto-fail StageProgress entries past stage endDate ──
@@ -347,6 +371,45 @@ export const runStatusUpdatesWorkflow = async (
         }
       }
 
+      // ── 4. Recalculate progress for active projects ──
+      const activeProjects = await Project.find({
+        status: "active",
+      })
+        .select("_id cohort")
+        .lean();
+
+      for (const project of activeProjects) {
+        const stages = await Stage.find({ project: project._id })
+          .select("_id")
+          .lean();
+        if (stages.length === 0) continue;
+
+        const stageIds = stages.map((s) => s._id);
+        const cohort = await Cohort.findById(project.cohort)
+          .select("members")
+          .lean();
+        if (!cohort?.members?.length) continue;
+
+        const progressCounts = await StageProgress.aggregate([
+          { $match: { stage: { $in: stageIds }, status: "completed" } },
+          { $group: { _id: "$user", count: { $sum: 1 } } },
+        ]);
+
+        const totalCompletedStages = progressCounts.reduce(
+          (sum, p) => sum + p.count,
+          0,
+        );
+        const progress = Math.round(
+          (totalCompletedStages / (stages.length * cohort.members.length)) * 100,
+        );
+
+        await Project.updateOne(
+          { _id: project._id },
+          { $set: { progress } },
+        );
+        updates.projectsProgressUpdated++;
+      }
+
       return updates;
     },
   );
@@ -354,6 +417,7 @@ export const runStatusUpdatesWorkflow = async (
   logger.info(
     `Status update complete: ${result.projectsActivated} activated, ` +
       `${result.projectsCompleted} completed, ${result.stagesAutoFailed} auto-failed, ` +
-      `${result.submissionsMarkedLate} marked late`,
+      `${result.submissionsMarkedLate} marked late, ` +
+      `${result.projectsProgressUpdated} progress updated`,
   );
 };

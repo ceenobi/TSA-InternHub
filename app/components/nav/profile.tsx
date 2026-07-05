@@ -1,11 +1,13 @@
 import {
   RiContrast2Line,
-  RiLogoutBoxRFill,
+  RiLogoutBoxRLine,
   RiSunLine,
   RiTv2Line,
+  RiUserLine,
 } from "@remixicon/react";
-import { Form } from "react-router";
+import { Form, Link } from "react-router";
 import { useIsMobile } from "~/hooks/useMobile";
+import { getOptimizedImageUrl } from "~/lib/cloudinary";
 import type { UserData } from "~/types";
 import { useTheme } from "../provider/theme";
 import { Button } from "../ui/button";
@@ -43,27 +45,31 @@ export default function Profile({ user }: { user: UserData }) {
   return (
     <>
       {isMobile ? (
-        <Button
-          variant="ghost"
-          className="relative h-8 w-8 p-0 hover:bg-accent rounded-full"
-          aria-label="Profile menu"
-        >
-          {user?.image ? (
-            <img
-              className="h-8 w-8 object-cover border-2 border-mainBlue transition-colors rounded-full"
-              src={user?.image}
-              alt={`${user?.name}'s avatar`}
-            />
-          ) : (
-            <span className="w-8 h-8 border-2 border-mainBlue transition-colors flex items-center justify-center rounded-full">
-              {user?.name
-                ?.split(" ")
-                .map((name) => name[0])
-                .join("")
-                .toUpperCase()}
-            </span>
-          )}
-        </Button>
+        <Link to="/profile">
+          <Button
+            variant="ghost"
+            className="relative h-8 w-8 p-0 hover:bg-accent rounded-full"
+            aria-label="Profile menu"
+          >
+            {user?.image ? (
+              <img
+                className="h-8 w-8 object-cover border-2 border-mainBlue transition-colors rounded-full"
+                src={getOptimizedImageUrl(user?.image, 40)}
+                alt={`${user?.name}'s avatar`}
+                rel="noopener noreferrer"
+                loading="lazy"
+              />
+            ) : (
+              <span className="w-8 h-8 border-2 border-mainBlue transition-colors flex items-center justify-center rounded-full">
+                {user?.name
+                  ?.split(" ")
+                  .map((name) => name[0])
+                  .join("")
+                  .toUpperCase()}
+              </span>
+            )}
+          </Button>
+        </Link>
       ) : (
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -76,8 +82,9 @@ export default function Profile({ user }: { user: UserData }) {
                 {user?.image ? (
                   <img
                     className="h-8 w-8 object-cover transition-colors rounded-full"
-                    src={user?.image}
+                    src={getOptimizedImageUrl(user?.image, 40)}
                     alt={`${user?.name}'s avatar`}
+                    loading="lazy"
                   />
                 ) : (
                   <span className="w-8 h-8 transition-colors border border-mainBlue dark:border-darkBlue flex items-center justify-center rounded-full bg-white dark:bg-black">
@@ -106,7 +113,7 @@ export default function Profile({ user }: { user: UserData }) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem className="flex justify-between items-center py-0">
+              <DropdownMenuItem className="rounded-sm flex justify-between items-center py-0">
                 <p className="text-sm">Theme</p>
                 <div className="flex gap-2">
                   {themeIcons.map((themeIcon) => (
@@ -124,10 +131,19 @@ export default function Profile({ user }: { user: UserData }) {
                 </div>
               </DropdownMenuItem>
             </DropdownMenuGroup>
-
+            <DropdownMenuGroup>
+              <DropdownMenuItem className="rounded-sm">
+                <Link to="/profile" className="flex gap-2 items-center">
+                  <RiUserLine className="w-4 h-4" />
+                  <span className="text-smcursor-pointer w-auto font-semibold">
+                    Profile
+                  </span>
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem className="rounded-sm">
                 <Form
                   action="/logout"
                   method="post"
@@ -136,8 +152,8 @@ export default function Profile({ user }: { user: UserData }) {
                     e.currentTarget.requestSubmit();
                   }}
                 >
-                  <RiLogoutBoxRFill className="w-4 h-4" />
-                  <span className="cursor-pointer w-auto font-semibold">
+                  <RiLogoutBoxRLine className="w-4 h-4" />
+                  <span className="text-sm cursor-pointer w-auto font-semibold">
                     Logout
                   </span>
                 </Form>

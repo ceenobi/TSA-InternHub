@@ -5,6 +5,7 @@ import { generateTicketId } from "~/lib/utils";
 import type { CreateTicketSchemaType } from "~/types";
 import { env } from "../config/keys";
 import logger from "../config/logger";
+import { dispatchIntegrationEvent } from "../integrations/registry";
 import Ticket from "../model/ticket";
 import User from "../model/user";
 import { AuditLogService } from "../services/auditlog.service";
@@ -80,6 +81,15 @@ export async function createTicket(
       message: `Your ticket "${result.data.title}" has been created.`,
       metadata: { ticketId: ticket.ticketId },
     });
+
+    const Cohort = (await import("../model/cohort")).default;
+    const userCohort = await Cohort.findOne({ program }).select("_id").lean();
+    if (userCohort) {
+      dispatchIntegrationEvent("ticket_created", {
+        cohortId: userCohort._id.toString(),
+        ticketTitle: result.data.title,
+      });
+    }
 
     return Response.json(
       { success: true, message: "Ticket created successfully" },
@@ -365,6 +375,20 @@ export async function ticketActions(
         message: `Ticket "${updatedTicket.title}" has been assigned to you.`,
         metadata: { ticketId: updatedTicket.ticketId },
       });
+
+      const Cohort = (await import("../model/cohort")).default;
+      const userCohort = await Cohort.findOne({
+        program: (updatedTicket.userId as any)?.program || program,
+      })
+        .select("_id")
+        .lean();
+      if (userCohort) {
+        dispatchIntegrationEvent("ticket_assigned", {
+          cohortId: userCohort._id.toString(),
+          ticketTitle: updatedTicket.title,
+          assigneeName: (updatedTicket.assignedTo as any)?.name,
+        });
+      }
     }
     if (updatedTicket.status === "resolved") {
       await workflowClient.trigger({
@@ -382,6 +406,15 @@ export async function ticketActions(
         message: `Your ticket "${updatedTicket.title}" has been resolved.`,
         metadata: { ticketId: updatedTicket.ticketId },
       });
+
+      const Cohort = (await import("../model/cohort")).default;
+      const userCohort = await Cohort.findOne({ program }).select("_id").lean();
+      if (userCohort) {
+        dispatchIntegrationEvent("ticket_resolved", {
+          cohortId: userCohort._id.toString(),
+          ticketTitle: updatedTicket.title,
+        });
+      }
     }
 
     return Response.json(
