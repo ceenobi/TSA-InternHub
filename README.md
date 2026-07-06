@@ -1,87 +1,93 @@
-# Welcome to React Router!
+# TSA InternHub
 
-A modern, production-ready template for building full-stack React applications using React Router.
+Internship management platform for TSA — task submissions, grading, project tracking, and member analytics.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## Tech Stack
+
+- **Framework** — React Router v7 (SSR, file-based routing)
+- **Database** — MongoDB with Mongoose
+- **Auth** — better-auth (email/password)
+- **Styling** — Tailwind CSS v4 + shadcn/ui (base-ui)
+- **Cache** — Upstash Redis
+- **Media** — Cloudinary (avatars, uploads)
+- **Queue** — Qstash (async workflows)
+- **AI** — OpenCode Zen API (chatbot)
 
 ## Features
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+- **Tasks & Stages** — Projects organized into sequential stages with individual/group tasks, submissions, grading, and feedback
+- **Scoreboard** — Live leaderboard of top performers with average scores and stage breakdowns
+- **Projects** — Full project lifecycle (upcoming → active → completed)
+- **Members** — Directory with profiles, role management, suspension controls
+- **Hub** — Capstone workspace with Kanban board, team leader assignments, and standup meeting links
+- **Calendar** — Color-coded project, stage, and task deadlines
+- **Announcements** — Priority-targeted posts with pinning and filters
+- **Admin Tools** — Cohort management, staff invites, audit logs, member analytics, integrations (Slack, GitHub, Google Calendar, Zoom, Notion)
+- **Knowledge Base** — Searchable support guide with 20+ articles
+- **AI Chatbot** — Streamed responses with knowledge base context and personalized score summaries
 
 ## Getting Started
 
-### Installation
+### Prerequisites
 
-Install the dependencies:
+- Node.js 20+
+- MongoDB instance
+- Upstash Redis account
+- Cloudinary account
+- OpenCode Zen API key (for chatbot)
+
+### Environment Variables
+
+Copy `.env.example` to `.env` and fill in:
+
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | MongoDB connection string |
+| `DATABASE_NAME` | MongoDB database name |
+| `BETTER_AUTH_SECRET` | Auth secret |
+| `BETTER_AUTH_URL` | App URL (e.g. `http://localhost:3700`) |
+| `CLIENT_URL` | Client URL |
+| `CLOUDINARY_*` | Cloudinary credentials |
+| `UPSTASH_*` | Upstash Redis credentials |
+| `QSTASH_*` | Qstash credentials |
+| `EMAIL_*` | SMTP/Brevo email settings |
+| `OPENCODE_ZEN_API_KEY` | OpenCode Zen API key |
+
+### Install & Run
 
 ```bash
 npm install
-```
-
-### Development
-
-Start the development server with HMR:
-
-```bash
 npm run dev
 ```
 
-Your application will be available at `http://localhost:5173`.
+Open `http://localhost:3700`.
 
-## Building for Production
-
-Create a production build:
+### Build
 
 ```bash
 npm run build
+npm start
 ```
 
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
+## Project Structure
 
 ```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
+app/
+├── .server/          # Server-only code (actions, models, services)
+│   ├── action/       # Route action handlers
+│   ├── config/       # Env vars, DB, Redis, logger
+│   ├── model/        # Mongoose models
+│   ├── services/     # Auth, email, notifications
+│   └── utils/        # Rate limiting, caching
+├── components/       # Shared UI components
+│   └── ui/           # shadcn/ui primitives
+├── hooks/            # Custom React hooks
+├── lib/              # Constants, schemas, utilities
+├── middleware/       # Route middleware (auth)
+├── queries/          # React Query definitions
+└── routes/           # File-based routes
 ```
 
-## Styling
+## License
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+Private — TSA InternHub
