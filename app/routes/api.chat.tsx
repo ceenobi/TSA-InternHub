@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { checkRateLimit } from "~/.server/utils/rate-limit";
-import { handleChat, handleChatStream } from "~/.server/action/chat.server";
+import { handleChat, handleChatStream, handleTicketChat } from "~/.server/action/chat.server";
 import type { Route } from "./+types/api.chat";
 
 const ChatMessageSchema = z.object({
@@ -32,6 +32,13 @@ export async function action({ request }: Route.ActionArgs) {
         },
         { status: 400 },
       );
+    }
+
+    const lastMessage = result.data.messages.filter((m) => m.role === "user").pop()?.content || "";
+    const isTicketIntent = /\b(?:ticket|issue|bug|problem|broken|not working|error|help|support)\b/i.test(lastMessage) && /(?:create|open|submit|file|report|make|raise|cannot|can't|unable)/i.test(lastMessage);
+
+    if (isTicketIntent) {
+      return handleTicketChat(request, result.data.messages);
     }
 
     if (result.data.stream) {

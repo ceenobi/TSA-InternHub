@@ -1,8 +1,8 @@
 import { reactRouter } from "@react-router/dev/vite";
 import { sentryReactRouter } from "@sentry/react-router";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig, type ConfigEnv, type PluginOption } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
+import { defineConfig, type ConfigEnv, type PluginOption } from "vite";
 
 export default defineConfig({
   plugins: [

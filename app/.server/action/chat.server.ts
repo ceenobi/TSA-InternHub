@@ -1,11 +1,17 @@
+import { createTicketSchema } from "~/lib/schemaValidation";
+import { generateTicketId } from "~/lib/utils";
 import { helpdeskKnowledgeBase } from "~/lib/knowledge-base";
+import type { CreateTicketSchemaType } from "~/types";
 import { env } from "~/.server/config/keys";
 import { auth } from "~/.server/services/better-auth";
+import { invalidateCache } from "~/.server/utils/cache";
 import logger from "~/.server/config/logger";
 
 export type ChatMessage = {
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "tool";
   content: string;
+  tool_calls?: { id: string; function: { name: string; arguments: string } }[];
+  tool_call_id?: string;
 };
 
 function getRelevantArticles(query: string, maxCount = 3) {
@@ -30,6 +36,10 @@ function needsScoreContext(query: string) {
     "performance", "average", "rank", "ranking", "leaderboard",
     "progress", "stats", "statistics", "how am i doing",
     "my score", "my grade", "my progress",
+    "improve", "improvement", "better", "weak", "weakness",
+    "resource", "study", "learn", "tip", "advice", "help",
+    "feedback", "trend", "pass", "fail", "failed", "returned",
+    "submission", "resubmit", "resubmission",
   ];
   const q = query.toLowerCase();
   return scoreKeywords.some((k) => q.includes(k));
@@ -65,7 +75,32 @@ Guidelines:
 
   if (scoreContext) {
     prompt += `## User's Current Performance\n\n${scoreContext}\n\n`;
+
+    prompt += `### How to Use Performance Data
+
+When performance data is available, you should:
+1. **Analyze their scores** — identify which stages they passed and which they struggled with
+2. **Point out areas needing improvement** — stages below the pass percentage need attention
+3. **Give actionable advice** — review grader feedback, resubmit returned tasks, read task instructions/resources
+4. **Suggest resources** — recommend relevant Knowledge Base articles like "Understanding Your Scores", "How Grading Works", "Stage Progression & Unlocking"
+5. **Encourage next steps** — submit pending tasks, unlock next stages, check the scoreboard for motivation
+6. **Track trends** — mention if their scores are improving or declining over time
+
+Keep recommendations specific to their actual data. Don't give generic advice — use their stage scores, submission status, and trends.
+
+`;
   }
+
+  prompt += `## Creating Support Tickets
+
+If the user reports an issue, bug, or requests help, you can create a support ticket on their behalf using the \`create_ticket\` tool. Collect all necessary information from the user before creating the ticket:
+- **title** (required): Short summary of the issue
+- **description** (required): Detailed explanation
+- **category** (required): One of: account, security, task, other
+- **priority** (optional): low, medium, high, critical (default: low)
+
+Do NOT ask if they want to create a ticket — if they describe an issue, just gather the needed details and create it. Inform the user once the ticket is created with the ticket ID.
+`;
 
   prompt += `If the user asks something you don't know about the platform, be honest and suggest they check the Knowledge Base or contact support.`;
 
@@ -79,20 +114,59 @@ async function fetchUserScoreContext(request: Request): Promise<string | null> {
     const data = await response.json();
     if (!data.success) return null;
 
-    const summary = data.body?.summary;
+    const body = data.body;
+    const summary = body?.summary;
     if (!summary) return null;
 
     const lines: string[] = [];
+
+    lines.push("### Summary");
     lines.push(`- Tasks completed: ${summary.tasksCompleted} / ${summary.totalTasks}`);
     lines.push(`- Average score: ${summary.averageScore}%`);
     lines.push(`- On-time rate: ${summary.onTimeRate}%`);
     lines.push(`- Stage progress: ${summary.stageProgress}%`);
 
-    const breakDown = data.body?.stageBreakdown;
+    const breakDown = body?.stageBreakdown;
     if (Array.isArray(breakDown) && breakDown.length > 0) {
-      const passed = breakDown.filter((s: any) => s.passed).length;
-      const failed = breakDown.filter((s: any) => !s.passed && s.status !== "locked").length;
-      lines.push(`- Stages passed: ${passed}, failed: ${failed}`);
+      lines.push("");
+      lines.push("### Stage Breakdown");
+      for (const stage of breakDown) {
+        const pct = stage.percentage ?? 0;
+        const needPct = stage.passPercentage ?? 70;
+        if (stage.passed) {
+          lines.push(`- Stage ${stage.order} "${stage.stageTitle}" — ${pct}% ✅ Passed`);
+        } else if (stage.status === "in_progress" || stage.status === "active") {
+          lines.push(`- Stage ${stage.order} "${stage.stageTitle}" — ${pct}% ⏳ In Progress (need ${needPct}%)`);
+        } else if (stage.status !== "locked") {
+          lines.push(`- Stage ${stage.order} "${stage.stageTitle}" — ${pct}% ❌ Failed (need ${needPct}%)`);
+        }
+      }
+
+      const passedCount = breakDown.filter((s: any) => s.passed).length;
+      const failedCount = breakDown.filter((s: any) => !s.passed && s.status !== "locked").length;
+      lines.push(`- Stages passed: ${passedCount}, failed: ${failedCount}`);
+    }
+
+    const subSummary = body?.submissionSummary;
+    if (Array.isArray(subSummary)) {
+      lines.push("");
+      lines.push("### Submissions");
+      for (const s of subSummary) {
+        if (s.value > 0) lines.push(`- ${s.name}: ${s.value}`);
+      }
+    }
+
+    const weakestStages = Array.isArray(breakDown)
+      ? breakDown.filter((s: any) => !s.passed && s.status !== "locked")
+      : [];
+    if (weakestStages.length > 0) {
+      lines.push("");
+      lines.push("### Areas for Improvement");
+      for (const stage of weakestStages) {
+        const needPct = stage.passPercentage ?? 70;
+        lines.push(`- Stage ${stage.order} "${stage.stageTitle}": ${stage.percentage ?? 0}% (need ${needPct}% to pass)`);
+        lines.push(`  Suggested: Review task instructions/resources for this stage, check grader feedback on submissions, and resubmit if attempts remain.`);
+      }
     }
 
     return lines.join("\n");
@@ -170,23 +244,158 @@ async function prepareChatContext(
   return { apiMessages };
 }
 
+const createTicketTool = {
+  type: "function" as const,
+  function: {
+    name: "create_ticket",
+    description: "Create a support ticket for the user when they report an issue or request help",
+    parameters: {
+      type: "object",
+      properties: {
+        title: { type: "string", description: "Short summary of the issue (min 3 characters)" },
+        description: { type: "string", description: "Detailed description of the issue (min 10 characters)" },
+        category: { type: "string", enum: ["account", "security", "task", "other"], description: "Category of the issue" },
+        priority: { type: "string", enum: ["low", "medium", "high", "critical"], description: "Priority level (default: low)" },
+      },
+      required: ["title", "description", "category"],
+    },
+  },
+};
+
 async function callZenApi(
   apiMessages: { role: string; content: string }[],
   stream: boolean,
+  tools?: typeof createTicketTool[],
 ) {
+  const body: Record<string, unknown> = {
+    model: "deepseek-v4-flash-free",
+    messages: apiMessages,
+    max_tokens: 2048,
+    stream,
+  };
+  if (tools) body.tools = tools;
+
   return fetch("https://opencode.ai/zen/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${env.openCodeZenApiKey}`,
     },
-    body: JSON.stringify({
-      model: "deepseek-v4-flash-free",
-      messages: apiMessages,
-      max_tokens: 2048,
-      stream,
-    }),
+    body: JSON.stringify(body),
   });
+}
+
+async function executeCreateTicket(
+  request: Request,
+  args: Record<string, unknown>,
+): Promise<{ success: boolean; message: string; ticketId?: string }> {
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session) return { success: false, message: "You must be logged in to create a ticket." };
+
+  const { cohort, program, id: userId } = session.user;
+  const parsed = createTicketSchema.safeParse({
+    title: args.title,
+    description: args.description,
+    category: args.category || "other",
+    priority: args.priority || "low",
+  });
+  if (!parsed.success) {
+    const issues = parsed.error.issues.map((i) => i.message).join(" ");
+    return { success: false, message: `Validation failed: ${issues}` };
+  }
+
+  try {
+    const Ticket = (await import("~/.server/model/ticket")).default;
+    const ticket = await Ticket.create({
+      ...parsed.data,
+      userId,
+      ticketId: generateTicketId(),
+    });
+    await invalidateCache(`tickets:pg${program}*`);
+
+    const { AuditLogService } = await import("~/.server/services/auditlog.service");
+    await AuditLogService.record(request, {
+      action: "SUPPORT_TICKET",
+      category: "support",
+      description: `[Chatbot] Created ticket "${parsed.data.title}" - (${program})`,
+      details: { ticketId: ticket.ticketId.toString(), cohort, program },
+    });
+
+    const { workflowClient } = await import("~/.server/workflows/client");
+    await workflowClient.trigger({
+      url: `${env.clientUrl}/api/v1/workflow/ticket-confirmation`,
+      body: {
+        userId,
+        ticketId: ticket.ticketId,
+        title: parsed.data.title,
+        description: parsed.data.description || "",
+        priority: parsed.data.priority,
+      },
+    });
+
+    const { NotificationService } = await import("~/.server/services/notification.service");
+    NotificationService.send({
+      userId,
+      type: "ticket_created",
+      title: "Ticket Created",
+      message: `Your ticket "${parsed.data.title}" has been created via the AI assistant.`,
+      metadata: { ticketId: ticket.ticketId },
+    });
+
+    return { success: true, message: "Ticket created successfully", ticketId: ticket.ticketId };
+  } catch (error) {
+    logger.error(error, "Failed to create ticket from chatbot");
+    return { success: false, message: "Failed to create ticket due to a server error. Please try again later." };
+  }
+}
+
+export async function handleTicketChat(request: Request, messages: ChatMessage[]) {
+  const ctx = await prepareChatContext(request, messages);
+  if ("error" in ctx) return ctx.error;
+
+  try {
+    const response = await callZenApi(ctx.apiMessages, false, [createTicketTool]);
+    if (!response.ok) {
+      const errorBody = await response.text();
+      logger.error({ status: response.status, body: errorBody }, "Zen API tool call error");
+      return Response.json({ success: false, message: "AI service error. Please try again." }, { status: 502 });
+    }
+
+    const data = await response.json();
+    const choice = data.choices?.[0]?.message;
+    const toolCalls = choice?.tool_calls;
+
+    if (toolCalls && toolCalls.length > 0) {
+      const toolCall = toolCalls[0];
+      if (toolCall.function.name === "create_ticket") {
+        const args = JSON.parse(toolCall.function.arguments);
+        const result = await executeCreateTicket(request, args);
+
+        const followUpMessages = [
+          ...ctx.apiMessages,
+          { role: "assistant" as const, content: null as unknown as string, tool_calls: toolCalls },
+          {
+            role: "tool" as const,
+            tool_call_id: toolCall.id,
+            content: JSON.stringify(result),
+          },
+        ];
+
+        const followUp = await callZenApi(followUpMessages, false);
+        if (followUp.ok) {
+          const followUpData = await followUp.json();
+          const reply = followUpData.choices?.[0]?.message?.content || "";
+          return Response.json({ success: true, reply, ticketCreated: result.success, ticketId: result.ticketId });
+        }
+      }
+    }
+
+    const reply = choice?.content || "";
+    return Response.json({ success: true, reply });
+  } catch (error) {
+    logger.error(error, "Ticket chat handler failed");
+    return Response.json({ success: false, message: "Failed to process your request. Please try again." }, { status: 500 });
+  }
 }
 
 export async function handleChat(request: Request, messages: ChatMessage[]) {

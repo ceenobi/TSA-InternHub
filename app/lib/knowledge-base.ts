@@ -917,4 +917,52 @@ An area chart showing new user registrations over the **last 30 days** to track 
       "trends",
     ],
   },
+  {
+    id: "creating-support-tickets",
+    title: "Creating Support Tickets",
+    category: "Getting Started",
+    icon: "support_ticket",
+    content: `If you encounter an issue, bug, or need help while using TSA InternHub, you can create a support ticket.
+
+## How to Create a Ticket
+
+1. Navigate to **Help Center** in the sidebar
+2. Click the **"Create Ticket"** button
+3. Fill in the following details:
+   - **Title** — A short summary of your issue (at least 3 characters)
+   - **Description** — A detailed explanation of what's happening (at least 10 characters, max 1000)
+   - **Category** — Choose the most relevant category: Account, Security, Task, or Other
+   - **Priority** — How urgent is the issue? Low, Medium, High, or Critical
+4. Click **Submit** to create your ticket
+
+## What Happens After You Submit
+
+- You'll receive an **in-app notification** confirming your ticket was created
+- A **confirmation email** will be sent to your registered email address
+- An **admin or support team member** will review and respond to your ticket
+- You can track the status of your ticket in the **Help Center**
+
+## Ticket Statuses
+
+- **Open** — Your ticket has been submitted and is awaiting review
+- **In Progress** — A support team member is working on your issue
+- **Resolved** — Your issue has been addressed
+- **Closed** — The ticket is no longer active
+
+## Using the AI Assistant
+
+You can also ask the AI assistant (bottom-right corner) to create a ticket for you. Just describe your issue and the assistant will help create it right from the chat.`,
+    keywords: [
+      "ticket",
+      "support",
+      "help",
+      "issue",
+      "bug",
+      "problem",
+      "contact support",
+      "create ticket",
+      "submit ticket",
+      "help center",
+    ],
+  },
 ];

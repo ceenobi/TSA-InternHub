@@ -3,7 +3,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/bricolage-grotesque/wght.css";
-@import "material-symbols/outlined.css";
+/* material-symbols is loaded via CDN with icon subsetting in root.tsx */
 
 @custom-variant dark (&:is(.dark *));
 
