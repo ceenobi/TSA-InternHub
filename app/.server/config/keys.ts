@@ -24,6 +24,10 @@ const ENV_VARS: EnvSpec[] = [
   { key: "BREVO_API_KEY", required: false },
   { key: "GOOGLE_SERVICE_ACCOUNT_KEY", required: false },
   { key: "OPENCODE_ZEN_API_KEY" },
+  { key: "SENTRY_DSN", required: false },
+  { key: "SENTRY_AUTH_TOKEN", required: false },
+  { key: "SENTRY_ORG", required: false },
+  { key: "SENTRY_PROJECT", required: false },
 ];
 
 function getEnvVar(): Record<string, string> {
@@ -96,6 +100,10 @@ interface Env {
   };
   readonly brevoApiKey: string;
   readonly openCodeZenApiKey: string;
+  readonly sentryDsn: string;
+  readonly sentryAuthToken: string;
+  readonly sentryOrg: string;
+  readonly sentryProject: string;
 }
 
 export const env: Env = {
@@ -123,4 +131,8 @@ export const env: Env = {
   },
   brevoApiKey: getEnvVar()["BREVO_API_KEY"],
   openCodeZenApiKey: getEnvVar()["OPENCODE_ZEN_API_KEY"],
+  sentryDsn: getEnvVar()["SENTRY_DSN"],
+  sentryAuthToken: getEnvVar()["SENTRY_AUTH_TOKEN"],
+  sentryOrg: getEnvVar()["SENTRY_ORG"],
+  sentryProject: getEnvVar()["SENTRY_PROJECT"],
 };

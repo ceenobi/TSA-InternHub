@@ -1,12 +1,26 @@
 import { reactRouter } from "@react-router/dev/vite";
+import { sentryReactRouter } from "@sentry/react-router";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "vite";
+import { defineConfig, type ConfigEnv, type PluginOption } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
 
 export default defineConfig({
   plugins: [
     tailwindcss(),
     reactRouter(),
+    ...(process.env.SENTRY_AUTH_TOKEN
+      ? [
+          ((configEnv: ConfigEnv) =>
+            sentryReactRouter(
+              {
+                sourceMapsUploadOptions: {
+                  enabled: true,
+                },
+              },
+              configEnv,
+            )) as unknown as PluginOption,
+        ]
+      : []),
     visualizer({
       filename: "build/stats.html",
       gzipSize: true,

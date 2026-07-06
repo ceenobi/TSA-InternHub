@@ -57,7 +57,7 @@ export async function authenticatedMiddleware(
   // Pass user and cookie to context so loaders don't have to re-fetch
   // better-auth returns id, but UserData uses _id (MongoDB convention)
   const { id, ...rest } = user;
-  context.user = { _id: id, ...rest } as UserData;
+  context.user = { _id: id, ...rest } as unknown as UserData;
   context.cookie = request.headers.get("Cookie") || "";
 
   return await next();
@@ -77,7 +77,7 @@ export async function sessionMiddleware(
   if (session) {
     // better-auth returns id, but UserData uses _id (MongoDB convention)
     const { id, ...rest } = session.user;
-    context.user = { _id: id, ...rest } as UserData;
+    context.user = { _id: id, ...rest } as unknown as UserData;
     context.cookie = request.headers.get("Cookie") || "";
   }
   return await next();

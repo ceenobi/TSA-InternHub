@@ -227,3 +227,26 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     </main>
   );
 }
+
+interface HandleErrorArgs {
+  request: Request;
+  params: Record<string, string | undefined>;
+  context: Record<string, unknown>;
+}
+
+export const handleError = async (error: unknown, args: HandleErrorArgs) => {
+  if (!args.request.signal.aborted) {
+    if (process.env.SENTRY_DSN) {
+      const Sentry = await import("@sentry/react-router");
+      Sentry.captureException(error, {
+        mechanism: { type: "react-router", handled: false },
+      });
+      try {
+        await Sentry.flush?.();
+      } catch {}
+    }
+    if (process.env.NODE_ENV === "development") {
+      console.error(error);
+    }
+  }
+};

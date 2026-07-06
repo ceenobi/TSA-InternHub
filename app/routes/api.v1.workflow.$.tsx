@@ -1,69 +1,54 @@
-import { createWorkflow, serveMany } from "@upstash/workflow/react-router";
-import { workflowClient } from "~/.server/workflows/client";
-import {
-  sendAdminInviteWorkflow,
-  sendDeleteAccountRequestWorkflow,
-  sendInvitationCodeWorkflow,
-  sendPasswordResetSuccessWorkflow,
-  sendPasswordResetWorkflow,
-  sendVerifyAccountWorkflow,
-} from "~/.server/workflows/email.workflow";
-import {
-  sendProjectCompletedWorkflow,
-  sendProjectStartedWorkflow,
-  sendSecurityNotificationWorkflow,
-  sendStageAutoFailedWorkflow,
-  sendSubmissionGradedWorkflow,
-  sendTaskOverdueWorkflow,
-  sendTicketAssignedWorkflow,
-  sendTicketConfirmationWorkflow,
-  sendTicketResolvedWorkflow,
-} from "~/.server/workflows/notification.workflow";
-import { runDashboardRefreshWorkflow } from "~/.server/workflows/dashboard.workflow";
-import { runStatusUpdatesWorkflow } from "~/.server/workflows/status.workflow";
+import { serveMany } from "@upstash/workflow/react-router";
 
-const verifyAccount = createWorkflow(sendVerifyAccountWorkflow);
-const passwordReset = createWorkflow(sendPasswordResetWorkflow);
-const passwordResetSuccess = createWorkflow(sendPasswordResetSuccessWorkflow);
-const userInvitation = createWorkflow(sendInvitationCodeWorkflow);
-const deleteAccountRequest = createWorkflow(sendDeleteAccountRequestWorkflow);
-const adminInvite = createWorkflow(sendAdminInviteWorkflow);
-const projectStarted = createWorkflow(sendProjectStartedWorkflow);
-const projectCompleted = createWorkflow(sendProjectCompletedWorkflow);
-const stageAutoFailed = createWorkflow(sendStageAutoFailedWorkflow);
-const taskOverdue = createWorkflow(sendTaskOverdueWorkflow);
-const submissionGraded = createWorkflow(sendSubmissionGradedWorkflow);
-const ticketConfirmation = createWorkflow(sendTicketConfirmationWorkflow);
-const ticketAssigned = createWorkflow(sendTicketAssignedWorkflow);
-const ticketResolved = createWorkflow(sendTicketResolvedWorkflow);
-const securityNotification = createWorkflow(sendSecurityNotificationWorkflow);
-const runStatusUpdates = createWorkflow(runStatusUpdatesWorkflow);
-const runDashboardRefresh = createWorkflow(runDashboardRefreshWorkflow);
+export const action = async (args: any) => {
+  const { createWorkflow } = await import("@upstash/workflow/react-router");
+  const { workflowClient } = await import("~/.server/workflows/client");
+  const {
+    sendAdminInviteWorkflow,
+    sendDeleteAccountRequestWorkflow,
+    sendInvitationCodeWorkflow,
+    sendPasswordResetSuccessWorkflow,
+    sendPasswordResetWorkflow,
+    sendVerifyAccountWorkflow,
+  } = await import("~/.server/workflows/email.workflow");
+  const {
+    sendProjectCompletedWorkflow,
+    sendProjectStartedWorkflow,
+    sendSecurityNotificationWorkflow,
+    sendStageAutoFailedWorkflow,
+    sendSubmissionGradedWorkflow,
+    sendTaskOverdueWorkflow,
+    sendTicketAssignedWorkflow,
+    sendTicketConfirmationWorkflow,
+    sendTicketResolvedWorkflow,
+  } = await import("~/.server/workflows/notification.workflow");
+  const { runDashboardRefreshWorkflow } = await import("~/.server/workflows/dashboard.workflow");
+  const { runStatusUpdatesWorkflow } = await import("~/.server/workflows/status.workflow");
 
-export const handler = serveMany(
-  {
-    "verify-account": verifyAccount,
-    "password-reset": passwordReset,
-    "password-reset-success": passwordResetSuccess,
-    "invitation-code": userInvitation,
-    "delete-account-request": deleteAccountRequest,
-    "admin-invite": adminInvite,
-    "project-started": projectStarted,
-    "project-completed": projectCompleted,
-    "stage-auto-failed": stageAutoFailed,
-    "task-overdue": taskOverdue,
-    "submission-graded": submissionGraded,
-    "ticket-confirmation": ticketConfirmation,
-    "ticket-assigned": ticketAssigned,
-    "ticket-resolved": ticketResolved,
-    "security-notification": securityNotification,
-    "run-status-updates": runStatusUpdates,
-    "run-dashboard-refresh": runDashboardRefresh,
-  },
-  {
-    qstashClient: workflowClient as any,
-  },
-);
+  const handler = serveMany(
+    {
+      "verify-account": createWorkflow(sendVerifyAccountWorkflow),
+      "password-reset": createWorkflow(sendPasswordResetWorkflow),
+      "password-reset-success": createWorkflow(sendPasswordResetSuccessWorkflow),
+      "invitation-code": createWorkflow(sendInvitationCodeWorkflow),
+      "delete-account-request": createWorkflow(sendDeleteAccountRequestWorkflow),
+      "admin-invite": createWorkflow(sendAdminInviteWorkflow),
+      "project-started": createWorkflow(sendProjectStartedWorkflow),
+      "project-completed": createWorkflow(sendProjectCompletedWorkflow),
+      "stage-auto-failed": createWorkflow(sendStageAutoFailedWorkflow),
+      "task-overdue": createWorkflow(sendTaskOverdueWorkflow),
+      "submission-graded": createWorkflow(sendSubmissionGradedWorkflow),
+      "ticket-confirmation": createWorkflow(sendTicketConfirmationWorkflow),
+      "ticket-assigned": createWorkflow(sendTicketAssignedWorkflow),
+      "ticket-resolved": createWorkflow(sendTicketResolvedWorkflow),
+      "security-notification": createWorkflow(sendSecurityNotificationWorkflow),
+      "run-status-updates": createWorkflow(runStatusUpdatesWorkflow),
+      "run-dashboard-refresh": createWorkflow(runDashboardRefreshWorkflow),
+    },
+    { qstashClient: workflowClient as any },
+  );
 
-export const action = handler;
-export const loader = handler;
+  return handler(args);
+};
+
+export const loader = action;
