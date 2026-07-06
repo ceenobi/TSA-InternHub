@@ -23,6 +23,7 @@ const ENV_VARS: EnvSpec[] = [
   { key: "QSTASH_URL" },
   { key: "BREVO_API_KEY", required: false },
   { key: "GOOGLE_SERVICE_ACCOUNT_KEY", required: false },
+  { key: "OPENCODE_ZEN_API_KEY" },
 ];
 
 function getEnvVar(): Record<string, string> {
@@ -94,6 +95,7 @@ interface Env {
     qstashToken: string;
   };
   readonly brevoApiKey: string;
+  readonly openCodeZenApiKey: string;
 }
 
 export const env: Env = {
@@ -120,4 +122,5 @@ export const env: Env = {
     qstashUrl: getEnvVar()["QSTASH_URL"],
   },
   brevoApiKey: getEnvVar()["BREVO_API_KEY"],
+  openCodeZenApiKey: getEnvVar()["OPENCODE_ZEN_API_KEY"],
 };

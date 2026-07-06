@@ -1,6 +1,7 @@
 import { Outlet } from "react-router";
 import Header from "~/components/nav/header";
 import Sidebar from "~/components/nav/sidebar";
+import Chatbot from "~/components/chatbot";
 import useSidebar from "~/hooks/useSidebar";
 import {
   authenticatedMiddleware,
@@ -35,6 +36,7 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
         </main>
         {/*<Footer />*/}
       </div>
+      <Chatbot />
     </>
   );
 }
