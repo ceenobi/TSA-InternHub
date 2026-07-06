@@ -106,7 +106,7 @@ const makeAnnouncement = (overrides = {}) => ({
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(checkRateLimit).mockResolvedValue(null as any);
-  vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
+  vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
   mockFindByIdResult = null;
   mockFindResult = [];
   mockCountResult = 0;
@@ -143,9 +143,9 @@ describe("createAnnouncement", () => {
 
   it("returns 403 when user is not admin", async () => {
     vi.mocked(auth.api.getSession).mockResolvedValue({
-      user: { id: "user-1", name: "User", email: "u@example.com", role: "user" },
-      session: { token: "mock-token" },
-    });
+      user: { id: "user-1", name: "User", email: "u@example.com", role: "user" } as any,
+      session: { token: "mock-token" } as any,
+    } as any);
 
     const response = await createAnnouncement(mockRequest, {
       title: "Test", content: "Content here", target: "all",

@@ -107,7 +107,7 @@ const mockRequest = new Request("http://localhost:3700", {
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(checkRateLimit).mockResolvedValue(null as any);
-  vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
+  vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
   mockFindByIdResult = null;
   mockFindResult = [];
   mockCountResult = 0;
@@ -150,6 +150,7 @@ describe("createTicket", () => {
       title: "Cannot log in",
       description: "I am unable to log in. Please help me resolve this issue.",
       category: "account",
+      priority: "high",
     });
 
     expect(response.status).toBe(401);

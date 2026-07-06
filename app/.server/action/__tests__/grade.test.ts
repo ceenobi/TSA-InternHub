@@ -57,7 +57,7 @@ const mockRequest = new Request("http://localhost:3700", { headers: { "Content-T
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(checkRateLimit).mockResolvedValue(null as any);
-  vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
+  vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
 });
 
 describe("fetchGradeTaskData", () => {

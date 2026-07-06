@@ -30,6 +30,10 @@ const mockUser = {
   name: "John Doe",
   email: "john@example.com",
   role: "user" as const,
+  emailVerified: true,
+  isOnboarded: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };
 
 beforeEach(() => {

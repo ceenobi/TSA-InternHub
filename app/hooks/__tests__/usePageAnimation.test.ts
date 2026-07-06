@@ -1,12 +1,15 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { useWaveAnimation } from "../usePageAnimation";
 import { renderHook } from "@testing-library/react";
 
-vi.stubGlobal("IntersectionObserver", vi.fn(function MockIntersectionObserver() {
-  this.observe = vi.fn();
-  this.disconnect = vi.fn();
-  this.unobserve = vi.fn();
-}));
+vi.stubGlobal(
+  "IntersectionObserver",
+  vi.fn(function MockIntersectionObserver(this: any) {
+    this.observe = vi.fn();
+    this.disconnect = vi.fn();
+    this.unobserve = vi.fn();
+  }),
+);
 
 describe("useWaveAnimation", () => {
   it("returns default visibility as false", () => {

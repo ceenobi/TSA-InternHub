@@ -20,7 +20,7 @@ describe("cohortStatusColor", () => {
   });
 
   it("returns muted styles for unknown status", () => {
-    const result = cohortStatusColor("pending");
+    const result = cohortStatusColor("pending" as "active");
     expect(result).toContain("muted");
   });
 });
@@ -47,7 +47,7 @@ describe("getProjectStatusColor", () => {
   });
 
   it("returns muted styles for unknown status", () => {
-    const result = getProjectStatusColor("unknown");
+    const result = getProjectStatusColor("unknown" as "upcoming");
     expect(result).toContain("muted");
   });
 });

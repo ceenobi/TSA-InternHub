@@ -6,6 +6,8 @@ const superAdminUser = {
   role: "super_admin" as const,
   name: "Super Admin",
   email: "super@example.com",
+  isOnboarded: true,
+  emailVerified: true,
 };
 
 const adminUser = {
@@ -13,6 +15,8 @@ const adminUser = {
   role: "admin" as const,
   name: "Admin User",
   email: "admin@example.com",
+  isOnboarded: true,
+  emailVerified: true,
 };
 
 const regularUser = {
@@ -20,6 +24,8 @@ const regularUser = {
   role: "user" as const,
   name: "Regular User",
   email: "user@example.com",
+  isOnboarded: true,
+  emailVerified: true,
 };
 
 describe("canModifyRole", () => {
