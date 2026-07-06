@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main, testing]
+  pull_request:
+    branches: [main]
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "yarn"
+      - run: yarn install --immutable
+      - run: yarn typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "yarn"
+      - run: yarn install --immutable
+      - run: yarn test --reporter=junit --outputFile=test-results/junit.xml
+      - uses: dorny/test-reporter@v2
+        if: success() || failure()
+        with:
+          name: Vitest Results
+          path: test-results/junit.xml
+          reporter: java-junit
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "yarn"
+      - run: yarn install --immutable
+      - run: npx eslint app/ --max-warnings 0
+        continue-on-error: true
