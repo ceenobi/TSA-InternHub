@@ -23,14 +23,14 @@ export default function Sidebar({
   return (
     <aside
       className={cn(
-        `hidden lg:flex flex-col bg-darkWhite dark:bg-mainDark border-r dark:border-white/10 top-0 fixed z-50 transition-all duration-300 ease-in-out min-h-svh`,
+        `hidden lg:flex flex-col bg-darkWhite dark:bg-mainDark top-0 fixed z-50 transition-all duration-300 ease-in-out min-h-svh`,
         isOpenSidebar ? "lg:w-58" : "lg:w-12",
         "dark:bg-linear-to-r/decreasing from-mainBlue/30 to-mainDark",
       )}
     >
       <div
         className={cn(
-          "flex items-center z-10 w-full border-b dark:border-white/5",
+          "flex items-center z-10 w-full",
           isOpenSidebar ? "px-4 py-3.75" : "justify-center py-4",
         )}
       >
@@ -76,7 +76,7 @@ export default function Sidebar({
             </div>
           ))}
       </div>
-      <div className="border-t dark:border-white/5 hidden lg:flex items-center justify-start w-full">
+      <div className="hidden lg:flex items-center justify-start w-full">
         <button
           onClick={toggleSidebar}
           className={cn(

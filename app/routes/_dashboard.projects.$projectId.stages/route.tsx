@@ -18,7 +18,7 @@ import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { requirePermission } from "~/middleware/auth.middleware";
 import { getProjectStagesQuery } from "~/queries/projects.server";
 import type { UserData } from "~/types";
-import type { Route } from "../_dashboard.projects.$projectId.stages/+types/route";
+import type { Route } from "./+types/route";
 import CreateStage from "./create-stage";
 import StageList from "./stage-list";
 

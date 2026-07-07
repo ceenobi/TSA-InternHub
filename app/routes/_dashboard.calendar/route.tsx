@@ -2,7 +2,7 @@ import { dehydrate } from "@tanstack/react-query";
 import { PageSection, PageWrapper } from "~/components/provider/page-wrapper";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { getCalendarQuery } from "~/queries/calendar.server";
-import type { Route } from "../_dashboard.calendar/+types/route";
+import type { Route } from "./+types/route";
 import { CalendarView } from "./calendar-view";
 
 export function meta({}: Route.MetaArgs) {

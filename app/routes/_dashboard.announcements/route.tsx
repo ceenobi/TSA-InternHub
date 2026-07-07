@@ -8,7 +8,6 @@ import {
   RiUserLine,
 } from "@remixicon/react";
 import { Suspense, useState } from "react";
-import { getOptimizedImageUrl } from "~/lib/cloudinary";
 import { Await, useOutletContext, useSearchParams } from "react-router";
 import {
   createAnnouncement,
@@ -31,6 +30,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { AnnouncementSkeleton } from "~/components/ui/skeleton-ui";
+import { getOptimizedImageUrl } from "~/lib/cloudinary";
 import { hasPermission } from "~/lib/rbac";
 import { cn } from "~/lib/utils";
 import { getAnnouncementsQuery } from "~/queries/announcements.server";
@@ -39,7 +39,7 @@ import type {
   AnnouncementsQueryResult,
   UserData,
 } from "~/types";
-import type { Route } from "../_dashboard.announcements/+types/route";
+import type { Route } from "./+types/route";
 import CreateAnnouncement from "./create-announcement";
 
 export function meta({}: Route.MetaArgs) {
@@ -423,7 +423,9 @@ function AnnouncementCard({
         <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground border-t pt-3">
           <div className="flex items-center gap-1.5">
             <Avatar size="sm" className="size-5">
-              <AvatarImage src={getOptimizedImageUrl(announcement.createdBy.image, 40)} />
+              <AvatarImage
+                src={getOptimizedImageUrl(announcement.createdBy.image, 40)}
+              />
               <AvatarFallback className="text-[8px]">
                 {announcement.createdBy.name?.charAt(0)}
               </AvatarFallback>

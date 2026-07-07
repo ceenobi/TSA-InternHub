@@ -2,7 +2,6 @@ import { RiCloseLine, RiSearchLine, RiTeamLine } from "@remixicon/react";
 import { useState } from "react";
 import { Form, Link } from "react-router";
 import { useDebouncedCallback } from "use-debounce";
-import { getOptimizedImageUrl } from "~/lib/cloudinary";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { Input } from "~/components/ui/input";
@@ -11,6 +10,7 @@ import NotFound from "~/components/ui/not-found";
 import Paginate from "~/components/ui/paginate";
 import { Separator } from "~/components/ui/separator";
 import usePaginate from "~/hooks/usePaginate";
+import { getOptimizedImageUrl } from "~/lib/cloudinary";
 import { cohortStatusColor } from "~/lib/constants";
 import { formatDate } from "~/lib/utils";
 import type { CohortDataType, UsePaginateProps } from "~/types";
@@ -140,11 +140,13 @@ export default function ListCohort({
                     <Link
                       key={member._id}
                       className="my-4 flex justify-between items-center p-4 hover:bg-accent hover:rounded-md"
-                      to={`/members/cohorts/${member._id}/profile`}
+                      to={`/members/cohorts/${member._id}/${member.name.toLowerCase().replace(/\s+/g, "-")}/profile`}
                     >
                       <div className="flex items-center gap-2">
                         <Avatar>
-                          <AvatarImage src={getOptimizedImageUrl(member.image, 40)} />
+                          <AvatarImage
+                            src={getOptimizedImageUrl(member.image, 40)}
+                          />
                           <AvatarFallback className="bg-primary/10 text-primary">
                             {member.name.charAt(0)}
                           </AvatarFallback>

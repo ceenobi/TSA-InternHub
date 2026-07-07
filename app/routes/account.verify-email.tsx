@@ -14,7 +14,7 @@ import {
   sessionMiddleware,
   type RouterContext,
 } from "~/middleware/auth.middleware";
-import type { Route } from "./+types/account.verify-email";
+import type { Route } from "./+types/route";
 
 export const middleware = [sessionMiddleware];
 

@@ -14,7 +14,7 @@ import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { requirePermission } from "~/middleware/auth.middleware";
 import { getProgramCoordinatorsQuery } from "~/queries/cohorts.server";
 import type { UserData } from "~/types";
-import type { Route } from "../_dashboard.settings.staff/+types/route";
+import type { Route } from "./+types/route";
 import InviteStaff from "./invite-staff";
 import StaffCard from "./staff-card";
 

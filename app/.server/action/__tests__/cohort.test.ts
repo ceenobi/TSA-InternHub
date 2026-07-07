@@ -7,12 +7,15 @@ let mockFindResult: AnyObj[] = [];
 
 function queryBuilder(result: AnyObj | AnyObj[] | null) {
   const q = vi.fn(() => q) as any;
-  q.lean = vi.fn(() => Promise.resolve(result));
+  q.lean = vi.fn(() => q);
   q.select = vi.fn(() => q);
   q.populate = vi.fn(() => q);
   q.sort = vi.fn(() => q);
   q.skip = vi.fn(() => q);
   q.limit = vi.fn(() => q);
+  q.distinct = vi.fn(() => q);
+  q.then = (onfulfilled: any) => Promise.resolve(result).then(onfulfilled);
+  q.exec = () => Promise.resolve(result);
   return q;
 }
 

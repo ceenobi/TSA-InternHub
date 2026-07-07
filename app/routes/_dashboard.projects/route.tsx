@@ -22,7 +22,7 @@ import { requirePermission } from "~/middleware/auth.middleware";
 import { getActiveCohortWithMembersQuery } from "~/queries/cohorts.server";
 import { getCurrentProjectQuery } from "~/queries/projects.server";
 import type { UserData } from "~/types";
-import type { Route } from "../_dashboard.projects/+types/route";
+import type { Route } from "./+types/route";
 import NewProject from "./new-project";
 import ProjectList from "./project-list";
 import { hasPermission } from "~/lib/rbac";

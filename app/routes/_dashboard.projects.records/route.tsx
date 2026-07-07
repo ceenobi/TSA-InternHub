@@ -19,7 +19,7 @@ import TableView from "~/components/ui/table-view";
 import { useIsMobile } from "~/hooks/useMobile";
 import { getScoreBoardQuery } from "~/queries/scoreboard.server";
 import type { ScoreBoardUser, UserData } from "~/types";
-import type { Route } from "../_dashboard.projects.records/+types/route";
+import type { Route } from "./+types/route";
 
 export function meta({}: Route.MetaArgs) {
   return [

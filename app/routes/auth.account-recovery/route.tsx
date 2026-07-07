@@ -11,7 +11,7 @@ import { FormBox } from "~/components/ui/formbox";
 import { formFields } from "~/lib/constants";
 import { forgotPasswordSchema } from "~/lib/schemaValidation";
 import type { ForgotPasswordSchemaType } from "~/types";
-import type { Route } from "../auth.account-recovery/+types/route";
+import type { Route } from "./+types/route";
 
 export function meta({}: Route.MetaArgs) {
   return [

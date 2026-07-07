@@ -1,19 +1,3 @@
-import { PageSection } from "~/components/provider/page-wrapper";
-import type { Route } from "../_dashboard.members.cohorts.$memberId.profile/+types/route";
-import { getQueryClientRsc } from "~/lib/getQueryClient";
-import { getAMemberQuery } from "~/queries/cohorts.server";
-import { dehydrate } from "@tanstack/react-query";
-import { Suspense } from "react";
-import { Await } from "react-router";
-import DataError from "~/components/ui/data-error";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Badge } from "~/components/ui/badge";
 import {
   RiCalendarLine,
   RiCheckLine,
@@ -23,9 +7,20 @@ import {
   RiUserLine,
   RiVerifiedBadgeLine,
 } from "@remixicon/react";
+import { dehydrate } from "@tanstack/react-query";
+import { Suspense } from "react";
+import { Await } from "react-router";
+import { PageSection } from "~/components/provider/page-wrapper";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Badge } from "~/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import DataError from "~/components/ui/data-error";
 import { getOptimizedImageUrl } from "~/lib/cloudinary";
-import { cn } from "~/lib/utils";
 import { programLabel } from "~/lib/constants";
+import { getQueryClientRsc } from "~/lib/getQueryClient";
+import { cn } from "~/lib/utils";
+import { getAMemberQuery } from "~/queries/cohorts.server";
+import type { Route } from "./+types/route";
 
 export function meta() {
   return [
@@ -95,11 +90,11 @@ export default function MemberProfile({ loaderData }: Route.ComponentProps) {
                   <CardHeader className="relative -mt-12 flex-row items-end gap-4 border-0 pb-0">
                     <Avatar
                       size="lg"
-                      className={cn(
-                        "size-24 ring-4 ring-background",
-                      )}
+                      className={cn("size-24 ring-4 ring-background")}
                     >
-                      <AvatarImage src={getOptimizedImageUrl(m.image, 96) || undefined} />
+                      <AvatarImage
+                        src={getOptimizedImageUrl(m.image, 96) || undefined}
+                      />
                       <AvatarFallback className="text-2xl">
                         {initials}
                       </AvatarFallback>
@@ -112,7 +107,9 @@ export default function MemberProfile({ loaderData }: Route.ComponentProps) {
                         </span>
                         <span className="text-muted-foreground/40">|</span>
                         <span className="text-sm text-muted-foreground">
-                          {m.program ? (programLabel[m.program] || m.program) : "N/A"}
+                          {m.program
+                            ? programLabel[m.program] || m.program
+                            : "N/A"}
                         </span>
                       </div>
                     </div>

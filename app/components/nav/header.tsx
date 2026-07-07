@@ -14,10 +14,7 @@ export default function Header({ isOpenSidebar, user }: headerProps) {
   return (
     <header
       suppressHydrationWarning
-      className={cn(
-        "w-full fixed top-0 lg:top-1 dark:top-0  mx-1 dark:mx-0 z-50 border-b dark:border-white/5 bg-transparent dark:bg-accent/5 backdrop-blur supports-backdrop-filter:bg-background/5",
-        isOpenSidebar ? "lg:w-[calc(100%-230px)]" : "lg:w-[calc(100%-48px)]",
-      )}
+      className={cn("w-full sticky top-0 z-50 bg-darkWhite dark:bg-accent/5")}
     >
       <div
         className={cn(

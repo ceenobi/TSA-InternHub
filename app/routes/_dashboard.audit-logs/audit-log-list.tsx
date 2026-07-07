@@ -75,7 +75,7 @@ export function AuditLogList({
                   <SelectItem
                     key={cat.value}
                     value={cat.value}
-                    className="text-xs"
+                    className="text-xs hover:rounded-sm"
                   >
                     {cat.label}
                   </SelectItem>

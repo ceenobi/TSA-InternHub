@@ -22,7 +22,7 @@ import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { requirePermission } from "~/middleware/auth.middleware";
 import { getCohortStatsQuery } from "~/queries/cohorts";
 import type { UserData } from "~/types";
-import type { Route } from "../_dashboard.members.stats/+types/route";
+import type { Route } from "./+types/route";
 
 export const middleware = [requirePermission("MANAGE_COHORTS")];
 

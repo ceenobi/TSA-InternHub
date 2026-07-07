@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { ThemeToggle } from "~/components/nav/theme-toggle";
 import { PageSection, PageWrapper } from "~/components/provider/page-wrapper";
 import ActionButton from "~/components/ui/action-button";
-import type { Route } from "./+types/delete-account-confirmation";
+import type { Route } from "./+types/route";
 
 export function meta({}: Route.MetaArgs) {
   return [

@@ -16,7 +16,7 @@ import { getOptimizedImageUrl } from "~/lib/cloudinary";
 import { programLabel } from "~/lib/constants";
 import { cn } from "~/lib/utils";
 import type { UserData } from "~/types";
-import type { Route } from "../_dashboard.profile/+types/route";
+import type { Route } from "./+types/route";
 
 export function meta({ matches }: Route.MetaArgs) {
   const { user } = matches[1].loaderData as { user: UserData };

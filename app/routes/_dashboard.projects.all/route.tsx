@@ -21,7 +21,7 @@ import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { requirePermission } from "~/middleware/auth.middleware";
 import { getProjectsQuery } from "~/queries/projects.server";
 import type { UserData } from "~/types";
-import type { Route } from "../_dashboard.projects.all/+types/route";
+import type { Route } from "./+types/route";
 import ProjectList from "../_dashboard.projects/project-list";
 import Paginated from "./paginated";
 

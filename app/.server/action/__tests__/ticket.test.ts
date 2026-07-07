@@ -10,7 +10,7 @@ let mockAggregateResult: AnyObj[] = [];
 
 function queryBuilder(result: AnyObj | AnyObj[] | null) {
   const q = vi.fn(() => q) as any;
-  q.lean = vi.fn(() => Promise.resolve(result));
+  q.lean = vi.fn(() => q);
   q.select = vi.fn(() => q);
   q.populate = vi.fn(() => q);
   q.sort = vi.fn(() => q);
@@ -18,6 +18,9 @@ function queryBuilder(result: AnyObj | AnyObj[] | null) {
   q.limit = vi.fn(() => q);
   q.countDocuments = vi.fn(() => q);
   q.then = vi.fn((resolve: (v: any) => any) => resolve(result));
+  q.distinct = vi.fn(() => q);
+  q.then = (onfulfilled: any) => Promise.resolve(result).then(onfulfilled);
+  q.exec = () => Promise.resolve(result);
   return q;
 }
 

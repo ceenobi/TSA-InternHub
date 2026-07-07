@@ -62,7 +62,7 @@ export default function Chatbot() {
   return (
     <div ref={panelRef} className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
       {open && (
-        <div className="w-[calc(100vw-2rem)] sm:w-[400px] h-[520px] max-h-[70vh] bg-white dark:bg-neutral-900 border rounded-2xl shadow-2xl flex flex-col overflow-hidden origin-bottom-right animate-in fade-in zoom-in-95 duration-200">
+        <div className="w-[calc(100vw-2rem)] sm:w-100 h-130 max-h-[70vh] bg-white dark:bg-neutral-900 border rounded-2xl shadow-2xl flex flex-col overflow-hidden origin-bottom-right animate-in fade-in zoom-in-95 duration-200">
           <div className="flex items-center gap-2 px-4 py-3 border-b shrink-0">
             <span className="material-symbols-outlined text-mainBlue dark:text-darkBlue text-[24px]">
               smart_toy
