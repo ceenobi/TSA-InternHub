@@ -11,7 +11,7 @@ import { requirePermission } from "~/middleware/auth.middleware";
 import { getAllAuditLogsQuery } from "~/queries/auditlogs.server";
 import type { UserData } from "~/types";
 import { AuditLogList } from "../_dashboard.audit-logs/audit-log-list";
-import type { Route } from "./+types/route";
+import type { Route } from "../_dashboard.audit-logs.general/+types/route";
 
 export const middleware = [requirePermission("MANAGE_ROLES")];
 

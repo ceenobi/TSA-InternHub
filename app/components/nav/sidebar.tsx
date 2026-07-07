@@ -40,7 +40,7 @@ export default function Sidebar({
           showLogoText={isOpenSidebar}
         />
       </div>
-      <div className="flex-1 overflow-y-auto pt-4">
+      <div className="flex-1 overflow-y-auto pt-1">
         {sidebarLinks
           .filter((s) => {
             if (["/admin-tasks"].includes(s.href as string)) {

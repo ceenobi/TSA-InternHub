@@ -13,7 +13,7 @@ import { cn } from "~/lib/utils";
 import { requirePermission } from "~/middleware/auth.middleware";
 import { getTasksQuery } from "~/queries/tasks.server";
 import type { StageWithData } from "~/types";
-import type { Route } from "./+types/route";
+import type { Route } from "../_dashboard.admin-tasks/+types/route";
 import CreateTask from "./create-task";
 import EditTask from "./edit-task";
 

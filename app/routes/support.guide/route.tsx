@@ -8,7 +8,7 @@ import {
   helpdeskKnowledgeBase as articles,
   type KnowledgeBaseArticle,
 } from "~/lib/knowledge-base";
-import type { Route } from "./+types/route";
+import type { Route } from "../support/+types/route";
 
 export function meta({}: Route.MetaArgs) {
   return [

@@ -39,7 +39,7 @@ import type {
   AnnouncementsQueryResult,
   UserData,
 } from "~/types";
-import type { Route } from "./+types/route";
+import type { Route } from "../_dashboard.announcements/+types/route";
 import CreateAnnouncement from "./create-announcement";
 
 export function meta({}: Route.MetaArgs) {

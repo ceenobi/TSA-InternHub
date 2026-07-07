@@ -31,7 +31,7 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
       >
         <Header isOpenSidebar={isOpenSidebar} user={user} />
         <div className="absolute inset-0 z-0 opacity-20 h-full w-full bg-mainWhite dark:bg-accentBlack/5 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff14_1px,transparent_1px),linear-gradient(to_bottom,#ffffff14_1px,transparent_1px)] bg-size-[6rem_4rem]" />
-        <main className="relative rounded-lg bg-mainWhite dark:bg-mainDark shadow my-1 xl:mr-2 py-10 px-4 h-dvh xl:h-[95dvh] overflow-y-scroll">
+        <main className="relative rounded-none bg-mainWhite dark:bg-mainDark shadow my-1 xl:mr-2 py-10 px-4 h-dvh xl:h-[95dvh] overflow-y-scroll">
           <Outlet context={{ user }} />
         </main>
         {/*<Footer />*/}

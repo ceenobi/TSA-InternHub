@@ -38,7 +38,7 @@ import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { requirePermission } from "~/middleware/auth.middleware";
 import { getIntegrationsQuery } from "~/queries/integrations.server";
 import type { IntegrationData } from "~/types";
-import type { Route } from "./+types/route";
+import type { Route } from "../_dashboard.settings.integrations/+types/route";
 
 export const middleware = [requirePermission("MANAGE_INTEGRATIONS")];
 

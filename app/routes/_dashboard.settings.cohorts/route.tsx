@@ -12,7 +12,7 @@ import { CohortSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { getCohortsQuery } from "~/queries/cohorts.server";
 import type { UserData } from "~/types";
-import type { Route } from "./+types/route";
+import type { Route } from "../_dashboard.settings.cohorts/+types/route";
 import AddCohort from "./add-cohort";
 import ListCohort from "./list-cohort";
 import { requirePermission } from "~/middleware/auth.middleware";

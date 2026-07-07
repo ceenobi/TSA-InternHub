@@ -21,7 +21,7 @@ import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { formatDate, getInitials } from "~/lib/utils";
 import { requirePermission } from "~/middleware/auth.middleware";
 import { getGradeTaskQuery } from "~/queries/tasks.server";
-import type { Route } from "./+types/route";
+import type { Route } from "../_dashboard.admin-tasks.$taskId.grade/+types/route";
 
 export const middleware = [requirePermission("MANAGE_TASKS")];
 

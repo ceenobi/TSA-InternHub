@@ -35,7 +35,7 @@ import type {
   UpdateProfileSchemaType,
   UserData,
 } from "~/types";
-import type { Route } from "./+types/route";
+import type { Route } from "../_dashboard.settings/+types/route";
 import UploadAvatar from "./upload-avatar";
 
 export function meta({}: Route.MetaArgs) {

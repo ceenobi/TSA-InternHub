@@ -9,7 +9,7 @@ import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { getProgramCoordinatorsQuery } from "~/queries/cohorts.server";
 import { getTicketsQuery } from "~/queries/tickets.server";
 import type { UserData } from "~/types";
-import type { Route } from "./+types/route";
+import type { Route } from "../_dashboard.help-center/+types/route";
 import CreateTicket from "./create-ticket";
 import Filter from "./filter";
 import StatsCard from "./stats-card";

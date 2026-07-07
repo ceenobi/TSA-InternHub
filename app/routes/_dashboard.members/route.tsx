@@ -18,7 +18,7 @@ import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { cn } from "~/lib/utils";
 import { getActiveCohortWithMembersQuery } from "~/queries/cohorts.server";
 import type { UserData } from "~/types";
-import type { Route } from "./+types/route";
+import type { Route } from "../_dashboard.members/+types/route";
 import InviteMember from "./invite-member";
 import MembersList from "./members-list";
 import { requirePermission } from "~/middleware/auth.middleware";
