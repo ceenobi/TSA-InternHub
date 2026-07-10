@@ -4,7 +4,7 @@
 - We use Framework Mode exclusively (do not use legacy `<BrowserRouter>` tags).
 - All routes must define and export type-safe `Route.LoaderArgs` and `Route.ActionArgs`.
 - Rely on `context.get()` inside loaders and middleware rather than legacy global context structures.
-- Use the standard `+route.tsx` conventions for naming layouts and route endpoints.
+- Use the standard `route.tsx` conventions for naming layouts and route endpoints.
 
 
 # Project Overview: InternsPortal (Dashboard)

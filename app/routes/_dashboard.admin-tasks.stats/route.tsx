@@ -33,7 +33,7 @@ import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { cn } from "~/lib/utils";
 import { requirePermission } from "~/middleware/auth.middleware";
 import { getAdminTaskStatsQuery } from "~/queries/tasks.server";
-import type { Route } from "../_dashboard.admin-tasks.stats/+types/route";
+import type { Route } from "./+types/route";
 
 export const middleware = [requirePermission("MANAGE_TASKS")];
 

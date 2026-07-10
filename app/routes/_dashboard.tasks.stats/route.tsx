@@ -28,7 +28,7 @@ import DataError from "~/components/ui/data-error";
 import { TaskStatsSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { getTaskStatsQuery } from "~/queries/tasks.server";
-import type { Route } from "../_dashboard.tasks.stats/+types/route";
+import type { Route } from "./+types/route";
 
 type TaskStatsData = Awaited<
   ReturnType<ReturnType<typeof getTaskStatsQuery>["queryFn"]>
