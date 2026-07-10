@@ -16,7 +16,7 @@ import { hasPermission } from "~/lib/rbac";
 import { cn } from "~/lib/utils";
 import { getUserAuditLogsQuery } from "~/queries/auditlogs.server";
 import type { UserData } from "~/types";
-import type { Route } from "../_dashboard.audit-logs/+types/route";
+import type { Route } from "./+types/route";
 import { AuditLogList } from "./audit-log-list";
 
 export function meta({}: Route.MetaArgs) {

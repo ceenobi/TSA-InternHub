@@ -48,7 +48,7 @@ import ActionButton from "~/components/ui/action-button";
 import { HubSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { getHubDataQuery } from "~/queries/hub.server";
-import type { Route } from "../_dashboard.hub/+types/route";
+import type { Route } from "./+types/route";
 
 export function meta({}: Route.MetaArgs) {
   return [

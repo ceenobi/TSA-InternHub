@@ -8,7 +8,7 @@ import DataError from "~/components/ui/data-error";
 import { CohortSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { getCohortsQuery } from "~/queries/cohorts.server";
-import type { Route } from "../_dashboard.members.cohorts/+types/route";
+import type { Route } from "./+types/route";
 import ListCohort from "./list-cohort";
 
 export function meta({}: Route.MetaArgs) {
