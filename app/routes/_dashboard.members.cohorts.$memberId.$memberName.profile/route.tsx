@@ -1,5 +1,5 @@
 import { PageSection } from "~/components/provider/page-wrapper";
-import type { Route } from "../_dashboard.members.cohorts.$memberId.profile/+types/route";
+import type { Route } from "../_dashboard.members.cohorts.$memberId.$memberName.profile/+types/route";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { getAMemberQuery } from "~/queries/cohorts.server";
 import { dehydrate } from "@tanstack/react-query";

@@ -1,11 +1,11 @@
 import { dehydrate } from "@tanstack/react-query";
 import { Suspense } from "react";
 import {
-  Await,
-  Outlet,
-  useLocation,
-  useNavigate,
-  useOutletContext,
+    Await,
+    Outlet,
+    useLocation,
+    useNavigate,
+    useOutletContext,
 } from "react-router";
 import { PageSection, PageWrapper } from "~/components/provider/page-wrapper";
 import DataError from "~/components/ui/data-error";

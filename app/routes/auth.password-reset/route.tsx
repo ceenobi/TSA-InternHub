@@ -10,7 +10,7 @@ import { FormBox } from "~/components/ui/formbox";
 import { formFields } from "~/lib/constants";
 import { resetPasswordSchema } from "~/lib/schemaValidation";
 import type { ResetPasswordSchemaType } from "~/types";
-import type { Route } from "../auth.password-reset/+types/route";
+import type { Route } from "./+types/route";
 import { resetPasswordRequest } from "~/.server/action/auth";
 
 export function meta({}: Route.MetaArgs) {

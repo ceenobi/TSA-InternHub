@@ -28,7 +28,11 @@ import DataError from "~/components/ui/data-error";
 import { TaskStatsSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { getTaskStatsQuery } from "~/queries/tasks.server";
-import type { Route } from "./+types/route";
+import type { Route } from "../_dashboard.tasks.stats/+types/route";
+
+type TaskStatsData = Awaited<
+  ReturnType<ReturnType<typeof getTaskStatsQuery>["queryFn"]>
+>;
 
 export async function loader({ request }: Route.LoaderArgs) {
   const queryClient = getQueryClientRsc();
@@ -56,7 +60,7 @@ export default function TaskStatsRoute({ loaderData }: Route.ComponentProps) {
     <PageSection index={1} className="space-y-8">
       <Suspense fallback={<TaskStatsSkeleton />}>
         <Await resolve={stats} errorElement={<DataError />}>
-          {(resolved) => {
+          {(resolved: TaskStatsData) => {
             const { summary, trends } = resolved;
             return (
               <>
@@ -274,7 +278,10 @@ export default function TaskStatsRoute({ loaderData }: Route.ComponentProps) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {trends.submissionSummary.some((s) => s.value > 0) ? (
+                    {trends.submissionSummary.some(
+                      (s) =>
+                        s.value > 0,
+                    ) ? (
                       <div className="flex items-center gap-8">
                         <ResponsiveContainer width={180} height={180}>
                           <PieChart>

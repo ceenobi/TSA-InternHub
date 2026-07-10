@@ -5,6 +5,7 @@ import type {
   cohortSchema,
   createTicketSchema,
   forgotPasswordSchema,
+  onboardingSchema,
   projectSchema,
   resetPasswordSchema,
   sendInviteCodeSchema,
@@ -36,6 +37,7 @@ export type UploadSignatureSchemaType = z.infer<typeof UploadSignatureSchema>;
 export type UploadSchemaType = z.infer<typeof uploadSchema>;
 export type DeleteMediaSchemaType = z.infer<typeof deleteMediaSchema>;
 export type UpdateUserAvatarSchemaType = z.infer<typeof updateUserAvatarSchema>;
+export type OnboardingSchemaType = z.infer<typeof onboardingSchema>;
 
 
 export type UserData = {

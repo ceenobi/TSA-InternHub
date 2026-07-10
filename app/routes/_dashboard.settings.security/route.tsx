@@ -26,7 +26,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import type { UserData } from "~/types";
-import type { Route } from "../_dashboard.settings.security/+types/route";
+import type { Route } from "./+types/route";
 
 export function meta({}: Route.MetaArgs) {
   return [

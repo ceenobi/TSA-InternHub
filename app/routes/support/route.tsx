@@ -5,7 +5,7 @@ import {
   sessionMiddleware,
   type RouterContext,
 } from "~/middleware/auth.middleware";
-import type { Route } from "../support/+types/route";
+import type { Route } from "./+types/route";
 
 export const middleware = [sessionMiddleware];
 

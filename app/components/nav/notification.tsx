@@ -26,6 +26,7 @@ export default function Notification() {
             variant="ghost"
             size="icon"
             className="relative h-8 w-8 cursor-pointer"
+            data-tour="notifications"
           >
             {unreadCount > 0 ? (
               <RiNotificationFill className="text-mainBlue dark:text-darkBlue h-[1.2rem] w-[1.2rem]" />
@@ -121,16 +122,16 @@ export default function Notification() {
           </div>
 
           {/* Footer */}
-          {notifications.length > 0 && (
+          {/*{notifications.length > 0 && (
             <div className="p-2 border-t border-border/50 shrink-0">
-              <a
-                href="/notifications"
+              <Link
+                to="/notifications"
                 className="block text-center text-xs text-muted-foreground hover:text-foreground py-1.5 transition-colors"
               >
                 View all notifications
-              </a>
+              </Link>
             </div>
-          )}
+          )}*/}
         </DropdownMenuContent>
       </DropdownMenuGroup>
     </DropdownMenu>

@@ -114,6 +114,20 @@ export const updateProfileSchema = z.object({
   gender: z.enum(["male", "female", "other"]),
 });
 
+export const onboardingSchema = z.object({
+  name: z
+    .string({ message: "Full name is required" })
+    .min(3, { message: "Full name must be at least 3 characters long" }),
+  phone: z
+    .string({ message: "Phone is required" })
+    .refine((num) => /^\+\d{10,15}$/.test(num), {
+      message: "Phone number must start with a + and contain 10-15 digits",
+    })
+    .optional()
+    .or(z.literal("")),
+  gender: z.enum(["male", "female", "other"]).optional(),
+});
+
 export const forgotPasswordSchema = z.object({
   email: z.email({ message: "Complete this field to continue" }),
 });

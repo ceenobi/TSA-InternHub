@@ -7,6 +7,7 @@ import {
   sendInviteCodeSchema,
   signInSchema,
   signUpSchema,
+  onboardingSchema,
   updateProfileSchema,
   updateUserAvatarSchema,
 } from "~/lib/schemaValidation";
@@ -16,6 +17,7 @@ import type {
   AdminInviteSchemaType,
   ChangePasswordSchemaType,
   ForgotPasswordSchemaType,
+  OnboardingSchemaType,
   ResetPasswordSchemaType,
   SendInviteCodeSchemaType,
   SignInSchemaType,
@@ -625,6 +627,56 @@ export async function updateProfileRequest(
     );
   });
 }
+
+export async function onboardUser(request: Request, payload: OnboardingSchemaType & { image?: string; imagePublicId?: string }) {
+  return tryCatchWrapper(async () => {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) {
+      return Response.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 },
+      );
+    }
+
+    const result = onboardingSchema.safeParse(payload);
+    if (!result.success) {
+      return Response.json(
+        {
+          success: false,
+          message: "Invalid form data",
+          errors: z.treeifyError(result.error),
+        },
+        { status: 400 },
+      );
+    }
+
+    await auth.api.updateUser({
+      body: {
+        name: result.data.name,
+        phone: result.data.phone || "",
+        gender: result.data.gender || "",
+        isOnboarded: true,
+        ...(payload.image ? { image: payload.image } : {}),
+        ...(payload.imagePublicId ? { imagePublicId: payload.imagePublicId } : {}),
+      },
+      headers: request.headers,
+      asResponse: true,
+    });
+
+    await AuditLogService.record(request, {
+      action: "ONBOARDING_COMPLETE",
+      category: "auth",
+      description: "User completed onboarding",
+      details: { name: result.data.name },
+    });
+
+    return Response.json(
+      { success: true, message: "Onboarding complete. Welcome!" },
+      { status: 200 },
+    );
+  });
+}
+
 export async function updateAvatarRequest(
   request: Request,
   payload: UpdateUserAvatarSchemaType,

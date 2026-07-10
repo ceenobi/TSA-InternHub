@@ -131,5 +131,20 @@ export function useChatStream() {
     abortRef.current = null;
   }, []);
 
-  return { messages, setMessages, send, isPending, error, abort };
+  const submitFeedback = useCallback(
+    async (rating: 1 | -1, message: string, response: string, topics?: string[]) => {
+      try {
+        await fetch("/api/chat/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rating, message, response, topics }),
+        });
+      } catch {
+        // silently ignore — feedback is non-critical
+      }
+    },
+    [],
+  );
+
+  return { messages, setMessages, send, isPending, error, abort, submitFeedback };
 }

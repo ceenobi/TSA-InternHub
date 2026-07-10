@@ -16,7 +16,7 @@ import { CardListSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { getStageTasksQuery } from "~/queries/tasks.server";
 import type { TaskData } from "~/types";
-import type { Route } from "../_dashboard.projects.$projectId.stages.$stageId.tasks/+types/route";
+import type { Route } from "./+types/route";
 import { requirePermission } from "~/middleware/auth.middleware";
 
 export const middleware = [requirePermission("MANAGE_COHORTS", "loader")];

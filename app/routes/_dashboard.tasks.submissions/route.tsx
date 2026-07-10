@@ -10,7 +10,7 @@ import { ProjectListSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { getTasksSubmissionsQuery } from "~/queries/tasks.server";
 import type { UserData } from "~/types";
-import type { Route } from "../_dashboard.tasks.submissions/+types/route";
+import type { Route } from "./+types/route";
 import SubmissionList from "./submission-list";
 
 export function meta({}: Route.MetaArgs) {

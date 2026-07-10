@@ -49,10 +49,10 @@ export async function authenticatedMiddleware(
   }
 
   // 2. Onboarding Check
-  // const isOnboardingRoute = pathname.startsWith("/onboarding");
-  // if (user.emailVerified && !user.isOnboarded && !isOnboardingRoute) {
-  //   return redirect("/onboarding");
-  // }
+  const isOnboardingRoute = pathname.startsWith("/onboarding");
+  if (user.emailVerified && !user.isOnboarded && !isOnboardingRoute) {
+    return redirect("/onboarding");
+  }
 
   // Pass user and cookie to context so loaders don't have to re-fetch
   // better-auth returns id, but UserData uses _id (MongoDB convention)

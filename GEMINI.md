@@ -1,3 +1,12 @@
+# React Router 7 Project Guidelines
+
+## Core Conventions
+- We use Framework Mode exclusively (do not use legacy `<BrowserRouter>` tags).
+- All routes must define and export type-safe `Route.LoaderArgs` and `Route.ActionArgs`.
+- Rely on `context.get()` inside loaders and middleware rather than legacy global context structures.
+- Use the standard `+route.tsx` conventions for naming layouts and route endpoints.
+
+
 # Project Overview: InternsPortal (Dashboard)
 
 Interns portal is a modern, full-stack e-task grading platform designed for performance, scalability, and developer experience. It utilizes **React Router 7** in framework mode (formerly Remix) to deliver a seamless server-side rendered (SSR) experience with robust data loading and mutation capabilities.

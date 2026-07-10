@@ -1,9 +1,10 @@
 import { RiLoopRightFill, RiNetworkErrorFill } from "@remixicon/react";
-import { useAsyncError } from "react-router";
+import { useAsyncError, useNavigate } from "react-router";
 import { Button } from "../ui/button";
 
 export default function DataError() {
   const error = useAsyncError();
+  const navigate = useNavigate()
   const Error = error as Error;
   return (
     <div className="relative flex flex-col items-center justify-center h-100 max-w-lg mx-auto">
@@ -19,7 +20,7 @@ export default function DataError() {
       </p>
       <Button
         variant="default"
-        onClick={() => window.location.reload()}
+        onClick={() => navigate(0)}
         className="cursor-pointer rounded-sm border border-mainBlue dark:border-mainGold/60 bg-mainBlue dark:bg-mainGold/20 text-white hover:bg-mainBlue hover:text-white hover:dark:bg-mainGold/30 mt-4"
       >
         <RiLoopRightFill /> Try again

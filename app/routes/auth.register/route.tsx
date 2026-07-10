@@ -11,7 +11,7 @@ import { FormBox } from "~/components/ui/formbox";
 import { formFields } from "~/lib/constants";
 import { signUpSchema } from "~/lib/schemaValidation";
 import type { SignUpSchemaType } from "~/types";
-import type { Route } from "../auth.register/+types/route";
+import type { Route } from "./+types/route";
 
 export function meta({}: Route.MetaArgs) {
   return [
