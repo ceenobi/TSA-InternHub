@@ -51,20 +51,38 @@ function buildSystemPrompt(
   userProgram: string | undefined,
   articles: ReturnType<typeof getRelevantArticles>,
   scoreContext: string | null,
+  history?: { ratings?: number; recentTopics: string[] },
 ) {
   let prompt = `You are a helpful AI assistant for TSA InternHub, a platform that manages internship tasks, submissions, grading, and project tracking.
 
 You are talking to ${userName}${userRole !== "user" ? ` (${userRole})` : ""}${userProgram ? ` from the ${userProgram} program` : ""}.
 
-Guidelines:
-- Answer questions about the TSA InternHub platform using the knowledge base articles provided below.
-- For general questions (non-platform), use your own knowledge.
-- Be concise, friendly, and helpful.
+### Quality Standards (MANDATORY)
+- Use correct spelling, grammar, and capitalization in every response.
+- Proofread your response before sending. Fix typos, missing words, and awkward phrasing.
+- Be concise but complete — don't cut off mid-sentence.
+- Use proper punctuation and sentence structure.
+- Format with markdown: **bold** for emphasis, bullet points for lists, code blocks for technical content.
+
+### Guidelines
+- Answer platform questions using the knowledge base articles provided below.
+- For general questions, use your own knowledge.
+- Be concise, friendly, and helpful. Use a warm, conversational tone.
 - When relevant, suggest next steps or related features the user might want to explore.
-- A user whose role is ${userRole === "user"} can be referred to as Intern or student from the chat.
-- Format responses using markdown where appropriate (bold for emphasis, bullet points for lists, etc.).
+- A user whose role is ${userRole === "user"} can be referred to as Intern or student.
+- If you don't know something about the platform, be honest and suggest the Knowledge Base or support.
 
 `;
+
+  if (history && history.recentTopics.length > 0) {
+    prompt += `### Previous Conversation Topics\n${history.recentTopics.map((t) => `- ${t}`).join("\n")}\n\n`;
+    if (history.ratings !== undefined) {
+      const qualityNote = history.ratings < 2
+        ? "The user has not been satisfied with recent responses. Be extra careful with accuracy and clarity."
+        : "";
+      if (qualityNote) prompt += `${qualityNote}\n\n`;
+    }
+  }
 
   if (articles.length > 0) {
     prompt += "## Relevant Knowledge Base Articles\n\n";
@@ -101,8 +119,6 @@ If the user reports an issue, bug, or requests help, you can create a support ti
 
 Do NOT ask if they want to create a ticket — if they describe an issue, just gather the needed details and create it. Inform the user once the ticket is created with the ticket ID.
 `;
-
-  prompt += `If the user asks something you don't know about the platform, be honest and suggest they check the Knowledge Base or contact support.`;
 
   return prompt;
 }
@@ -208,6 +224,38 @@ function createZenTransformStream() {
   });
 }
 
+async function fetchUserFeedbackContext(
+  userId: string,
+  maxItems = 10,
+): Promise<{ ratings: number | undefined; recentTopics: string[] }> {
+  try {
+    const ChatFeedback = (await import("~/.server/model/chatFeedback")).default;
+    const feedbacks = await ChatFeedback.find({ userId })
+      .sort({ createdAt: -1 })
+      .limit(maxItems)
+      .lean();
+
+    if (feedbacks.length === 0) {
+      return { ratings: undefined, recentTopics: [] };
+    }
+
+    const ratings = feedbacks.reduce((sum, f) => sum + f.rating, 0);
+    const topicSet = new Set<string>();
+    for (const f of feedbacks) {
+      for (const t of f.topics || []) {
+        topicSet.add(t);
+      }
+    }
+
+    return {
+      ratings,
+      recentTopics: Array.from(topicSet).slice(0, 5),
+    };
+  } catch {
+    return { ratings: undefined, recentTopics: [] };
+  }
+}
+
 async function prepareChatContext(
   request: Request,
   messages: ChatMessage[],
@@ -228,12 +276,15 @@ async function prepareChatContext(
     scoreContext = await fetchUserScoreContext(request);
   }
 
+  const feedbackContext = await fetchUserFeedbackContext(user.id);
+
   const systemPrompt = buildSystemPrompt(
     user.name || "User",
     user.role || "user",
     user.program ?? undefined,
     articles,
     scoreContext,
+    feedbackContext,
   );
 
   const apiMessages = [
@@ -270,7 +321,8 @@ async function callZenApi(
   const body: Record<string, unknown> = {
     model: "deepseek-v4-flash-free",
     messages: apiMessages,
-    max_tokens: 2048,
+    max_tokens: 4096,
+    temperature: 0.7,
     stream,
   };
   if (tools) body.tools = tools;

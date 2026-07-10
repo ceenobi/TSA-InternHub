@@ -5,6 +5,7 @@ import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { cn } from "~/lib/utils";
 import { useChatStream, type Message } from "~/hooks/useChatStream";
+import { RiThumbUpLine, RiThumbDownLine, RiThumbUpFill, RiThumbDownFill } from "@remixicon/react";
 
 const SUGGESTED_QUESTIONS = [
   "How do I update my profile?",
@@ -19,7 +20,8 @@ export default function Chatbot() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const { messages, setMessages, send, isPending, error, abort } = useChatStream();
+  const { messages, setMessages, send, isPending, error, abort, submitFeedback } = useChatStream();
+  const [ratings, setRatings] = useState<Record<number, 1 | -1 | null>>({});
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -60,7 +62,7 @@ export default function Chatbot() {
   }
 
   return (
-    <div ref={panelRef} className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div ref={panelRef} className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3" data-tour="chatbot">
       {open && (
         <div className="w-[calc(100vw-2rem)] sm:w-100 h-130 max-h-[70vh] bg-white dark:bg-neutral-900 border rounded-2xl shadow-2xl flex flex-col overflow-hidden origin-bottom-right animate-in fade-in zoom-in-95 duration-200">
           <div className="flex items-center gap-2 px-4 py-3 border-b shrink-0">
@@ -68,6 +70,7 @@ export default function Chatbot() {
               smart_toy
             </span>
             <span className="text-sm font-semibold">AI Assistant</span>
+            <span className="text-[10px] font-medium text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-1.5 py-0.5 rounded-full">Beta</span>
             {messages.length > 0 && (
               <button
                 onClick={() => setMessages([])}
@@ -87,6 +90,9 @@ export default function Chatbot() {
                 <p className="text-sm font-medium">Hi! I'm your AI assistant</p>
                 <p className="text-xs mt-1">
                   Ask me anything about TSA InternHub
+                </p>
+                <p className="text-[10px] text-muted-foreground/60 mt-3 max-w-56 text-center leading-relaxed">
+                  AI responses may be inaccurate. Contact an admin if you need a definitive answer.
                 </p>
               </div>
             )}
@@ -115,10 +121,58 @@ export default function Chatbot() {
                   )}
                 >
                   {msg.role === "assistant" ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none [&_pre]:bg-muted [&_pre]:p-2 [&_pre]:rounded-lg [&_pre]:text-xs [&_code]:text-xs">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {msg.content || "▊"}
-                      </ReactMarkdown>
+                    <div>
+                      <div className="prose prose-sm dark:prose-invert max-w-none [&_pre]:bg-muted [&_pre]:p-2 [&_pre]:rounded-lg [&_pre]:text-xs [&_code]:text-xs">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {msg.content || "▊"}
+                        </ReactMarkdown>
+                      </div>
+                      {msg.content && !isPending && (
+                        <div className="flex gap-0.5 mt-1">
+                          <button
+                            onClick={() => {
+                              if (ratings[i] === 1) return;
+                              setRatings((prev) => ({ ...prev, [i]: 1 }));
+                              const userMsg = messages
+                                .slice(0, i)
+                                .reverse()
+                                .find((m) => m.role === "user");
+                              if (userMsg) {
+                                submitFeedback(1, userMsg.content, msg.content);
+                              }
+                            }}
+                            className={`size-5 rounded flex items-center justify-center transition-colors ${
+                              ratings[i] === 1
+                                ? "bg-green-100 dark:bg-green-900/30 text-green-600"
+                                : "text-muted-foreground/30 hover:text-muted-foreground hover:bg-muted/50"
+                            }`}
+                            title="Helpful"
+                          >
+                            {ratings[i] === 1 ? <RiThumbUpFill size={11} /> : <RiThumbUpLine size={11} />}
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (ratings[i] === -1) return;
+                              setRatings((prev) => ({ ...prev, [i]: -1 }));
+                              const userMsg = messages
+                                .slice(0, i)
+                                .reverse()
+                                .find((m) => m.role === "user");
+                              if (userMsg) {
+                                submitFeedback(-1, userMsg.content, msg.content);
+                              }
+                            }}
+                            className={`size-5 rounded flex items-center justify-center transition-colors ${
+                              ratings[i] === -1
+                                ? "bg-red-100 dark:bg-red-900/30 text-red-600"
+                                : "text-muted-foreground/30 hover:text-muted-foreground hover:bg-muted/50"
+                            }`}
+                            title="Not helpful"
+                          >
+                            {ratings[i] === -1 ? <RiThumbDownFill size={11} /> : <RiThumbDownLine size={11} />}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     msg.content
@@ -152,6 +206,14 @@ export default function Chatbot() {
 
             <div ref={messagesEndRef} />
           </div>
+
+          {messages.length > 0 && (
+            <div className="px-4 pb-1 shrink-0">
+              <p className="text-[10px] text-muted-foreground/50 text-center leading-relaxed">
+                AI may make mistakes. For definitive answers, contact an admin.
+              </p>
+            </div>
+          )}
 
           {messages.length === 0 && (
             <div className="px-4 pb-2 flex flex-wrap gap-1.5">

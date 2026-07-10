@@ -4,10 +4,12 @@ import {
   RiSunLine,
   RiTv2Line,
   RiUserLine,
+  RiQuestionLine,
 } from "@remixicon/react";
 import { Form, Link } from "react-router";
 import { useIsMobile } from "~/hooks/useMobile";
 import { getOptimizedImageUrl } from "~/lib/cloudinary";
+import { resetTour } from "~/components/provider/onboarding-tour";
 import type { UserData } from "~/types";
 import { useTheme } from "../provider/theme";
 import { Button } from "../ui/button";
@@ -135,10 +137,22 @@ export default function Profile({ user }: { user: UserData }) {
               <DropdownMenuItem className="rounded-sm">
                 <Link to="/profile" className="flex gap-2 items-center">
                   <RiUserLine className="w-4 h-4" />
-                  <span className="text-smcursor-pointer w-auto font-semibold">
+                  <span className="text-sm cursor-pointer w-auto font-semibold">
                     Profile
                   </span>
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="rounded-sm">
+                <button
+                  type="button"
+                  onClick={() => { resetTour(); window.location.reload(); }}
+                  className="flex gap-2 items-center cursor-pointer bg-transparent border-0 w-full text-left"
+                >
+                  <RiQuestionLine className="w-4 h-4" />
+                  <span className="text-sm w-auto font-semibold">
+                    Replay Tour
+                  </span>
+                </button>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

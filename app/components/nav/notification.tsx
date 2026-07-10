@@ -26,6 +26,7 @@ export default function Notification() {
             variant="ghost"
             size="icon"
             className="relative h-8 w-8 cursor-pointer"
+            data-tour="notifications"
           >
             {unreadCount > 0 ? (
               <RiNotificationFill className="text-mainBlue dark:text-darkBlue h-[1.2rem] w-[1.2rem]" />

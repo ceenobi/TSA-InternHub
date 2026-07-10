@@ -1,5 +1,5 @@
-import { RiToggleFill, RiToggleLine } from "@remixicon/react";
-import { NavLink } from "react-router";
+import { RiServerFill, RiToggleFill, RiToggleLine } from "@remixicon/react";
+import { Link, NavLink } from "react-router";
 import { sidebarLinks } from "~/lib/constants";
 import { hasPermission } from "~/lib/rbac";
 import { cn } from "~/lib/utils";
@@ -25,7 +25,7 @@ export default function Sidebar({
       className={cn(
         `hidden lg:flex flex-col bg-darkWhite dark:bg-mainDark top-0 fixed z-50 transition-all duration-300 ease-in-out min-h-svh`,
         isOpenSidebar ? "lg:w-58" : "lg:w-12",
-        "dark:bg-linear-to-r/decreasing from-mainBlue/30 to-mainDark",
+        "dark:bg-linear-to-r/decreasing from-mainBlue/40 to-accentBlack",
       )}
     >
       <div
@@ -40,7 +40,7 @@ export default function Sidebar({
           showLogoText={isOpenSidebar}
         />
       </div>
-      <div className="flex-1 overflow-y-auto pt-1">
+      <div className="flex-1 overflow-y-auto pt-4">
         {sidebarLinks
           .filter((s) => {
             if (["/admin-tasks"].includes(s.href as string)) {
@@ -76,7 +76,22 @@ export default function Sidebar({
             </div>
           ))}
       </div>
-      <div className="hidden lg:flex items-center justify-start w-full">
+
+      <div
+        className={cn(
+          "hidden lg:flex border-t border-mainBlue/20 dark:border-darkBlue/20 items-center pt-2 px-4 justify-between w-full",
+          { "justify-start px-1": !isOpenSidebar },
+        )}
+      >
+        {isOpenSidebar && (
+          <a
+            href="http://localhost:3700/api/health"
+            className="text-xs text-muted-foreground hover:text-mainBlue dark:text-darkBlue"
+            target="_blank"
+          >
+            <RiServerFill size={24} />
+          </a>
+        )}
         <button
           onClick={toggleSidebar}
           className={cn(
@@ -90,6 +105,25 @@ export default function Sidebar({
           )}
         </button>
       </div>
+      {isOpenSidebar && (
+        <div className="flex gap-2 items-center p-4">
+          <p className="text-center text-xs text-muted-foreground">
+            © {new Date().getFullYear()} TSA LABS
+          </p>
+          <Link
+            to="/terms"
+            className="text-xs text-muted-foreground hover:underline"
+          >
+            Terms
+          </Link>
+          <Link
+            to="/privacy"
+            className="text-xs text-muted-foreground hover:underline"
+          >
+            Privacy
+          </Link>
+        </div>
+      )}
     </aside>
   );
 }

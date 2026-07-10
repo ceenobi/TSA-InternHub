@@ -158,7 +158,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   return (
     <main className="relative min-h-dvh flex flex-col items-center justify-center px-4">
       {/* Background pattern */}
-      <div className="absolute inset-0 z-0 opacity-20  h-full w-full bg-white dark:bg-accentBlack/30 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff14_1px,transparent_1px),linear-gradient(to_bottom,#ffffff14_1px,transparent_1px)] bg-size-[6rem_4rem]" />
+      <div className="absolute inset-0 z-0 opacity-50  h-full w-full bg-white dark:bg-accentBlack/30 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff14_1px,transparent_1px),linear-gradient(to_bottom,#ffffff14_1px,transparent_1px)] bg-size-[6rem_4rem]" />
 
       <div className="relative z-10 flex flex-col items-center text-center max-w-lg">
         {/* Icon */}

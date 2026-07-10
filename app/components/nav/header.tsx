@@ -14,12 +14,15 @@ export default function Header({ isOpenSidebar, user }: headerProps) {
   return (
     <header
       suppressHydrationWarning
-      className={cn("w-full sticky top-0 z-50 bg-darkWhite dark:bg-accent/5")}
+      className={cn(
+        "w-full fixed top-0 lg:top-1.5 mx-1 dark:mx-0 z-50 bg-mainWhite dark:bg-accentBlack",
+        isOpenSidebar ? "lg:w-[calc(100%-250px)]" : "lg:w-[calc(100%-48px)]",
+      )}
     >
       <div
         className={cn(
           "container mx-auto flex justify-between items-center",
-          isOpenSidebar ? "py-[11.1px] px-4 xl:px-12" : "py-3 px-4 xl:px-8",
+          isOpenSidebar ? "py-1.75 px-4 xl:px-12" : "py-3 px-4 xl:px-8",
         )}
       >
         <div className="lg:hidden">
