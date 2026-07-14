@@ -4,12 +4,12 @@ import tailwindcss from "@tailwindcss/vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig } from "vite";
 
-export default defineConfig({
+export default defineConfig(async () => ({
   plugins: [
     tailwindcss(),
     reactRouter(),
     ...(process.env.SENTRY_AUTH_TOKEN
-      ? [sentryReactRouter({ sourceMapsUploadOptions: { enabled: true } })]
+      ? [...await sentryReactRouter({ sourceMapsUploadOptions: { enabled: true } }, { command: 'build', mode: 'production' })]
       : []),
     visualizer({
       filename: "build/stats.html",
