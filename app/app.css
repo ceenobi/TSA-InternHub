@@ -11,9 +11,9 @@
   --font-sans:
     "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --color-mainDark: #1a1a1a;
+  /*--color-mainDark: #1a1a1a;*/
   /*--color-mainDark: #1d1a21;*/
-  /*--color-mainDark: #1a181c;*/
+  --color-mainDark: #1a181c;
   --color-darkWhite: #e9e6ed;
   --color-mainWhite: #f9f7fa;
   --color-accentBlack: #16181a;

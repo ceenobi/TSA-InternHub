@@ -141,18 +141,10 @@ export async function signUpWithEmailAdmin(
     if (!session) {
       logger.error("Unauthorized");
       return Response.json(
-        { success: false, message: "Unauthorized" },
+        { success: false, message: "Unauthorized, session not found" },
         { status: 401 },
       );
     }
-    // const { role } = session.user;
-    // if (!hasPermission(role, "MANAGE_ROLES")) {
-    //   logger.error("Unauthorized");
-    //   return Response.json(
-    //     { success: false, message: "Unauthorized, insufficient permissions" },
-    //     { status: 401 },
-    //   );
-    // }
     const result = adminInviteSchema.safeParse(payload);
     if (!result.success) {
       logger.error({ result }, "Invalid form data");
