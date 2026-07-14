@@ -2,24 +2,14 @@ import { reactRouter } from "@react-router/dev/vite";
 import { sentryReactRouter } from "@sentry/react-router";
 import tailwindcss from "@tailwindcss/vite";
 import { visualizer } from "rollup-plugin-visualizer";
-import { defineConfig, type ConfigEnv, type PluginOption } from "vite";
+import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [
     tailwindcss(),
     reactRouter(),
     ...(process.env.SENTRY_AUTH_TOKEN
-      ? [
-          ((configEnv: ConfigEnv) =>
-            sentryReactRouter(
-              {
-                sourceMapsUploadOptions: {
-                  enabled: true,
-                },
-              },
-              configEnv,
-            )) as unknown as PluginOption,
-        ]
+      ? [sentryReactRouter({ sourceMapsUploadOptions: { enabled: true } })]
       : []),
     visualizer({
       filename: "build/stats.html",
