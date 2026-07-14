@@ -1,45 +1,44 @@
 import { reactRouter } from "@react-router/dev/vite";
-import { sentryReactRouter } from "@sentry/react-router";
 import tailwindcss from "@tailwindcss/vite";
 import { visualizer } from "rollup-plugin-visualizer";
-import { defineConfig, type ConfigEnv, type PluginOption } from "vite";
+import { defineConfig, type Plugin } from "vite";
 
-export default defineConfig({
-  plugins: [
-    tailwindcss(),
-    reactRouter(),
-    ...(process.env.SENTRY_AUTH_TOKEN
-      ? [
-          ((configEnv: ConfigEnv) =>
-            sentryReactRouter(
-              {
-                sourceMapsUploadOptions: {
-                  enabled: true,
-                },
-              },
-              configEnv,
-            )) as unknown as PluginOption,
-        ]
-      : []),
-    visualizer({
-      filename: "build/stats.html",
-      gzipSize: true,
-      brotliSize: true,
-      open: true,
-    }),
-  ],
-  resolve: {
-    tsconfigPaths: true,
-  },
-  server: {
-    host: "localhost",
-    port: 3700,
+export default defineConfig(async (env) => {
+  const plugins: Plugin[] = [
+    ...(tailwindcss() as Plugin[]),
+    ...(reactRouter() as Plugin[]),
+  ];
+
+  if (process.env.SENTRY_AUTH_TOKEN && env.command === "build") {
+    const { sentryReactRouter } = await import("@sentry/react-router");
+    plugins.push(...(await sentryReactRouter(
+      { sourceMapsUploadOptions: { enabled: true } },
+      env,
+    ) as Plugin[]));
+  }
+
+  plugins.push(visualizer({
+    filename: "build/stats.html",
+    gzipSize: true,
+    brotliSize: true,
     open: true,
-    allowedHosts: [
-      "localhost",
-      "127.0.0.1",
-      "::1",
-      "salmon-daring-partially.ngrok-free.app",
-    ],
-  },
+  }) as Plugin);
+
+  return {
+    plugins,
+    resolve: {
+      tsconfigPaths: true,
+    },
+    server: {
+      host: "localhost",
+      port: 3700,
+      open: true,
+      allowedHosts: [
+        "localhost",
+        "127.0.0.1",
+        "::1",
+        "salmon-daring-partially.ngrok-free.app",
+      ],
+    },
+  };
 });
