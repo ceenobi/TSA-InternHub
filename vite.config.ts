@@ -1,20 +1,20 @@
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { visualizer } from "rollup-plugin-visualizer";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 
 export default defineConfig(async (env) => {
-  const plugins = [
-    tailwindcss(),
-    reactRouter(),
+  const plugins: Plugin[] = [
+    ...(tailwindcss() as Plugin[]),
+    ...(reactRouter() as Plugin[]),
   ];
 
   if (process.env.SENTRY_AUTH_TOKEN && env.command === "build") {
     const { sentryReactRouter } = await import("@sentry/react-router");
-    plugins.push(...await sentryReactRouter(
+    plugins.push(...(await sentryReactRouter(
       { sourceMapsUploadOptions: { enabled: true } },
       env,
-    ));
+    ) as Plugin[]));
   }
 
   plugins.push(visualizer({
@@ -22,7 +22,7 @@ export default defineConfig(async (env) => {
     gzipSize: true,
     brotliSize: true,
     open: true,
-  }));
+  }) as Plugin);
 
   return {
     plugins,
