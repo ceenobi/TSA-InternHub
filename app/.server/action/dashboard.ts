@@ -7,10 +7,31 @@ import { getTaskStatsForAdmins, getTaskStatsForUser } from "~/.server/action/tas
 import { fetchTickets } from "~/.server/action/ticket";
 import Cohort from "~/.server/model/cohort";
 import { auth } from "~/.server/services/better-auth";
+import getRedisClient from "~/.server/config/redis";
 import { fetchWithCache } from "~/.server/utils/cache";
 import { checkRateLimit } from "~/.server/utils/rate-limit";
 import { tryCatchWrapper } from "~/lib/tryCatchWrapper";
 import User from "../model/user";
+
+type GlobalSummary = {
+  cohortsProcessed: number;
+  totalUsersCount: number;
+  pendingSubmissionsCount: number;
+  activeProjectsCount: number;
+  lastRefreshed: string;
+};
+
+async function getGlobalSummary(): Promise<GlobalSummary | null> {
+  const redis = getRedisClient();
+  if (!redis) return null;
+  try {
+    const data = await redis.get("dashboard:global-summary");
+    if (typeof data === "string") return JSON.parse(data);
+    return data as GlobalSummary | null;
+  } catch {
+    return null;
+  }
+}
 
 export async function fetchDashboardData(request: Request) {
   return tryCatchWrapper(async () => {
@@ -35,8 +56,9 @@ export async function fetchDashboardData(request: Request) {
       if (isAdmin) {
         const programFilter = isSuperAdmin ? selectedProgram : undefined;
 
-        const [statsRes, cohortRes, scoreboardRes, ticketsRes, auditRes, announcementsRes] =
+        const [globalSummary, statsRes, cohortRes, scoreboardRes, ticketsRes, auditRes, announcementsRes] =
           await Promise.all([
+            getGlobalSummary(),
             getTaskStatsForAdmins(request, programFilter).then((r) => r.json()),
             getActiveCohortWithMembers(request, programFilter).then((r) =>
               r.json(),
@@ -75,11 +97,11 @@ export async function fetchDashboardData(request: Request) {
           programs,
           selectedProgram: selectedProgram ?? null,
           summary: {
-            totalUsers: stats?.summary?.totalUsers ?? 0,
+            totalUsers: globalSummary?.totalUsersCount ?? stats?.summary?.totalUsers ?? 0,
             activeUsers: stats?.summary?.activeUsers ?? 0,
             suspendedUsers: stats?.summary?.suspendedUsers ?? 0,
-            totalSubmissions: stats?.summary?.totalSubmissions ?? 0,
-            pendingCount: stats?.summary?.pendingCount ?? 0,
+            totalSubmissions: globalSummary?.pendingSubmissionsCount ?? stats?.summary?.totalSubmissions ?? 0,
+            pendingCount: globalSummary?.pendingSubmissionsCount ?? stats?.summary?.pendingCount ?? 0,
             averageScore: stats?.summary?.averageScore ?? 0,
             onTimeRate: stats?.summary?.onTimeRate ?? 0,
             totalTasks: stats?.summary?.totalTasks ?? 0,
