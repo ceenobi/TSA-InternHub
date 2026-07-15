@@ -1,23 +1,28 @@
 import { useEffect, useState } from "react";
-import { safeGetItem, safeSetItem } from "~/lib/storage";
+
+const COOKIE_NAME = "sbarTsaInterHub";
+
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function setCookie(name: string, value: string, days = 365) {
+  if (typeof document === "undefined") return;
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+}
 
 export default function useSidebar() {
-  const [isOpenSidebar, setIsOpenSidebar] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const [isOpenSidebar, setIsOpenSidebar] = useState(() => {
+    const saved = getCookie(COOKIE_NAME);
+    return saved === "true";
+  });
 
   useEffect(() => {
-    setIsMounted(true);
-    const savedState = safeGetItem("sbarTsaInterHub");
-    if (savedState !== null) {
-      setIsOpenSidebar(savedState === "true");
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isMounted) {
-      safeSetItem("sbarTsaInterHub", String(isOpenSidebar));
-    }
-  }, [isOpenSidebar, isMounted]);
+    setCookie(COOKIE_NAME, String(isOpenSidebar));
+  }, [isOpenSidebar]);
 
   return {
     isOpenSidebar,

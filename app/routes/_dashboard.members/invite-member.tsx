@@ -126,7 +126,7 @@ export default function InviteMember({ cohort }: { cohort: CohortDataType }) {
                 }
                 type="submit"
                 loading={fetcher.state !== "idle"}
-                classname="mt-4 w-full rounded-sm bg-mainBlue dark:bg-darkBlue text-white"
+                classname="mt-4 w-full rounded-sm bg-mainBlue dark:bg-darkBlue/40 text-white"
               />
             </fetcher.Form>
           </div>

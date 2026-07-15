@@ -164,9 +164,9 @@ function SessionRow({
         </div>
         {session.id !== currentSessionId && (
           <Button
-            variant="ghost"
+            variant="destructive"
             size="sm"
-            className="text-xs font-bold text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/40 hover:text-destructive"
+            className="text-xs font-bold"
             onClick={() => {
               fetcher.submit(
                 {
