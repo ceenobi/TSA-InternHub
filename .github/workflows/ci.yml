@@ -27,14 +27,7 @@ jobs:
           node-version: 22
           cache: "yarn"
       - run: yarn install --immutable
-      - run: mkdir -p test-results
-      - run: yarn test --reporter=junit --outputFile=test-results/junit.xml
-      - uses: dorny/test-reporter@v2
-        if: success() || failure()
-        with:
-          name: Vitest Results
-          path: test-results/junit.xml
-          reporter: java-junit
+      - run: yarn test --reporter=verbose 2>&1 | tail -50
 
   lint:
     runs-on: ubuntu-latest
