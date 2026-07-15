@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { RiGroupLine, RiUserLine } from "@remixicon/react";
 import { cn, formatDate } from "~/lib/utils";
 import type { TaskData } from "~/types";
@@ -9,7 +10,7 @@ type TaskCardProps = {
   onTaskClick: (task: TaskData) => void;
 };
 
-export function TaskCard({ task, stageProgress, onTaskClick }: TaskCardProps) {
+export const TaskCard = memo(function TaskCard({ task, stageProgress, onTaskClick }: TaskCardProps) {
   const isActive = stageProgress?.status === "active";
   const isComplete = stageProgress?.status === "completed";
   const isLocked = !isActive && !isComplete;
@@ -58,4 +59,4 @@ export function TaskCard({ task, stageProgress, onTaskClick }: TaskCardProps) {
       </div>
     </button>
   );
-}
+});

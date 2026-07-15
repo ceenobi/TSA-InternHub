@@ -52,7 +52,7 @@ export default function MembersCohortsRoute({
                 </div>
                 <Search
                   id="cohort-search"
-                  placeholder="Search cohorts by name..."
+                  placeholder="Search cohorts by name…"
                 />
               </CardTitle>
               <CardContent className="mt-8 px-0">

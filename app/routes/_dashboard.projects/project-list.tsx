@@ -79,7 +79,7 @@ export default function ProjectList({
 
   return (
     <>
-      <Card className="group rounded-md dark:bg-muted/30 hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm transition-all duration-300 animate-in fade-in slide-in-from-bottom-3">
+      <Card className="group rounded-md dark:bg-muted/30 hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm transition-[border-color,box-shadow] duration-300 animate-in fade-in slide-in-from-bottom-3">
         <CardHeader>
           <div className="flex items-start justify-between w-full">
             <div className="space-y-1.5">

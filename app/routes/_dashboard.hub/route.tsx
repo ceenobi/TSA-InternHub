@@ -12,7 +12,7 @@ import {
   RiUserStarLine,
   RiVideoChatLine,
 } from "@remixicon/react";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Await, useFetcher, useOutletContext } from "react-router";
 import { toast } from "sonner";
@@ -227,7 +227,7 @@ function HubView({
                 {hubData.members.map((member) => (
                   <div key={member._id} className="flex items-center gap-2">
                     <Avatar size="sm">
-                      <AvatarImage src={getOptimizedImageUrl(member.image, 40)} />
+                      <AvatarImage src={getOptimizedImageUrl(member.image, 24)} alt={member.name} />
                       <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <span className="text-sm font-medium truncate">
@@ -247,16 +247,24 @@ function HubView({
   const teamLeader = hubTeam?.teamLeader;
   const isLeader = hubData.isTeamLeader;
   const hasEditRights = isLeader || hubData.isAdmin;
-  const memberOptions = members.map((m) => ({
-    name: `${m.name} (${m.email})`,
-    id: m._id,
-  }));
+  const memberOptions = useMemo(
+    () =>
+      members.map((m) => ({
+        name: `${m.name} (${m.email})`,
+        id: m._id,
+      })),
+    [members],
+  );
 
-  const getStatusList = (
-    status: "todo" | "in-progress" | "in-review" | "done",
-  ) => {
-    return tasks.filter((t) => t.status === status);
-  };
+  const getStatusList = useMemo(() => {
+    const cache: Record<string, typeof tasks> = {};
+    return (status: "todo" | "in-progress" | "in-review" | "done") => {
+      if (!cache[status]) {
+        cache[status] = tasks.filter((t) => t.status === status);
+      }
+      return cache[status];
+    };
+  }, [tasks]);
 
   const handleUpdateStatus = (
     taskId: string,
@@ -460,7 +468,7 @@ function HubView({
                       size="sm"
                       className="border-2 border-background"
                     >
-                      <AvatarImage src={getOptimizedImageUrl(member.image, 40)} />
+                      <AvatarImage src={getOptimizedImageUrl(member.image, 24)} alt={member.name} />
                       <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                   ))}
@@ -547,7 +555,7 @@ function HubView({
                       return (
                         <div
                           key={task._id}
-                          className="bg-card border hover:border-blue-500/30 transition-all rounded-xl p-4 shadow-xs space-y-3"
+                          className="bg-card border hover:border-blue-500/30 transition-[border-color,box-shadow] rounded-xl p-4 shadow-xs space-y-3"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <span className="font-semibold text-sm leading-tight text-foreground block">
@@ -560,12 +568,14 @@ function HubView({
                                     setSelectedTask(task);
                                     setIsTaskModalOpen(true);
                                   }}
+                                  aria-label="Edit task"
                                   className="p-1 rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground transition"
                                 >
                                   <RiEditLine size={14} />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteTask(task._id)}
+                                  aria-label="Delete task"
                                   className="p-1 rounded-sm text-muted-foreground hover:bg-muted hover:text-destructive transition"
                                 >
                                   <RiDeleteBinLine size={14} />
@@ -599,13 +609,13 @@ function HubView({
 
                             <AvatarGroup>
                               {task.assignedTo.map((a) => (
-                                <Avatar
-                                  key={a._id}
-                                  size="sm"
-                                  className="border border-background shrink-0 size-6"
-                                  title={a.name}
-                                >
-                                  <AvatarImage src={getOptimizedImageUrl(a.image, 40)} />
+                                  <Avatar
+                                    key={a._id}
+                                    size="sm"
+                                    className="border border-background shrink-0 size-6"
+                                    title={a.name}
+                                  >
+                                    <AvatarImage src={getOptimizedImageUrl(a.image, 24)} alt={a.name} />
                                   <AvatarFallback>
                                     {a.name.charAt(0)}
                                   </AvatarFallback>
@@ -630,6 +640,7 @@ function HubView({
                                     )
                                   }
                                   title="Move Left"
+                                  aria-label="Move task left"
                                 >
                                   <RiArrowLeftSLine size={14} />
                                 </Button>
@@ -647,6 +658,7 @@ function HubView({
                                     )
                                   }
                                   title="Move Right"
+                                  aria-label="Move task right"
                                 >
                                   <RiArrowRightSLine size={14} />
                                 </Button>
@@ -738,13 +750,14 @@ function HubView({
             register={taskForm.register}
             errors={taskForm.formState.errors}
             name="description"
-            placeholder="Provide context, deliverables, or checklist items..."
+            placeholder="Provide context, deliverables, or checklist items…"
           />
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-medium">Priority</label>
+              <label htmlFor="priority" className="text-xs font-medium">Priority</label>
               <select
+                id="priority"
                 {...taskForm.register("priority")}
                 className="w-full h-10 rounded-sm border border-zinc-200 dark:border-accentBlack/60 bg-background px-3 text-sm outline-none focus:border-blue-500"
               >
@@ -775,14 +788,15 @@ function HubView({
                   <input
                     type="checkbox"
                     value={member._id}
+                    aria-label={member.name}
                     defaultChecked={selectedTask?.assignedTo.some(
                       (a) => a._id === member._id,
                     )}
                     {...taskForm.register("assignedTo")}
                     className="rounded-sm border-zinc-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <Avatar size="sm" className="size-5">
-                    <AvatarImage src={member.image} />
+                    <Avatar size="sm" className="size-5">
+                      <AvatarImage src={getOptimizedImageUrl(member.image, 20)} alt={member.name} />
                     <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <span className="text-xs font-medium">{member.name}</span>

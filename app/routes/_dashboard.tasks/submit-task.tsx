@@ -127,7 +127,7 @@ export function SubmitTaskModal({
           <FormBox
             label="Your submission"
             type="textarea"
-            placeholder="Describe your work, any additonal information the reviewer should know..."
+            placeholder="Describe your work, any additonal information the reviewer should know…"
             id="content"
             register={form.register}
             errors={form.formState.errors}
@@ -157,17 +157,20 @@ export function SubmitTaskModal({
                   value={file.name}
                   onChange={(e) => updateUrl(i, "name", e.target.value)}
                   placeholder="e.g. Design File"
+                  aria-label="Link name"
                   className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm outline-none focus:border-mainBlue dark:focus:border-darkBlue"
                 />
                 <input
                   value={file.url}
                   onChange={(e) => updateUrl(i, "url", e.target.value)}
                   placeholder="https://example.com/file"
+                  aria-label="Link URL"
                   className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm outline-none focus:border-mainBlue dark:focus:border-darkBlue"
                 />
                 <button
                   type="button"
                   onClick={() => removeUrl(i)}
+                  aria-label="Remove URL"
                   className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
                 >
                   <RiCloseLine size={18} />

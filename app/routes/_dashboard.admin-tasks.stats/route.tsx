@@ -348,7 +348,7 @@ export default function AdminTaskStats({ loaderData }: Route.ComponentProps) {
                                     <div className="flex items-center gap-2 justify-end">
                                       <div className="w-24 h-2 rounded-full bg-muted overflow-hidden">
                                         <div
-                                          className="h-full rounded-full bg-mainBlue dark:bg-darkBlue transition-all"
+                                          className="h-full rounded-full bg-mainBlue dark:bg-darkBlue transition-[width]"
                                           style={{
                                             width: `${completionRate}%`,
                                           }}

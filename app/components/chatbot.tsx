@@ -74,6 +74,7 @@ export default function Chatbot() {
             {messages.length > 0 && (
               <button
                 onClick={() => setMessages([])}
+                aria-label="Clear chat history"
                 className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 Clear
@@ -81,7 +82,7 @@ export default function Chatbot() {
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4" role="log" aria-live="polite" aria-atomic="false">
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
                 <span className="material-symbols-outlined text-[48px] mb-2">
@@ -141,6 +142,7 @@ export default function Chatbot() {
                                 submitFeedback(1, userMsg.content, msg.content);
                               }
                             }}
+                            aria-label="Rate as helpful"
                             className={`size-5 rounded flex items-center justify-center transition-colors ${
                               ratings[i] === 1
                                 ? "bg-green-100 dark:bg-green-900/30 text-green-600"
@@ -162,6 +164,7 @@ export default function Chatbot() {
                                 submitFeedback(-1, userMsg.content, msg.content);
                               }
                             }}
+                            aria-label="Rate as not helpful"
                             className={`size-5 rounded flex items-center justify-center transition-colors ${
                               ratings[i] === -1
                                 ? "bg-red-100 dark:bg-red-900/30 text-red-600"
@@ -235,7 +238,7 @@ export default function Chatbot() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask anything..."
+                placeholder="Ask anything…"
                 className="min-h-10 resize-none text-sm"
                 rows={1}
                 disabled={isPending}
@@ -244,6 +247,7 @@ export default function Chatbot() {
                 <Button
                   size="icon"
                   onClick={abort}
+                  aria-label="Stop generating"
                   className="shrink-0 bg-destructive hover:bg-destructive/90 text-white mb-0.5"
                 >
                   <span className="material-symbols-outlined text-[20px]">stop</span>
@@ -252,6 +256,7 @@ export default function Chatbot() {
                 <Button
                   size="icon"
                   onClick={handleSend}
+                  aria-label="Send message"
                   disabled={!input.trim()}
                   className="shrink-0 bg-mainBlue dark:bg-darkBlue hover:bg-mainBlue/90 dark:hover:bg-darkBlue/90 text-white mb-0.5"
                 >
@@ -266,6 +271,7 @@ export default function Chatbot() {
       <Button
         size="icon-lg"
         onClick={() => setOpen((v) => !v)}
+        aria-label={open ? "Close chat" : "Open chat assistant"}
         className="size-14 rounded-full shadow-xl bg-mainBlue dark:bg-darkBlue hover:bg-mainBlue/90 dark:hover:bg-darkBlue/90 text-white"
       >
         <span className={cn(

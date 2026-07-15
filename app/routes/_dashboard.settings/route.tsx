@@ -210,6 +210,9 @@ export default function Settings() {
                 <UploadAvatar />
                 <Card
                   onClick={() => setActiveForm("profile-form")}
+                  onKeyDown={(e) => e.key === "Enter" && setActiveForm("profile-form")}
+                  role="button"
+                  tabIndex={0}
                   className="border rounded-sm dark:bg-muted/30"
                 >
                   <CardHeader>
@@ -263,6 +266,9 @@ export default function Settings() {
                 <Card
                   className="border rounded-sm dark:bg-muted/30"
                   onClick={() => setActiveForm("password-form")}
+                  onKeyDown={(e) => e.key === "Enter" && setActiveForm("password-form")}
+                  role="button"
+                  tabIndex={0}
                 >
                   <CardHeader>
                     <CardTitle>Update Password</CardTitle>

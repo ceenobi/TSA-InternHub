@@ -7,7 +7,7 @@ import {
   RiTeamLine,
   RiUserLine,
 } from "@remixicon/react";
-import { Suspense, useState } from "react";
+import { Suspense, memo, useState } from "react";
 import { Await, useOutletContext, useSearchParams } from "react-router";
 import {
   createAnnouncement,
@@ -67,8 +67,8 @@ export async function action({ request }: Route.ActionArgs) {
         { success: false, message: "Invalid action" },
         { status: 400 },
       );
+    }
   }
-}
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { getQueryClientRsc } = await import("~/lib/getQueryClient");
@@ -270,7 +270,35 @@ function Announcements({
   );
 }
 
-function AnnouncementCard({
+const priorityColor = (p: string) => {
+  switch (p) {
+    case "urgent":
+      return "destructive";
+    case "high":
+      return "destructive";
+    case "low":
+      return "ghost";
+    default:
+      return "secondary";
+  }
+};
+
+const timeAgo = (d: string) => {
+  const diff = Date.now() - new Date(d).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(d).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+  });
+};
+
+const AnnouncementCard = memo(function AnnouncementCard({
   announcement,
   isAdmin,
   user,
@@ -281,19 +309,6 @@ function AnnouncementCard({
 }) {
   const [expanded, setExpanded] = useState(false);
   const isLong = announcement.content.length > 250;
-
-  const priorityColor = (p: string) => {
-    switch (p) {
-      case "urgent":
-        return "destructive";
-      case "high":
-        return "destructive";
-      case "low":
-        return "ghost";
-      default:
-        return "secondary";
-    }
-  };
 
   const targetLabel = () => {
     switch (announcement.target) {
@@ -314,25 +329,10 @@ function AnnouncementCard({
   const target = targetLabel();
   const TargetIcon = target.icon;
 
-  const timeAgo = (d: string) => {
-    const diff = Date.now() - new Date(d).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "just now";
-    if (mins < 60) return `${mins}m ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d ago`;
-    return new Date(d).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-    });
-  };
-
   return (
     <Card
       className={cn(
-        "rounded-sm border-border/60 transition-all duration-200 dark:bg-muted/30",
+        "rounded-sm border-border/60 transition-[border-color,box-shadow] duration-200 dark:bg-muted/30",
         announcement.pinned && "border-blue-500/30 bg-blue-500/2",
       )}
     >
@@ -370,6 +370,7 @@ function AnnouncementCard({
                   }}
                   className="p-1 rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground transition"
                   title={announcement.pinned ? "Unpin" : "Pin"}
+                  aria-label={announcement.pinned ? "Unpin announcement" : "Pin announcement"}
                 >
                   {announcement.pinned ? (
                     <RiPushpinFill size={14} className="text-blue-500" />
@@ -392,6 +393,7 @@ function AnnouncementCard({
                   }}
                   className="p-1 rounded-sm text-muted-foreground hover:bg-muted hover:text-destructive transition"
                   title="Delete"
+                  aria-label="Delete announcement"
                 >
                   <RiDeleteBinLine size={14} />
                 </button>
@@ -424,7 +426,8 @@ function AnnouncementCard({
           <div className="flex items-center gap-1.5">
             <Avatar size="sm" className="size-5">
               <AvatarImage
-                src={getOptimizedImageUrl(announcement.createdBy.image, 40)}
+                src={getOptimizedImageUrl(announcement.createdBy.image, 20)}
+                alt={announcement.createdBy.name || ""}
               />
               <AvatarFallback className="text-[8px]">
                 {announcement.createdBy.name?.charAt(0)}
@@ -443,4 +446,4 @@ function AnnouncementCard({
       </CardContent>
     </Card>
   );
-}
+});

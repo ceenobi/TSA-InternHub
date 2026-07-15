@@ -70,7 +70,7 @@ export default function KnowledgeBase() {
             <RiSearch2Line className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
             <input
               type="search"
-              placeholder="Search guide..."
+              placeholder="Search guide…"
               value={inputValue}
               onChange={(e) => debouncedSubmit(e.target.value)}
               className="w-full h-10 pl-10 pr-9 rounded-md border border-border bg-card text-sm outline-none focus:border-mainBlue/50 dark:focus:border-darkBlue/50 transition-colors"
@@ -220,7 +220,7 @@ function ArticleCard({
   return (
     <button
       onClick={() => onClick(article)}
-      className="flex items-start gap-3 p-4 rounded-sm border bg-card dark:bg-muted/30 hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm transition-all text-left w-full"
+      className="flex items-start gap-3 p-4 rounded-sm border bg-card dark:bg-muted/30 hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm transition-[border-color,box-shadow] text-left w-full"
     >
       <span className="material-symbols-outlined text-[24px] text-mainBlue dark:text-darkBlue shrink-0 mt-0.5">
         {article.icon}

@@ -190,6 +190,7 @@ export default function OnboardingRoute() {
               <Avatar className="size-24 ring-2 ring-offset-2 ring-border">
                 <AvatarImage
                   src={previewUrl || getOptimizedImageUrl(user.image, 96) || undefined}
+                  alt={user.name || ""}
                 />
                 <AvatarFallback className="text-2xl">
                   {user.name?.charAt(0)?.toUpperCase() || "?"}
@@ -211,7 +212,7 @@ export default function OnboardingRoute() {
                 disabled={isSubmitting || isUploading}
                 className="rounded-sm w-full"
               >
-                {isUploading ? "Uploading..." : "Upload Photo"}
+                {isUploading ? "Uploading…" : "Upload Photo"}
               </Button>
             </div>
 

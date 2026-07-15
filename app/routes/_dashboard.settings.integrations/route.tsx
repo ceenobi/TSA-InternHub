@@ -91,7 +91,7 @@ const INTEGRATION_DEFS = [
       {
         key: "webhookUrl",
         label: "Webhook URL",
-        placeholder: "https://hooks.slack.com/services/...",
+        placeholder: "https://hooks.slack.com/services/…",
         type: "url",
       },
       {
@@ -116,7 +116,7 @@ const INTEGRATION_DEFS = [
       {
         key: "serviceAccountKey",
         label: "Service Account Key (JSON)",
-        placeholder: "Paste your Google service account key...",
+        placeholder: "Paste your Google service account key…",
         type: "textarea",
       },
       {
@@ -141,7 +141,7 @@ const INTEGRATION_DEFS = [
       {
         key: "accessToken",
         label: "Access Token",
-        placeholder: "ghp_...",
+        placeholder: "ghp_…",
         type: "password",
       },
       {
@@ -166,7 +166,7 @@ const INTEGRATION_DEFS = [
       {
         key: "apiKey",
         label: "API Key",
-        placeholder: "AIza...",
+        placeholder: "AIza…",
         type: "password",
       },
     ],
@@ -185,7 +185,7 @@ const INTEGRATION_DEFS = [
       {
         key: "integrationToken",
         label: "Integration Token",
-        placeholder: "ntn_...",
+        placeholder: "ntn_…",
         type: "password",
       },
       {
@@ -370,7 +370,7 @@ function IntegrationList({
         return (
           <Card
             key={integration.id}
-            className={`rounded-sm dark:bg-muted/30 transition-all ${
+            className={`rounded-sm dark:bg-muted/30 transition-[border-color,box-shadow] ${
               isExpanded ? "ring-1 ring-mainBlue/30 dark:ring-darkBlue/30" : ""
             }`}
           >

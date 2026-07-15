@@ -213,6 +213,7 @@ export default function UploadAvatar() {
             >
               <AvatarImage
                 src={previewUrl || getOptimizedImageUrl(user.image, 80) || undefined}
+                alt={user.name || ""}
               />
               <AvatarFallback className="text-xl">
                 {user.name?.charAt(0)?.toUpperCase() || "?"}
@@ -242,7 +243,7 @@ export default function UploadAvatar() {
               disabled={busy}
               className="rounded-sm"
             >
-              {busy ? "Saving..." : "Upload Photo"}
+              {busy ? "Saving…" : "Upload Photo"}
             </Button>
             {!previewUrl && user.image && (
               <Button
@@ -253,7 +254,7 @@ export default function UploadAvatar() {
                 disabled={busy || isDeleting}
                 className="rounded-sm text-destructive hover:text-destructive block"
               >
-               {isDeleting ? "Removing..." : "Remove"}
+               {isDeleting ? "Removing…" : "Remove"}
               </Button>
             )}
           </div>

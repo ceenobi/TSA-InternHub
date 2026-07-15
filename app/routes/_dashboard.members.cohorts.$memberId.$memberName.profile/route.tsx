@@ -99,7 +99,7 @@ export default function MemberProfile({ loaderData }: Route.ComponentProps) {
                         "size-24 ring-4 ring-background",
                       )}
                     >
-                      <AvatarImage src={getOptimizedImageUrl(m.image, 96) || undefined} />
+                      <AvatarImage src={getOptimizedImageUrl(m.image, 96) || undefined} alt={m.name} />
                       <AvatarFallback className="text-2xl">
                         {initials}
                       </AvatarFallback>

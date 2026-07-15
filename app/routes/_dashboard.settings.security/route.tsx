@@ -177,7 +177,7 @@ function SessionRow({
               );
             }}
           >
-            {isRevoking ? "Revoking..." : "Revoke"}
+            {isRevoking ? "Revoking…" : "Revoke"}
           </Button>
         )}
       </div>

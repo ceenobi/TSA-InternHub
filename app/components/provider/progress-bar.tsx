@@ -46,7 +46,7 @@ export function ProgressBar() {
       <ProgressLoader
         value={progress}
         className="h-1 rounded-none bg-transparent"
-        indicatorClassName="bg-mainBlue dark:bg-darkBlue transition-all duration-300 ease-out shadow-[0_0_10px_rgba(110,89,255,0.5)]"
+        indicatorClassName="bg-mainBlue dark:bg-darkBlue transition-[width] duration-300 ease-out shadow-[0_0_10px_rgba(110,89,255,0.5)]"
       />
     </div>
   );

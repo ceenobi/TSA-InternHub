@@ -74,7 +74,7 @@ export default function AlertBox({
   return (
     <Alert
       className={cn(
-        "relative transition-all duration-300 shadow-sm rounded-sm",
+        "relative transition-[opacity,transform] duration-300 shadow-sm rounded-sm",
         customClasses,
         onClose && "pr-10",
         action && "pr-24",
@@ -102,7 +102,7 @@ export default function AlertBox({
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-2.5 right-3 p-1 rounded-md opacity-70 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5 transition-all text-current"
+          className="absolute top-2.5 right-3 p-1 rounded-md opacity-70 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5 transition-[opacity,background-color] text-current"
           aria-label="Close alert"
         >
           <RiCloseLine size={16} />

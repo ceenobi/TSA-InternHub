@@ -98,7 +98,7 @@ export default function ListCohort({
                   <div
                     style={{ animationDelay: `${index * 100}ms` }}
                     key={cohort._id}
-                    className="group relative flex flex-col gap-4 p-3 rounded-md border border-border/60 bg-background hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm dark:bg-muted/20 transition-all duration-300 animate-in fade-in slide-in-from-bottom-3"
+                    className="group relative flex flex-col gap-4 p-3 rounded-md border border-border/60 bg-background hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm dark:bg-muted/20 transition-[border-color,box-shadow] duration-300 animate-in fade-in slide-in-from-bottom-3"
                   >
                     <div className="flex justify-between items-center">
                       <Badge className={cohortStatusColor(cohort.status)}>

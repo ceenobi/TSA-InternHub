@@ -106,7 +106,7 @@ export default function Register() {
             name={field.name as keyof SignUpSchemaType}
             isVisible={isVisible}
             setIsVisible={setIsVisible}
-            showLabel={false}
+            showLabel={true}
           />
         ))}
         <ActionButton

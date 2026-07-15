@@ -38,7 +38,7 @@ export default function Search({
   return (
     <>
       <Form
-        className="relative w-full bg-muted group border-white/20 rounded-sm transition-all duration-300 flex items-center"
+        className="relative w-full bg-muted group border-white/20 rounded-sm transition-[border-color] duration-300 flex items-center"
         role="search"
         id={id}
         onChange={(event) => {
@@ -51,10 +51,14 @@ export default function Search({
           <RiSearch2Line className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         )}
         {query && (
-          <RiCloseFill
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground cursor-pointer"
+          <button
+            type="button"
+            aria-label="Clear search"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer"
             onClick={handleQueryDelete}
-          />
+          >
+            <RiCloseFill className="h-4 w-4 text-muted-foreground" />
+          </button>
         )}
         <Input
           placeholder={placeholder}

@@ -25,7 +25,7 @@ export default function DeleteAccountConfirmation() {
       </div>
 
       <PageSection index={0} className="w-full max-w-lg px-6 relative z-10">
-        <div className="overflow-hidden bg-muted/30 transition-all duration-500">
+        <div className="overflow-hidden bg-muted/30 transition-[max-height,opacity] duration-500">
           <div className="p-8 sm:p-12 text-center space-y-8">
             <div className="relative inline-block">
               <div className="absolute inset-0 bg-red-500/20 blur-2xl rounded-full animate-pulse" />
@@ -48,7 +48,7 @@ export default function DeleteAccountConfirmation() {
               <ActionButton
                 text="Return to Login"
                 type="button"
-                classname="w-full sm:w-auto px-10 rounded-md font-medium dark:border dark:border-darkBlue bg-mainBlue dark:bg-darkBlue/20 text-white hover:bg-mainBlue/90 transition-all duration-300"
+                classname="w-full sm:w-auto px-10 rounded-md font-medium dark:border dark:border-darkBlue bg-mainBlue dark:bg-darkBlue/20 text-white hover:bg-mainBlue/90 transition-[background-color] duration-300"
                 onClick={() => navigate("/auth/login")}
               />
             </div>

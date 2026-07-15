@@ -145,7 +145,7 @@ export default function CreateAnnouncement({
             register={register}
             errors={errors}
             name="content"
-            placeholder="Write your announcement..."
+            placeholder="Write your announcement…"
           />
 
           <FormBox
@@ -240,7 +240,7 @@ export default function CreateAnnouncement({
             {fetcher.state !== "idle" && (
               <RiLoaderLine className="animate-spin mr-1" size={16} />
             )}
-            {fetcher.state !== "idle" ? "Creating..." : "Create Announcement"}
+            {fetcher.state !== "idle" ? "Creating…" : "Create Announcement"}
           </Button>
         </fetcher.Form>
       </Modal>

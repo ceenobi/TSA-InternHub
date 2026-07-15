@@ -56,10 +56,12 @@ export default function Profile({ user }: { user: UserData }) {
             {user?.image ? (
               <img
                 className="h-8 w-8 object-cover border-2 border-mainBlue transition-colors rounded-full"
-                src={getOptimizedImageUrl(user?.image, 40)}
+                src={getOptimizedImageUrl(user?.image, 32)}
                 alt={`${user?.name}'s avatar`}
                 rel="noopener noreferrer"
                 loading="lazy"
+                width={32}
+                height={32}
               />
             ) : (
               <span className="w-8 h-8 border-2 border-mainBlue transition-colors flex items-center justify-center rounded-full">
@@ -84,9 +86,11 @@ export default function Profile({ user }: { user: UserData }) {
                 {user?.image ? (
                   <img
                     className="h-8 w-8 object-cover transition-colors rounded-full"
-                    src={getOptimizedImageUrl(user?.image, 40)}
+                    src={getOptimizedImageUrl(user?.image, 32)}
                     alt={`${user?.name}'s avatar`}
                     loading="lazy"
+                    width={32}
+                    height={32}
                   />
                 ) : (
                   <span className="w-8 h-8 transition-colors border border-mainBlue dark:border-darkBlue flex items-center justify-center rounded-full bg-white dark:bg-black">

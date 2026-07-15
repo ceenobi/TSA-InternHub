@@ -84,7 +84,7 @@ export default function Notification() {
                 No notifications yet
               </div>
             ) : (
-              <div className="divide-y divide-border/50">
+              <div className="divide-y divide-border/50" aria-live="polite">
                 {notifications.slice(0, 10).map((notif) => (
                   <button
                     key={notif._id}

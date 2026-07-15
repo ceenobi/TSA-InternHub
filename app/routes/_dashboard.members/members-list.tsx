@@ -51,13 +51,13 @@ export default function MembersList({ cohort }: MembersListProps) {
                       {cohort.members.map((member) => (
                         <div
                           key={member._id}
-                          className="group relative flex items-start gap-4 p-4 rounded-md border border-border/60 bg-background hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm dark:bg-muted/20 transition-all duration-300 animate-in fade-in slide-in-from-bottom-3"
+                          className="group relative flex items-start gap-4 p-4 rounded-md border border-border/60 bg-background hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm dark:bg-muted/20 transition-[border-color,box-shadow] duration-300 animate-in fade-in slide-in-from-bottom-3"
                         >
                           <Avatar
                             size="lg"
-                            className="size-12 ring-2 ring-border group-hover:ring-mainBlue/30 dark:group-hover:ring-darkBlue/40 transition-all"
+                            className="size-12 ring-2 ring-border group-hover:ring-mainBlue/30 dark:group-hover:ring-darkBlue/40 transition-[ring-color]"
                           >
-                            <AvatarImage src={getOptimizedImageUrl(member.image, 48)} />
+                            <AvatarImage src={getOptimizedImageUrl(member.image, 48)} alt={member.name} />
                             <AvatarFallback className="bg-mainBlue/10 dark:bg-darkBlue/20 text-mainBlue dark:text-darkBlue font-semibold text-sm">
                               {member.name.charAt(0)}
                             </AvatarFallback>

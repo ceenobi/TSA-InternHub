@@ -27,6 +27,7 @@ export default function Drawer({ user }: { user: UserData }) {
         render={
           <button
             type="button"
+            aria-label="Open navigation menu"
             className="lg:hidden relative w-10 h-10 cursor-pointer flex items-center justify-center"
           >
             <RiMenuFill size={28} />
@@ -47,7 +48,7 @@ export default function Drawer({ user }: { user: UserData }) {
             </NavLink>
             <SheetClose
               render={
-                <button type="button" className="w-10 h-10 cursor-pointer">
+                <button type="button" aria-label="Close navigation menu" className="w-10 h-10 cursor-pointer">
                   <RiCloseCircleLine size={30} />
                 </button>
               }
@@ -125,7 +126,7 @@ function DrawerLink({
     <NavLink
       to={item.href}
       className={({ isActive }) =>
-        `tracking-widest transition-all duration-300 ease-in-out w-full p-2 flex items-center justify-center gap-2 text-sm font-medium ${
+        `tracking-widest transition-[color,border-color] duration-300 ease-in-out w-full p-2 flex items-center justify-center gap-2 text-sm font-medium ${
           isActive
             ? "font-bold border-l-4 border-mainBlue dark:border-darkBlue text-mainBlue dark:text-darkBlue"
             : "hover:bg-mainDark/30 text-muted-foreground hover:text-muted-foreground"
