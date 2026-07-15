@@ -1,49 +1,46 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 
-vi.mock("~/lib/storage", () => ({
-  safeGetItem: vi.fn(),
-  safeSetItem: vi.fn(),
-}));
-
 import useSidebar from "../useSidebar";
-import { safeGetItem, safeSetItem } from "~/lib/storage";
+
+function setDocumentCookie(value: string) {
+  Object.defineProperty(document, "cookie", {
+    writable: true,
+    value,
+  });
+}
 
 describe("useSidebar", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    setDocumentCookie("");
   });
 
   it("initializes with sidebar closed by default", () => {
-    vi.mocked(safeGetItem).mockReturnValue(null);
-
     const { result } = renderHook(() => useSidebar());
 
     expect(result.current.isOpenSidebar).toBe(false);
   });
 
-  it("restores saved state from storage", () => {
-    vi.mocked(safeGetItem).mockReturnValue("true");
+  it("restores saved state from cookie", () => {
+    setDocumentCookie("sbarTsaInterHub=true");
 
     const { result } = renderHook(() => useSidebar());
 
     expect(result.current.isOpenSidebar).toBe(true);
   });
 
-  it("persists state changes to storage", () => {
-    vi.mocked(safeGetItem).mockReturnValue(null);
-
+  it("persists state changes to cookie", () => {
     const { result } = renderHook(() => useSidebar());
 
     act(() => {
       result.current.setIsOpenSidebar(true);
     });
 
-    expect(safeSetItem).toHaveBeenCalledWith("sbarTsaInterHub", "true");
+    expect(document.cookie).toContain("sbarTsaInterHub=true");
   });
 
   it("allows closing the sidebar", () => {
-    vi.mocked(safeGetItem).mockReturnValue("true");
+    setDocumentCookie("sbarTsaInterHub=true");
 
     const { result } = renderHook(() => useSidebar());
 
@@ -51,6 +48,6 @@ describe("useSidebar", () => {
       result.current.setIsOpenSidebar(false);
     });
 
-    expect(safeSetItem).toHaveBeenCalledWith("sbarTsaInterHub", "false");
+    expect(document.cookie).toContain("sbarTsaInterHub=false");
   });
 });

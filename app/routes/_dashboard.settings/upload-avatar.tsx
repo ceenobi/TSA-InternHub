@@ -248,11 +248,11 @@ export default function UploadAvatar() {
             {!previewUrl && user.image && (
               <Button
                 type="button"
-                variant="ghost"
+                variant="destructive"
                 size="sm"
                 onClick={handleDeleteExisting}
                 disabled={busy || isDeleting}
-                className="rounded-sm text-destructive hover:text-destructive block"
+                className="rounded-sm block"
               >
                {isDeleting ? "Removing…" : "Remove"}
               </Button>

@@ -33,13 +33,7 @@ type FormFieldProps<T extends FieldValues> = {
   disabled?: boolean;
   defaultValue?: string | Date | number | boolean;
   inputType?:
-    | "input"
-    | "textarea"
-    | "select"
-    | "switch"
-    | "editor"
-    | "tel"
-    | "otp";
+    "input" | "textarea" | "select" | "switch" | "editor" | "tel" | "otp";
   showLabel?: boolean;
   registerOptions?: RegisterOptions<T>;
   control?: Control<T>;
@@ -280,7 +274,7 @@ export function FormBox<T extends FieldValues>({
         {type === "password" && (
           <button
             type="button"
-            className="absolute top-[25%] right-3 text-muted-foreground border-0 focus:outline-none cursor-pointer"
+            className="absolute inset-y-1/2 right-3 text-muted-foreground border-0 focus:outline-none cursor-pointer"
             onClick={toggleVisibility}
           >
             {isVisible ? <RiEyeOffLine size={20} /> : <RiEyeLine size={20} />}

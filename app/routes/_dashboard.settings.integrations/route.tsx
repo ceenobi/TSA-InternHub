@@ -502,9 +502,9 @@ function IntegrationList({
                     Save
                   </Button>
                   <Button
-                    variant="ghost"
+                    variant="destructive"
                     size="sm"
-                    className="rounded-sm text-xs text-destructive hover:text-destructive"
+                    className="rounded-sm text-xs"
                     onClick={() => handleDisconnect(integration.id)}
                   >
                     <RiCloseCircleLine size={14} />

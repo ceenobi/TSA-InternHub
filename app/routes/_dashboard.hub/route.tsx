@@ -134,8 +134,7 @@ function HubView({
   const [selectedLeaderId, setSelectedLeaderId] = useState<string>("");
 
   const actionData = fetcher.data as
-    | { success?: boolean; message?: string }
-    | undefined;
+    { success?: boolean; message?: string } | undefined;
 
   useEffect(() => {
     if (actionData?.success) {
@@ -227,7 +226,10 @@ function HubView({
                 {hubData.members.map((member) => (
                   <div key={member._id} className="flex items-center gap-2">
                     <Avatar size="sm">
-                      <AvatarImage src={getOptimizedImageUrl(member.image, 24)} alt={member.name} />
+                      <AvatarImage
+                        src={getOptimizedImageUrl(member.image, 24)}
+                        alt={member.name}
+                      />
                       <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <span className="text-sm font-medium truncate">
@@ -468,7 +470,10 @@ function HubView({
                       size="sm"
                       className="border-2 border-background"
                     >
-                      <AvatarImage src={getOptimizedImageUrl(member.image, 24)} alt={member.name} />
+                      <AvatarImage
+                        src={getOptimizedImageUrl(member.image, 24)}
+                        alt={member.name}
+                      />
                       <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                   ))}
@@ -609,13 +614,16 @@ function HubView({
 
                             <AvatarGroup>
                               {task.assignedTo.map((a) => (
-                                  <Avatar
-                                    key={a._id}
-                                    size="sm"
-                                    className="border border-background shrink-0 size-6"
-                                    title={a.name}
-                                  >
-                                    <AvatarImage src={getOptimizedImageUrl(a.image, 24)} alt={a.name} />
+                                <Avatar
+                                  key={a._id}
+                                  size="sm"
+                                  className="border border-background shrink-0 size-6"
+                                  title={a.name}
+                                >
+                                  <AvatarImage
+                                    src={getOptimizedImageUrl(a.image, 24)}
+                                    alt={a.name}
+                                  />
                                   <AvatarFallback>
                                     {a.name.charAt(0)}
                                   </AvatarFallback>
@@ -713,7 +721,7 @@ function HubView({
             text="Assign Team Leader"
             type="submit"
             loading={fetcher.state !== "idle"}
-            classname="w-full rounded-sm bg-mainBlue dark:bg-darkBlue text-white"
+            classname="w-full rounded-sm bg-mainBlue dark:bg-darkBlue/40 text-white"
           />
         </form>
       </Modal>
@@ -754,19 +762,20 @@ function HubView({
           />
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label htmlFor="priority" className="text-xs font-medium">Priority</label>
-              <select
-                id="priority"
-                {...taskForm.register("priority")}
-                className="w-full h-10 rounded-sm border border-zinc-200 dark:border-accentBlack/60 bg-background px-3 text-sm outline-none focus:border-blue-500"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
-            </div>
-
+            <FormBox
+              label="Priority"
+              type="select"
+              id="priority"
+              register={taskForm.register}
+              errors={taskForm.formState.errors}
+              control={taskForm.control}
+              name="priority"
+              options={[
+                { id: "low", name: "Low" },
+                { id: "medium", name: "Medium" },
+                { id: "high", name: "High" },
+              ]}
+            />
             <FormBox
               label="Due Date (optional)"
               type="date"
@@ -776,10 +785,10 @@ function HubView({
               name="dueDate"
             />
           </div>
-
           <div className="space-y-2">
             <label className="text-xs font-medium">Assign To</label>
-            <div className="max-h-40 overflow-y-auto border rounded-md p-2 space-y-1 bg-background">
+            <div className="mt-2 max-h-40 overflow-y-auto border rounded-md p-2 space-y-2 bg-background dark:bg-zinc-800">
+              {members.length === 0 && <p>No members available</p>}
               {members.map((member) => (
                 <label
                   key={member._id}
@@ -795,8 +804,11 @@ function HubView({
                     {...taskForm.register("assignedTo")}
                     className="rounded-sm border-zinc-300 text-blue-600 focus:ring-blue-500"
                   />
-                    <Avatar size="sm" className="size-5">
-                      <AvatarImage src={getOptimizedImageUrl(member.image, 20)} alt={member.name} />
+                  <Avatar size="sm" className="size-5">
+                    <AvatarImage
+                      src={getOptimizedImageUrl(member.image, 20)}
+                      alt={member.name}
+                    />
                     <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <span className="text-xs font-medium">{member.name}</span>
@@ -808,7 +820,7 @@ function HubView({
             text={selectedTask ? "Save Changes" : "Create Task"}
             type="submit"
             loading={fetcher.state !== "idle"}
-            classname="w-full rounded-sm bg-mainBlue dark:bg-darkBlue text-white"
+            classname="w-full rounded-sm bg-mainBlue dark:bg-darkBlue/40 text-white"
           />
         </fetcher.Form>
       </Modal>
