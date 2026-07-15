@@ -106,7 +106,7 @@ export default function PasswordReset() {
               name={field.name as keyof ResetPasswordSchemaType}
               isVisible={isVisible}
               setIsVisible={setIsVisible}
-              showLabel={false}
+              showLabel={true}
               classname="w-full"
             />
           ))}

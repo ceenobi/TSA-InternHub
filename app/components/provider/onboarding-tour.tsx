@@ -168,6 +168,8 @@ export function OnboardingTour() {
           zIndex: 9997,
           backgroundColor: "rgba(0,0,0,0.5)",
         }}
+        role="presentation"
+        aria-hidden="true"
         onClick={handleSkip}
       />
       {highlightStyle && <div style={highlightStyle} />}

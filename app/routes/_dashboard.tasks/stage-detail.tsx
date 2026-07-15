@@ -381,7 +381,7 @@ export function StageDetail({
           <div className="flex flex-col gap-3">
             <a
               href="#"
-              className="flex items-center justify-between p-3 rounded-lg hover:bg-accent group transition-all"
+              className="flex items-center justify-between p-3 rounded-lg hover:bg-accent group transition-[background-color]"
               onClick={(e) => e.preventDefault()}
             >
               <div className="flex items-center gap-3">
@@ -398,7 +398,7 @@ export function StageDetail({
             </a>
             <a
               href="#"
-              className="flex items-center justify-between p-3 rounded-lg hover:bg-accent group transition-all"
+              className="flex items-center justify-between p-3 rounded-lg hover:bg-accent group transition-[background-color]"
               onClick={(e) => e.preventDefault()}
             >
               <div className="flex items-center gap-3">
@@ -436,7 +436,7 @@ function TaskDetailCard({
       type="button"
       onClick={onTaskClick}
       disabled={!isActive}
-      className="flex items-start gap-4 w-full text-left bg-card dark:bg-muted/30 border rounded-sm p-4 hover:bg-accent transition-all group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      className="flex items-start gap-4 w-full text-left bg-card dark:bg-muted/30 border rounded-sm p-4 hover:bg-accent transition-[background-color] group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
     >
       <div className="w-10 h-10 rounded-full bg-mainBlue/10 dark:bg-darkBlue/10 flex items-center justify-center text-mainBlue dark:text-darkBlue shrink-0 mt-0.5">
         <span className="material-symbols-outlined text-[20px]">

@@ -96,7 +96,7 @@ export default function Login() {
               name={field.name as keyof SignInSchemaType}
               isVisible={isVisible}
               setIsVisible={setIsVisible}
-              showLabel={false}
+              showLabel={true}
               classname="w-full"
             />
           ))}

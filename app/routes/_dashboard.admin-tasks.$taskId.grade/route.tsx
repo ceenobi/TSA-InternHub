@@ -195,7 +195,7 @@ function GradeTaskInner({
           submissions.map((submission, index) => (
             <Card
               key={submission._id}
-              className="rounded-sm bg-background dark:bg-muted/30 hover:border-mainBlue/30 dark:hover:border-darkBlue/40 group relative transition-all duration-300 animate-in fade-in slide-in-from-bottom-3"
+              className="rounded-sm bg-background dark:bg-muted/30 hover:border-mainBlue/30 dark:hover:border-darkBlue/40 group relative transition-[border-color,box-shadow] duration-300 animate-in fade-in slide-in-from-bottom-3"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <CardContent className="pt-6">
@@ -203,7 +203,7 @@ function GradeTaskInner({
                   <div className="flex items-center gap-3">
                     <Avatar
                       size="lg"
-                      className="size-12 ring-2 ring-border group-hover:ring-mainBlue/30 dark:group-hover:ring-darkBlue/40 transition-all"
+                      className="size-12 ring-2 ring-border group-hover:ring-mainBlue/30 dark:group-hover:ring-darkBlue/40 transition-[ring-color]"
                     >
                       <AvatarImage
                         src={getOptimizedImageUrl(submission.user.image, 48)}
@@ -299,10 +299,11 @@ function GradeTaskInner({
                   editingId === submission._id) && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
-                      <label className="text-sm font-medium min-w-16">
+                      <label htmlFor={`score-${submission._id}`} className="text-sm font-medium min-w-16">
                         Score
                       </label>
                       <input
+                        id={`score-${submission._id}`}
                         type="number"
                         min={0}
                         max={submission.maxScore}
@@ -321,10 +322,11 @@ function GradeTaskInner({
                       </span>
                     </div>
                     <div className="flex items-start gap-3">
-                      <label className="text-sm font-medium min-w-16 pt-1.5">
+                      <label htmlFor={`feedback-${submission._id}`} className="text-sm font-medium min-w-16 pt-1.5">
                         Feedback
                       </label>
                       <textarea
+                        id={`feedback-${submission._id}`}
                         value={feedbackValues[submission._id] ?? ""}
                         onChange={(e) =>
                           setFeedbackValues((prev) => ({
@@ -332,7 +334,7 @@ function GradeTaskInner({
                             [submission._id]: e.target.value,
                           }))
                         }
-                        placeholder="Optional feedback..."
+                        placeholder="Optional feedback…"
                         rows={3}
                         className="flex-1 rounded-sm border border-border bg-background/30 px-3 py-1.5 text-sm outline-none focus:border-mainBlue dark:focus:border-darkBlue resize-none"
                       />

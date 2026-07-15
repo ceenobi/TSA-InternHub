@@ -13,9 +13,9 @@ export function ThemeToggle() {
       className="cursor-pointer"
     >
       {theme === "dark" ? (
-        <RiSunLine className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all" />
+        <RiSunLine className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-[transform,opacity]" />
       ) : (
-        <RiContrast2Line className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all" />
+        <RiContrast2Line className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-[transform,opacity]" />
       )}
       <span className="sr-only">Toggle theme</span>
     </Button>

@@ -113,7 +113,7 @@ export default function InviteMember({ cohort }: { cohort: CohortDataType }) {
                   control={inviteForm.control}
                   name={field.name as keyof SendInviteCodeSchemaType}
                   options={field.options}
-                  showLabel={false}
+                  showLabel={true}
                   classname="w-full"
                 />
               ))}

@@ -14,6 +14,15 @@ import usePaginate from "~/hooks/usePaginate";
 import { cn, formatDate } from "~/lib/utils";
 import type { AuditLogData, UsePaginateProps } from "~/types";
 
+const categories = [
+  { label: "All Activities", value: "all" },
+  { label: "Authentication", value: "auth" },
+  { label: "Tasks", value: "tasks" },
+  { label: "Staff Management", value: "staff" },
+  { label: "Security", value: "security" },
+  { label: "Settings", value: "settings" },
+];
+
 export function AuditLogList({
   logs,
   meta,
@@ -47,15 +56,6 @@ export function AuditLogList({
     setSearchParams(newParams);
   };
   
-  const categories = [
-    { label: "All Activities", value: "all" },
-    { label: "Authentication", value: "auth" },
-    { label: "Tasks", value: "tasks" },
-    { label: "Staff Management", value: "staff" },
-    { label: "Security", value: "security" },
-    { label: "Settings", value: "settings" },
-  ];
-
   return (
     <Card className="rounded-sm dark:bg-muted/30">
       <CardHeader>
@@ -89,7 +89,7 @@ export function AuditLogList({
             {logs.map((log, i) => (
               <div
                 key={log._id}
-                className="group relative p-4 rounded-sm border border-border/60 bg-background hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm dark:bg-muted/30 transition-all duration-300 animate-in fade-in slide-in-from-bottom-3"
+                className="group relative p-4 rounded-sm border border-border/60 bg-background hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm dark:bg-muted/30 transition-[border-color,box-shadow] duration-300 animate-in fade-in slide-in-from-bottom-3"
                 style={{ animationDelay: `${i * 100}ms` }}
               >
                 <div className="p-0 space-y-3">

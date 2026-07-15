@@ -68,7 +68,7 @@ export default function VerifyEmail({ loaderData }: Route.ComponentProps) {
       </div>
 
       <PageSection index={0} className="w-full max-w-lg px-6 relative z-10">
-        <div className="overflow-hidden transition-all duration-500">
+        <div className="overflow-hidden transition-[max-height,opacity] duration-500">
           {user?.emailVerified ? (
             <div className="p-8 sm:p-12 text-center space-y-8">
               <div className="relative inline-block">
@@ -95,7 +95,7 @@ export default function VerifyEmail({ loaderData }: Route.ComponentProps) {
                 <ActionButton
                   text="Go to Dashboard"
                   type="button"
-                  classname="w-full sm:w-auto px-10 rounded-md font-medium dark:border dark:border-darkBlue bg-mainBlue dark:bg-darkBlue/20 text-white hover:bg-mainBlue/90 transition-all duration-300"
+                  classname="w-full sm:w-auto px-10 rounded-md font-medium dark:border dark:border-darkBlue bg-mainBlue dark:bg-darkBlue/20 text-white hover:bg-mainBlue/90 transition-[background-color] duration-300"
                   onClick={() => navigate("/")}
                 />
               </div>
@@ -114,7 +114,7 @@ export default function VerifyEmail({ loaderData }: Route.ComponentProps) {
                 {/* Alert Handling */}
                 <div className="min-h-10">
                   {actionData !== undefined && showAlert && (
-                    <div className="transform transition-all duration-300 animate-in fade-in slide-in-from-top-4">
+                    <div className="transform transition-[transform,opacity] duration-300 animate-in fade-in slide-in-from-top-4">
                       <AlertBox
                         title={
                           actionData.success
@@ -170,13 +170,13 @@ export default function VerifyEmail({ loaderData }: Route.ComponentProps) {
                   <ActionButton
                     text={
                       isSubmitting
-                        ? "Sending Link..."
+                        ? "Sending Link…"
                         : "Resend Verification Email"
                     }
                     type="submit"
                     onClick={onSubmit}
                     loading={isSubmitting}
-                    classname="w-full py-5 rounded-md font-bold border border-mainBlue bg-mainBlue dark:bg-darkBlue/40 text-white hover:bg-mainBlue/90 transition-all duration-300"
+                    classname="w-full py-5 rounded-md font-bold border border-mainBlue bg-mainBlue dark:bg-darkBlue/40 text-white hover:bg-mainBlue/90 transition-[background-color] duration-300"
                   />
                   <button
                     onClick={() => navigate("/auth/login")}

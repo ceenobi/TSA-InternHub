@@ -26,7 +26,7 @@ export default function RenderTable({ data }: { data: UserData[] }) {
           return (
             <div className="flex items-center gap-2">
               <Avatar>
-                <AvatarImage src={getOptimizedImageUrl(row.original.image, 40)} />
+                <AvatarImage src={getOptimizedImageUrl(row.original.image, 32)} alt={row.original.name} />
                 <AvatarFallback className="bg-primary/10 text-primary">
                   {row.original.name.charAt(0)}
                 </AvatarFallback>

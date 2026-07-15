@@ -166,7 +166,7 @@ export default function TicketCard({
                 <Card
                   key={ticket._id}
                   onClick={() => setSelectedTicket(ticket)}
-                  className="rounded-sm border bg-card dark:bg-muted/30 hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm transition-all animate-in fade-in slide-in-from-bottom-4 duration-300 cursor-pointer"
+                  className="rounded-sm border bg-card dark:bg-muted/30 hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm transition-[border-color,box-shadow] animate-in fade-in slide-in-from-bottom-4 duration-300 cursor-pointer"
                   style={{ animationDelay: `${(index + 1) * 100}ms` }}
                 >
                   <CardContent className="p-4">

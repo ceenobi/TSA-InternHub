@@ -94,7 +94,7 @@ export default function ForgotPasswordRoute() {
               control={control}
               errors={errors}
               name={field.name as keyof ForgotPasswordSchemaType}
-              showLabel={false}
+              showLabel={true}
               classname="w-full"
             />
           ))}

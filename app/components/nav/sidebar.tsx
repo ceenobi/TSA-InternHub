@@ -23,7 +23,7 @@ export default function Sidebar({
   return (
     <aside
       className={cn(
-        `hidden lg:flex flex-col bg-darkWhite dark:bg-mainDark top-0 fixed z-50 transition-all duration-300 ease-in-out min-h-svh`,
+        `hidden lg:flex flex-col bg-darkWhite dark:bg-mainDark top-0 fixed z-50 transition-[width] duration-300 ease-in-out min-h-svh`,
         isOpenSidebar ? "lg:w-58" : "lg:w-12",
         "dark:bg-linear-to-r/decreasing from-mainBlue/40 to-accentBlack",
       )}
@@ -94,6 +94,7 @@ export default function Sidebar({
         )}
         <button
           onClick={toggleSidebar}
+          aria-label={isOpenSidebar ? "Collapse sidebar" : "Expand sidebar"}
           className={cn(
             " hover:dark:text-darkBlue hover:text-darkBlue text-mainBlue dark:text-darkBlue px-2 my-2",
           )}
@@ -142,7 +143,7 @@ function SidebarLink({
           to={item.href}
           className={({ isActive }) =>
             cn(
-              "transition-all duration-300 ease-in-out w-full p-1.25 flex items-center text-sm capitalize",
+              "transition-[color,background-color] duration-300 ease-in-out w-full p-1.25 flex items-center text-sm capitalize",
               isActive
                 ? "bg-mainBlue dark:bg-darkBlue/10 text-white dark:border-l-2 border-darkBlue dark:text-darkBlue"
                 : "hover:bg-accentBlack/10 dark:hover:bg-mainBlack hover:dark:bg-darkBlue/5 text-muted-foreground",

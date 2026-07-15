@@ -94,7 +94,7 @@ export default function StageTasks({
 
 function TaskCard({ task }: { task: TaskData }) {
   return (
-    <div className="flex items-start gap-4 bg-card dark:bg-muted/30 border rounded-sm p-4 hover:bg-accent transition-all dark:hover:border-darkBlue/40 hover:shadow-sm duration-300 animate-in fade-in slide-in-from-bottom-3">
+    <div className="flex items-start gap-4 bg-card dark:bg-muted/30 border rounded-sm p-4 hover:bg-accent transition-[background-color,border-color,box-shadow] dark:hover:border-darkBlue/40 hover:shadow-sm duration-300 animate-in fade-in slide-in-from-bottom-3">
       <div className="size-10 rounded-full bg-mainBlue/10 dark:bg-darkBlue/10 flex items-center justify-center text-mainBlue dark:text-darkBlue shrink-0 mt-0.5">
         {task.type === "group" ? (
           <RiGroupLine size={20} />

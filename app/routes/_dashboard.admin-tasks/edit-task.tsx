@@ -172,6 +172,7 @@ export default function EditTask({ task, isOpen, onClose }: EditTaskProps) {
                         updateResource(index, "name", e.target.value)
                       }
                       placeholder="Resource name"
+                      aria-label="Resource name"
                       className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm outline-none focus:border-mainBlue dark:focus:border-darkBlue"
                     />
                     <input
@@ -180,12 +181,14 @@ export default function EditTask({ task, isOpen, onClose }: EditTaskProps) {
                         updateResource(index, "url", e.target.value)
                       }
                       placeholder="https://example.com"
+                      aria-label="Resource URL"
                       className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm outline-none focus:border-mainBlue dark:focus:border-darkBlue"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => removeResource(index)}
+                    aria-label="Remove resource"
                     className="mt-2 shrink-0 text-muted-foreground hover:text-destructive transition-colors"
                   >
                     <RiCloseLine size={18} />

@@ -59,7 +59,7 @@ export default function AddCohort() {
   return (
     <>
       <div className="flex justify-between items-center gap-4">
-        <Search id="cohort-search" placeholder="Search cohorts by name..." />
+        <Search id="cohort-search" placeholder="Search cohorts by name…" />
         <Button
           className="border dark:border-darkBlue bg-mainBlue hover:bg-mainBlue/90 dark:bg-darkBlue/20 text-white px-4 py-2 rounded-sm"
           onClick={() => setIsOpen(true)}

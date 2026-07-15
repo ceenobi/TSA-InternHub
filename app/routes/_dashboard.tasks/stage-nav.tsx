@@ -48,7 +48,7 @@ export function StageNav({
             <button
               onClick={() => onSelect(stage._id)}
               className={`
-                flex items-center gap-2 px-3 py-2 rounded-sm transition-all text-left
+                flex items-center gap-2 px-3 py-2 rounded-sm transition-[background-color,border-color] text-left
                 ${
                   isActive
                     ? "bg-white/5 border shadow"

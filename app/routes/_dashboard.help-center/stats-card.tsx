@@ -56,7 +56,7 @@ export default function StatsCard({
         <Card
           key={stat.label}
           size="sm"
-          className="rounded-sm dark:bg-muted/30 transition-all duration-300 animate-in fade-in slide-in-from-bottom-3"
+          className="rounded-sm dark:bg-muted/30 transition-[border-color,box-shadow] duration-300 animate-in fade-in slide-in-from-bottom-3"
             style={{ animationDelay: `${index * 100}ms` }}
         >
           <CardContent className="flex items-center gap-4">

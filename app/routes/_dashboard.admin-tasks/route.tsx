@@ -139,7 +139,7 @@ function TaskList({ stages }: { stages: StageWithData[] }) {
       {stages.map((stageData: StageWithData, index: number) => (
         <Card
           key={stageData.stage._id}
-          className="group rounded-md dark:bg-muted/30 hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm transition-all duration-300 animate-in fade-in slide-in-from-bottom-3"
+          className="group rounded-md dark:bg-muted/30 hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm transition-[border-color,box-shadow] duration-300 animate-in fade-in slide-in-from-bottom-3"
           style={{ animationDelay: `${index * 100}ms` }}
         >
           <CardHeader className="flex items-center justify-between border-b px-5">
@@ -156,7 +156,7 @@ function TaskList({ stages }: { stages: StageWithData[] }) {
             {stageData.tasks.length === 0 && (
               <button
                 onClick={() => setCreateStageId(stageData.stage._id)}
-                className="px-4 py-2 rounded-sm text-mainBlue dark:text-muted-foreground group-hover:dark:text-darkBlue transition-all"
+                className="px-4 py-2 rounded-sm text-mainBlue dark:text-muted-foreground group-hover:dark:text-darkBlue transition-[color]"
               >
                 Add Task
               </button>
@@ -204,12 +204,12 @@ function TaskList({ stages }: { stages: StageWithData[] }) {
                   <div className="flex items-center gap-2 shrink-0">
                     <Link
                       to={`/admin-tasks/${task._id}/grade`}
-                      className="px-3 py-1.5 rounded-sm border transition-all hover:bg-accent"
+                      className="px-3 py-1.5 rounded-sm border transition-[background-color,border-color] hover:bg-accent"
                     >
                       Grade
                     </Link>
                     <button
-                      className="px-3 py-1.5 rounded-sm border transition-all hover:bg-accent"
+                      className="px-3 py-1.5 rounded-sm border transition-[background-color,border-color] hover:bg-accent"
                       type="button"
                       onClick={() => {
                         setIsOpenEdit(true);

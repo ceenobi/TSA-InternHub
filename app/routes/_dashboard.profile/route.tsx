@@ -74,7 +74,7 @@ export default function ProfileRoute() {
                 size="lg"
                 className={cn("size-24 ring-4 ring-background")}
               >
-                <AvatarImage src={getOptimizedImageUrl(user.image, 96) || undefined} />
+                <AvatarImage src={getOptimizedImageUrl(user.image, 96) || undefined} alt={user.name} />
                 <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
               </Avatar>
               <div className="pb-1">

@@ -1,5 +1,5 @@
+import { lazy, Suspense } from "react";
 import { Outlet } from "react-router";
-import Chatbot from "~/components/chatbot";
 import Header from "~/components/nav/header";
 import Sidebar from "~/components/nav/sidebar";
 import { OnboardingTour } from "~/components/provider/onboarding-tour";
@@ -9,6 +9,8 @@ import {
   type RouterContext,
 } from "~/middleware/auth.middleware";
 import type { Route } from "./+types/route";
+
+const Chatbot = lazy(() => import("~/components/chatbot"));
 
 export const middleware = [authenticatedMiddleware];
 
@@ -36,7 +38,9 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
           <Outlet context={{ user }} />
         </main>
       </div>
-      <Chatbot />
+      <Suspense fallback={null}>
+        <Chatbot />
+      </Suspense>
       {user.isOnboarded && <OnboardingTour />}
     </>
   );

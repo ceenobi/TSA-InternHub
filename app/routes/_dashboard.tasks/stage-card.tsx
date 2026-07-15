@@ -61,7 +61,7 @@ export function StageCard({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-card border-l-4 overflow-hidden transition-all",
+        "rounded-xl border border-border bg-card border-l-4 overflow-hidden transition-[border-color,box-shadow]",
         stageColors[(stage.order - 1) % stageColors.length],
         (isLocked || isFailed) && "opacity-60",
       )}
@@ -101,7 +101,7 @@ export function StageCard({
             <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
               <div
                 className={cn(
-                  "h-full transition-all",
+                  "h-full transition-[width]",
                   progress.passed ? "bg-green-500" : "bg-amber-500",
                 )}
                 style={{ width: `${progress.percentage}%` }}

@@ -115,7 +115,7 @@ function StatCard({
   color: string;
 }) {
   return (
-    <Card className="rounded-md dark:bg-muted/30 hover:border-mainBlue/30 dark:hover:border-darkBlue/40 transition-all duration-300 animate-in fade-in slide-in-from-bottom-3">
+    <Card className="rounded-md dark:bg-muted/30 hover:border-mainBlue/30 dark:hover:border-darkBlue/40 transition-[border-color,box-shadow] duration-300 animate-in fade-in slide-in-from-bottom-3">
       <CardContent className="p-5">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
@@ -267,7 +267,7 @@ function UserDashboard({
                       <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
                         <div
                           className={cn(
-                            "h-full rounded-full transition-all duration-500",
+                            "h-full rounded-full transition-[width] duration-500",
                             stage.passed
                               ? "bg-emerald-500"
                               : stage.status === "active"
@@ -534,19 +534,19 @@ function AdminDashboard({
                 {tickets.open + tickets.inProgress + tickets.resolved > 0 && (
                   <>
                     <div
-                      className="bg-rose-500 h-full transition-all"
+                      className="bg-rose-500 h-full transition-[width]"
                       style={{
                         width: `${(tickets.open / (tickets.open + tickets.inProgress + tickets.resolved)) * 100}%`,
                       }}
                     />
                     <div
-                      className="bg-amber-500 h-full transition-all"
+                      className="bg-amber-500 h-full transition-[width]"
                       style={{
                         width: `${(tickets.inProgress / (tickets.open + tickets.inProgress + tickets.resolved)) * 100}%`,
                       }}
                     />
                     <div
-                      className="bg-emerald-500 h-full transition-all"
+                      className="bg-emerald-500 h-full transition-[width]"
                       style={{
                         width: `${(tickets.resolved / (tickets.open + tickets.inProgress + tickets.resolved)) * 100}%`,
                       }}

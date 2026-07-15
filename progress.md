@@ -144,6 +144,13 @@ Triggers: pushes to `main`/`testing`, PRs to `main`.
 - [x] Updated CI to Node 22 (fix kysely@0.29.3 requirement)
 - [x] Merged PR #4 (`testing` → `main`) after resolving flaky CI test
 - [x] Created this `progress.md`
+- [x] Deployed to Vercel at **https://tsa-internhub.vercel.app** (project: `tsa-internhub`, team: `cobis-projects`)
+- [x] Fixed Sentry Vite plugin for Vercel build — `defineConfig(async (env) => {...})` with dynamic import
+- [x] Fixed typecheck: `tailwindcss()`/`reactRouter()` return `Plugin[]`, not `Plugin`
+- [x] Set production env vars on Vercel: `BETTER_AUTH_URL`, `CLIENT_URL`, `QSTASH_URL`, `QSTASH_TOKEN`
+- [x] Dashboard workflow now caches global summary in Redis (`dashboard:global-summary`, 300s TTL)
+- [x] Dashboard reads cached global summary, preferring it for `totalUsers`/`pendingCount`/`totalSubmissions`
+- [x] QStash cron job set up for `run-dashboard-refresh` (every 5 min)
 
 ---
 
@@ -152,3 +159,4 @@ Triggers: pushes to `main`/`testing`, PRs to `main`.
 - **Flaky test on CI** — Non-reproducible test failure on merge commit; re-running CI resolves it
 - **Node 20 deprecation warning** — `actions/checkout@v4`, `actions/setup-node@v4`, `dorny/test-reporter@v2` target Node 20 (will need v5 upgrades)
 - **No E2E in CI** — Playwright tests run locally only; no `npx playwright install` step in CI
+- **CLIENT_URL env var** — Set to `https://tsa-internhub.vercel.app`; verify redirects/links work with production origin

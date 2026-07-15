@@ -61,7 +61,7 @@ export default function ListCohort({
             {cohorts?.map((cohort, index) => (
               <div
                 key={cohort._id}
-                className="cursor-pointer group relative flex flex-col gap-4 p-3 rounded-md border border-border/60 bg-background hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm dark:bg-muted/20 transition-all duration-300 animate-in fade-in slide-in-from-bottom-3"
+                className="cursor-pointer group relative flex flex-col gap-4 p-3 rounded-md border border-border/60 bg-background hover:border-mainBlue/30 dark:hover:border-darkBlue/40 hover:shadow-sm dark:bg-muted/20 transition-[border-color,box-shadow] duration-300 animate-in fade-in slide-in-from-bottom-3"
                 onClick={() => {
                   setSelectedCohort(cohort);
                   setIsOpen(true);
@@ -113,19 +113,23 @@ export default function ListCohort({
             <Separator />
             <div className="py-4 px-2 max-h-[70vh] overflow-y-auto space-y-4">
               <Form
-                className="relative w-full bg-inherit rounded-sm group hover:border border-mainBlue dark:border-mainGold/40 transition-all duration-300 outline-none flex items-center ring-1 ring-mainDark/20"
+                className="relative w-full bg-inherit rounded-sm group hover:border border-mainBlue dark:border-mainGold/40 transition-[border-color] duration-300 outline-none flex items-center ring-1 ring-mainDark/20"
                 role="search"
               >
                 <RiSearchLine className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 
                 {searchValue && (
-                  <RiCloseLine
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground cursor-pointer"
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer"
                     onClick={() => setSearchValue("")}
-                  />
+                  >
+                    <RiCloseLine className="h-4 w-4 text-muted-foreground" />
+                  </button>
                 )}
                 <Input
-                  placeholder="Search members..."
+                  placeholder="Search members…"
                   value={searchValue}
                   onChange={(e) => debouncedSubmit(e.target.value)}
                   name="query"
@@ -145,7 +149,8 @@ export default function ListCohort({
                       <div className="flex items-center gap-2">
                         <Avatar>
                           <AvatarImage
-                            src={getOptimizedImageUrl(member.image, 40)}
+                            src={getOptimizedImageUrl(member.image, 32)}
+                            alt={member.name}
                           />
                           <AvatarFallback className="bg-primary/10 text-primary">
                             {member.name.charAt(0)}
