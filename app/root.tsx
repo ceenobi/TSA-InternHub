@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import {
   isRouteErrorResponse,
   Link,
@@ -121,11 +122,14 @@ export default function App() {
     );
   }
   return (
-    <QueryClientProvider client={queryClient}>
-      <HydrationBoundary state={dehydratedState}>
-        <Outlet />
-      </HydrationBoundary>
-    </QueryClientProvider>
+    <>
+      <Analytics />
+      <QueryClientProvider client={queryClient}>
+        <HydrationBoundary state={dehydratedState}>
+          <Outlet />
+        </HydrationBoundary>
+      </QueryClientProvider>
+    </>
   );
 }
 
