@@ -39,12 +39,22 @@ export const links: Route.LinksFunction = () => [
     crossOrigin: "anonymous",
   },
   {
+    rel: "preload",
+    as: "style",
+    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+  },
+  {
+    rel: "preload",
+    as: "style",
+    href: "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0..200&display=swap&icon_names=account_circle,admin_panel_settings,analytics,assignment,assignment_late,badge,bar_chart,calendar_month,campaign,cancel,chatbot,check_circle,chevron_right,close,dark_mode,description,diversity_3,event_available,extension,folder,forum,grading,group,history,leaderboard,link,lock,manage_accounts,menu_book,notifications,open_in_new,pending_actions,person,person_add,play_circle,radio_button_checked,radio_button_unchecked,receipt_long,rocket_launch,schedule,send,settings,smart_toy,stairs,stop,support_ticket,task_alt,upload_file,video_library,workspaces",
+  },
+  {
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0..200&icon_names=account_circle,admin_panel_settings,analytics,assignment,assignment_late,badge,bar_chart,calendar_month,campaign,cancel,chatbot,check_circle,chevron_right,close,dark_mode,description,diversity_3,event_available,extension,folder,forum,grading,group,history,leaderboard,link,lock,manage_accounts,menu_book,notifications,open_in_new,pending_actions,person,person_add,play_circle,radio_button_checked,radio_button_unchecked,receipt_long,rocket_launch,schedule,send,settings,smart_toy,stairs,stop,support_ticket,task_alt,upload_file,video_library,workspaces",
+    href: "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0..200&display=swap&icon_names=account_circle,admin_panel_settings,analytics,assignment,assignment_late,badge,bar_chart,calendar_month,campaign,cancel,chatbot,check_circle,chevron_right,close,dark_mode,description,diversity_3,event_available,extension,folder,forum,grading,group,history,leaderboard,link,lock,manage_accounts,menu_book,notifications,open_in_new,pending_actions,person,person_add,play_circle,radio_button_checked,radio_button_unchecked,receipt_long,rocket_launch,schedule,send,settings,smart_toy,stairs,stop,support_ticket,task_alt,upload_file,video_library,workspaces",
   },
   {
     rel: "icon",
