@@ -21,7 +21,6 @@ import {
   QueryClientProvider,
   type DehydratedState,
 } from "@tanstack/react-query";
-import "react-phone-number-input/style.css";
 import type { Route } from "./+types/root";
 import "./app.css";
 import { ProgressBar } from "./components/provider/progress-bar";
@@ -30,6 +29,8 @@ import ToastProvider from "./components/provider/toast";
 import { Button } from "./components/ui/button";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { getQueryClientRsc } from "./lib/getQueryClient";
+
+import fontCssUrl from "@fontsource-variable/bricolage-grotesque/wght.css?url";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -41,7 +42,7 @@ export const links: Route.LinksFunction = () => [
   {
     rel: "preload",
     as: "style",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    href: fontCssUrl,
   },
   {
     rel: "preload",
@@ -50,7 +51,7 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    href: fontCssUrl,
   },
   {
     rel: "stylesheet",
@@ -67,35 +68,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var e="TsaInternTheme",t=localStorage.getItem(e)||"system",n=window.matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.classList.remove("light","dark"),document.documentElement.classList.add("dark"===t||"system"===t&&n?"dark":"light")}catch(e){}`,
+          }}
+        />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <Meta />
         <Links />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var storageKey = "TsaInternTheme";
-                  var defaultTheme = "system";
-                  var theme = localStorage.getItem(storageKey) || defaultTheme;
-                  var supportDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-                  var root = document.documentElement;
-                  root.classList.remove("light", "dark");
-
-                  if (theme === "dark" || (theme === "system" && supportDarkMode)) {
-                    root.classList.add("dark");
-                  } else {
-                    root.classList.add("light");
-                  }
-                } catch (e) {}
-              })();
-            `,
-          }}
-        />
       </head>
       <body>
         <ProgressBar />

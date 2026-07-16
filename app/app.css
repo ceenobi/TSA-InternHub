@@ -2,8 +2,8 @@
 @plugin "@tailwindcss/typography";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/bricolage-grotesque/wght.css";
 /* material-symbols is loaded via CDN with icon subsetting in root.tsx */
+/* bricolage-grotesque is loaded as a separate stylesheet via root.tsx links */
 
 @custom-variant dark (&:is(.dark *));
 

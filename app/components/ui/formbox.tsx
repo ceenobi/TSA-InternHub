@@ -1,3 +1,5 @@
+import "react-phone-number-input/style.css";
+
 import { RiEyeLine, RiEyeOffLine } from "@remixicon/react";
 import { type E164Number } from "libphonenumber-js/core";
 import type {
