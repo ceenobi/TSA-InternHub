@@ -186,9 +186,9 @@ const baseLayout = (
             </div>
             <div class="footer">
               <div class="footer-links">
-                <a href="#" class="footer-link">Support</a>
-                <a href="#" class="footer-link">Privacy Policy</a>
-                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="/support/guide" class="footer-link">Support</a>
+                <a href="/privacy" class="footer-link">Privacy Policy</a>
+                <a href="/terms" class="footer-link">Terms of Service</a>
               </div>
               <p style="margin-bottom: 8px;">© ${new Date().getFullYear()} InternHub. All rights reserved.</p>
               <p>Innovating the future of professional development.</p>

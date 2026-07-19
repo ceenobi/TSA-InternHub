@@ -848,7 +848,7 @@ function HubView({
             text="Update Link"
             type="submit"
             loading={fetcher.state !== "idle"}
-            classname="w-full rounded-sm bg-mainBlue dark:bg-darkBlue text-white"
+            classname="w-full rounded-sm bg-mainBlue dark:bg-darkBlue/40 text-white"
           />
         </fetcher.Form>
       </Modal>

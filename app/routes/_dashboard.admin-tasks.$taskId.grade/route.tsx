@@ -22,6 +22,7 @@ import { formatDate, getInitials } from "~/lib/utils";
 import { requirePermission } from "~/middleware/auth.middleware";
 import { getGradeTaskQuery } from "~/queries/tasks.server";
 import type { Route } from "./+types/route";
+import { Separator } from "~/components/ui/separator";
 
 export const middleware = [requirePermission("MANAGE_TASKS")];
 
@@ -128,7 +129,8 @@ function GradeTaskInner({
 
   return (
     <>
-      <Card className="rounded-sm mb-8 dark:bg-muted/30">
+      <h1 className="text-xl font-bold mb-4">Grade Task</h1>
+      <Card className="rounded-sm mb-8 dark:bg-muted/50">
         <CardHeader>
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -185,6 +187,8 @@ function GradeTaskInner({
           {actionData.message || "Failed to grade submission"}
         </div>
       )}
+
+      <Separator />
 
       <div className="space-y-4">
         {submissions.length === 0 ? (

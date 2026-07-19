@@ -1,7 +1,7 @@
 import { RiExternalLinkLine } from "@remixicon/react";
 import { dehydrate } from "@tanstack/react-query";
 import { Suspense, useEffect, useState } from "react";
-import { Await, Link, NavLink, Outlet, useLocation } from "react-router";
+import { Await, Link, NavLink, Outlet, useLocation, useParams } from "react-router";
 import { createTask, editTask } from "~/.server/action/task";
 import { PageSection, PageWrapper } from "~/components/provider/page-wrapper";
 import { Card, CardHeader, CardTitle } from "~/components/ui/card";
@@ -55,6 +55,7 @@ export default function ManageTasks({ loaderData }: Route.ComponentProps) {
     project: { title: "" },
   });
   const location = useLocation();
+  const { taskId } = useParams();
   const currentPath = location.pathname === "/admin-tasks";
 
   useEffect(() => {
@@ -90,11 +91,10 @@ export default function ManageTasks({ loaderData }: Route.ComponentProps) {
                   ? "/admin-tasks"
                   : `/admin-tasks/${s.toLowerCase()}`
               }
-              end={s === "admin-tasks"}
               className={({ isActive }) =>
                 cn(
                   "py-2 font-bold text-sm border-b-2 transition-colors duration-300 ease-in-out truncate capitalize",
-                  isActive
+                  isActive && location.pathname.endsWith(s) || (location.pathname.endsWith("grade") && s === "admin-tasks")
                     ? "border-mainBlue dark:border-darkBlue text-mainBlue dark:text-darkBlue"
                     : "border-transparent text-muted-foreground hover:border-mainBlue/40 dark:hover:border-darkBlue/40",
                 )

@@ -201,7 +201,7 @@ export default function EditTask({ task, isOpen, onClose }: EditTaskProps) {
               text="Update Task"
               type="submit"
               loading={fetcher.state !== "idle"}
-              classname="mt-6 w-full rounded-sm border dark:border-darkBlue bg-mainBlue dark:bg-darkBlue/20 hover:bg-mainBlue/90 hover:dark:bg-darkBlue/30 text-white"
+              classname="mt-6 w-full rounded-sm border bg-mainBlue dark:bg-darkBlue/40 hover:bg-mainBlue/90 hover:dark:bg-darkBlue/30 text-white"
             />
           </fetcher.Form>
         </div>
