@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Link, Outlet } from "react-router";
 import { ThemeToggle } from "~/components/nav/theme-toggle";
 import { PageWrapper } from "~/components/provider/page-wrapper";
 import Logo from "~/components/ui/logo";
@@ -19,7 +19,15 @@ export default function AuthLayout() {
           <section className="relative z-20 shadow bg-white dark:bg-accentBlack/90 w-full sm:max-w-sm mx-auto rounded-md border py-8">
             <Outlet />
           </section>
-          <div className="absolute bottom-4 flex justify-center items-center">
+          <div className="absolute bottom-4 flex flex-col items-center gap-1">
+            <div className="flex gap-3 items-center">
+              <Link to="/terms" className="text-xs text-muted-foreground hover:underline">
+                Terms
+              </Link>
+              <Link to="/privacy" className="text-xs text-muted-foreground hover:underline">
+                Privacy
+              </Link>
+            </div>
             <p className="text-center text-xs text-muted-foreground">
               © {new Date().getFullYear()} TSA LABS. All rights reserved.
             </p>

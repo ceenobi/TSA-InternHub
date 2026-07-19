@@ -111,7 +111,7 @@ export default function InviteStaff() {
                 }
                 type="submit"
                 loading={fetcher.state !== "idle"}
-                classname="mt-4 w-full rounded-sm border dark:border-darkBlue bg-mainBlue dark:bg-darkBlue/20 text-white"
+                classname="mt-2 w-full rounded-sm border bg-mainBlue dark:bg-darkBlue/40 text-white"
               />
             </fetcher.Form>
           </div>

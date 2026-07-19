@@ -33,8 +33,7 @@ export default function NewProject({ cohorts }: { cohorts: CohortDataType }) {
   );
 
   const actionData = fetcher.data as
-    | { success?: boolean; message?: string; body?: any }
-    | undefined;
+    { success?: boolean; message?: string; body?: any } | undefined;
 
   useEffect(() => {
     if (actionData?.success) {
@@ -112,7 +111,6 @@ export default function NewProject({ cohorts }: { cohorts: CohortDataType }) {
                   control={form.control}
                   name={field.name as keyof ProjectSchemaType}
                   options={field.options}
-                  showLabel={field.type === "date"}
                   classname="w-full"
                   disabled={field.disabled}
                 />
@@ -126,7 +124,7 @@ export default function NewProject({ cohorts }: { cohorts: CohortDataType }) {
                 }
                 type="submit"
                 loading={fetcher.state !== "idle"}
-                classname="mt-4 w-full rounded-sm  bg-mainBlue dark:bg-darkBlue hover:bg-mainBlue/90 hover:dark:bg-darkBlue/90 text-white"
+                classname="mt-2 w-full rounded-sm  bg-mainBlue dark:bg-darkBlue/40 hover:bg-mainBlue/90 hover:dark:bg-darkBlue/30 text-white"
               />
             </fetcher.Form>
           </div>

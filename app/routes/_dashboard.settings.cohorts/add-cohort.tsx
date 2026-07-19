@@ -107,7 +107,7 @@ export default function AddCohort() {
                 text="Create Cohort"
                 type="submit"
                 loading={fetcher.state !== "idle"}
-                classname="mt-2 w-full rounded-md border dark:border-darkBlue bg-mainBlue dark:bg-darkBlue/20 text-white font-semibold capitalize"
+                classname="mt-2 w-full rounded-md border bg-mainBlue dark:bg-darkBlue/40 text-white font-semibold capitalize"
               />
             </fetcher.Form>
           </div>

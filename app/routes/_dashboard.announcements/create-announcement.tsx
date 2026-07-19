@@ -235,7 +235,7 @@ export default function CreateAnnouncement({
           <Button
             type="submit"
             disabled={fetcher.state !== "idle"}
-            className="w-full rounded-sm bg-mainBlue dark:bg-darkBlue text-white h-10"
+            className="w-full rounded-sm bg-mainBlue dark:bg-darkBlue/40 text-white h-10"
           >
             {fetcher.state !== "idle" && (
               <RiLoaderLine className="animate-spin mr-1" size={16} />

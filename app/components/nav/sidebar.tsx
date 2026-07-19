@@ -85,9 +85,10 @@ export default function Sidebar({
       >
         {isOpenSidebar && (
           <a
-            href="http://localhost:3700/api/health"
+            href="https://stats.uptimerobot.com/tkqkpXAlsF"
             className="text-xs text-muted-foreground hover:text-mainBlue dark:text-darkBlue"
             target="_blank"
+            rel="noopener noreferrer"
           >
             <RiServerFill size={24} />
           </a>

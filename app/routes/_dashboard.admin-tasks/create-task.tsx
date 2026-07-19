@@ -198,7 +198,7 @@ export default function CreateTask({
               }
               type="submit"
               loading={fetcher.state !== "idle"}
-              classname="mt-6 w-full rounded-sm bg-mainBlue dark:bg-darkBlue hover:bg-mainBlue/90 hover:dark:bg-darkBlue/90 text-white"
+              classname="mt-4 w-full rounded-sm bg-mainBlue dark:bg-darkBlue/40 hover:bg-mainBlue/90 hover:dark:bg-darkBlue/30 text-white"
             />
           </fetcher.Form>
         </div>

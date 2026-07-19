@@ -64,6 +64,7 @@ export function FormBox<T extends FieldValues>({
   onValueChange,
   options,
 }: FormFieldProps<T>) {
+  const toggleVisibility = () => setIsVisible?.((prev) => !prev);
   const error =
     name.split(".").reduce((acc, part) => {
       if (acc && typeof acc === "object" && part in acc) {
@@ -224,29 +225,45 @@ export function FormBox<T extends FieldValues>({
         );
       default:
         return (
-          <Input
-            type={type === "password" && isVisible ? "text" : type}
-            placeholder={placeholder}
-            className={cn(
-              "rounded-sm border border-zinc-200 dark:border-accentBlack/60 h-10 pl-2 font-normal",
-              error ? "border-destructive dark:border-destructive" : "",
+          <div>
+            <Input
+              type={type === "password" && isVisible ? "text" : type}
+              placeholder={placeholder}
+              className={cn(
+                "rounded-sm border border-zinc-200 dark:border-accentBlack/60 h-10 pl-2 font-normal",
+                error ? "border-destructive dark:border-destructive" : "",
+              )}
+              id={id}
+              {...register(name, registerOptions)}
+              disabled={disabled}
+              defaultValue={
+                defaultValue instanceof Date
+                  ? defaultValue.toISOString().split("T")[0]
+                  : typeof defaultValue === "boolean"
+                    ? String(defaultValue)
+                    : (defaultValue as any)
+              }
+            />
+            {type === "password" && (
+              <button
+                type="button"
+                className={cn(
+                  "absolute right-3 text-muted-foreground border-0 focus:outline-none cursor-pointer",
+                  showLabel ? "inset-y-[60%]" : "inset-y-[30%]",
+                )}
+                onClick={toggleVisibility}
+              >
+                {isVisible ? (
+                  <RiEyeOffLine size={20} />
+                ) : (
+                  <RiEyeLine size={20} />
+                )}
+              </button>
             )}
-            id={id}
-            {...register(name, registerOptions)}
-            disabled={disabled}
-            defaultValue={
-              defaultValue instanceof Date
-                ? defaultValue.toISOString().split("T")[0]
-                : typeof defaultValue === "boolean"
-                  ? String(defaultValue)
-                  : (defaultValue as any)
-            }
-          />
+          </div>
         );
     }
   };
-
-  const toggleVisibility = () => setIsVisible?.((prev) => !prev);
 
   return (
     <div className={cn("relative", classname)}>
@@ -273,15 +290,6 @@ export function FormBox<T extends FieldValues>({
           )}
           {renderField()}
         </Field>
-        {type === "password" && (
-          <button
-            type="button"
-            className="absolute inset-y-1/2 right-3 text-muted-foreground border-0 focus:outline-none cursor-pointer"
-            onClick={toggleVisibility}
-          >
-            {isVisible ? <RiEyeOffLine size={20} /> : <RiEyeLine size={20} />}
-          </button>
-        )}
       </FieldSet>
       <FieldError className="text-xs text-destructive min-h-5">
         {error?.message ? String(error.message) : "\u00A0"}
