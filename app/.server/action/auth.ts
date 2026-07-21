@@ -642,7 +642,7 @@ export async function onboardUser(request: Request, payload: OnboardingSchemaTyp
       );
     }
 
-    await auth.api.updateUser({
+    const updateRes = await auth.api.updateUser({
       body: {
         name: result.data.name,
         phone: result.data.phone || "",
@@ -655,6 +655,8 @@ export async function onboardUser(request: Request, payload: OnboardingSchemaTyp
       asResponse: true,
     });
 
+    const setCookieHeader = updateRes.headers.get("Set-Cookie");
+
     await AuditLogService.record(request, {
       action: "ONBOARDING_COMPLETE",
       category: "auth",
@@ -662,9 +664,15 @@ export async function onboardUser(request: Request, payload: OnboardingSchemaTyp
       details: { name: result.data.name },
     });
 
-    return Response.json(
-      { success: true, message: "Onboarding complete. Welcome!" },
-      { status: 200 },
+    return new Response(
+      JSON.stringify({ success: true, message: "Onboarding complete. Welcome!" }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          ...(setCookieHeader ? { "Set-Cookie": setCookieHeader } : {}),
+        },
+      },
     );
   });
 }

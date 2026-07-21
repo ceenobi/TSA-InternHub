@@ -71,6 +71,8 @@ export default function OnboardingRoute() {
   const actionData = fetcher.data as
     | { success?: boolean; message?: string }
     | undefined;
+  
+  console.log(actionData)
 
   useEffect(() => {
     if (!actionData) return;
