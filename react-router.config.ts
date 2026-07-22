@@ -5,6 +5,7 @@ export default {
   // Config options...
   // Server-side render by default, to enable SPA mode set this to `false`
   ssr: true,
+  prerender: ["/privacy", "/terms", "/support/guide", "/delete-account-confirmation"],
   presets: [vercelPreset()],
   future: {
     v8_middleware: true,
