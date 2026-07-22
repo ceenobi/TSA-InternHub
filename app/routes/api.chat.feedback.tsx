@@ -15,11 +15,6 @@ export async function action({ request }: Route.ActionArgs) {
     return Response.json({ message: "Method not allowed" }, { status: 405 });
   }
 
-  const session = await auth.api.getSession({ headers: request.headers });
-  if (!session) {
-    return Response.json({ success: false, message: "Unauthorized" }, { status: 401 });
-  }
-
   try {
     const data = await request.json();
     const parsed = FeedbackSchema.safeParse(data);
@@ -27,9 +22,11 @@ export async function action({ request }: Route.ActionArgs) {
       return Response.json({ success: false, message: "Invalid feedback data" }, { status: 400 });
     }
 
+    const session = await auth.api.getSession({ headers: request.headers });
+
     const ChatFeedback = (await import("~/.server/model/chatFeedback")).default;
     await ChatFeedback.create({
-      userId: session.user.id,
+      userId: session?.user?.id ?? null,
       rating: parsed.data.rating,
       message: parsed.data.message,
       response: parsed.data.response,

@@ -14,6 +14,33 @@ import { fetchWithCache, invalidateCache } from "../utils/cache";
 import { checkRateLimit } from "../utils/rate-limit";
 import { workflowClient } from "../workflows/client";
 
+function calculateLatePenalty(
+  submission: { isLate: boolean; submittedAt: Date },
+  task: { dueDate?: Date | null; latePenaltyPercent: number },
+  stage?: { lateGraceHours: number; latePenaltyPerDay: number } | null,
+): { penaltyPercent: number; daysLate: number; effectiveScore: (raw: number) => number } {
+  const msLate =
+    task.dueDate
+      ? submission.submittedAt.getTime() - new Date(task.dueDate).getTime()
+      : 0;
+  const graceMs = (stage?.lateGraceHours ?? 24) * 3_600_000;
+  const rawDaysLate = Math.max(0, msLate - graceMs) / 86_400_000;
+  const daysLate = Math.ceil(rawDaysLate);
+
+  const flatPenalty = task.latePenaltyPercent || 0;
+  const perDayPenalty = daysLate * (stage?.latePenaltyPerDay || 0);
+  const penaltyPercent = Math.min(flatPenalty + perDayPenalty, 100);
+
+  return {
+    penaltyPercent,
+    daysLate,
+    effectiveScore: (raw: number) =>
+      penaltyPercent > 0
+        ? Math.max(0, Math.round(raw * (1 - penaltyPercent / 100)))
+        : raw,
+  };
+}
+
 export async function fetchGradeTaskData(request: Request, taskId: string) {
   await checkRateLimit(request, "general");
   const session = await auth.api.getSession({ headers: request.headers });
@@ -56,12 +83,15 @@ export async function fetchGradeTaskData(request: Request, taskId: string) {
         dueDate: task.dueDate?.toISOString(),
         maxAttempts: task.maxAttempts,
         allowLate: task.allowLate,
+        latePenaltyPercent: task.latePenaltyPercent ?? 0,
       },
       stage: {
         _id: stage._id.toString(),
         title: stage.title,
         order: stage.order,
         passPercentage: stage.passPercentage,
+        lateGraceHours: stage.lateGraceHours ?? 24,
+        latePenaltyPerDay: stage.latePenaltyPerDay ?? 0,
       },
       submissions: submissions.map((s) => ({
         _id: s._id.toString(),
@@ -147,22 +177,44 @@ export async function gradeTask(
     }
 
     const finalStatus = status === "returned" ? "returned" : "graded";
+
+    const task = await Task.findById(submission.task).lean();
+    const stage = task ? await Stage.findById(task.stage).lean() : null;
+
+    let effectiveScore = parsedScore;
+    let appliedPenaltyPercent = 0;
+    let daysLate = 0;
+
+    if (submission.isLate && finalStatus !== "returned") {
+      const penalty = calculateLatePenalty(
+        { isLate: submission.isLate, submittedAt: submission.submittedAt },
+        {
+          dueDate: task?.dueDate,
+          latePenaltyPercent: task?.latePenaltyPercent ?? 0,
+        },
+        stage,
+      );
+      appliedPenaltyPercent = penalty.penaltyPercent;
+      daysLate = penalty.daysLate;
+      effectiveScore = penalty.effectiveScore(parsedScore);
+    }
+
     const percentage =
       submission.maxScore > 0
-        ? Math.round((parsedScore / submission.maxScore) * 100)
+        ? Math.round((effectiveScore / submission.maxScore) * 100)
         : 0;
 
     await Submission.findByIdAndUpdate(submissionId, {
-      score: parsedScore,
+      score: effectiveScore,
       percentage,
       feedback: feedback?.trim() || undefined,
       gradedBy: session.user.id,
       gradedAt: new Date(),
       status: finalStatus,
+      latePenalty: appliedPenaltyPercent || submission.latePenalty,
     });
 
     // ── Recalculate StageProgress ──
-    const task = await Task.findById(submission.task).lean();
     if (task) {
       const tasksInStage = await Task.find({ stage: task.stage }).lean();
       const taskIds = tasksInStage.map((t) => t._id);
@@ -275,14 +327,21 @@ export async function gradeTask(
       description:
         finalStatus === "returned"
           ? `Returned submission for revision (score: ${parsedScore}/${submission.maxScore})`
-          : `Graded submission (score: ${parsedScore}/${submission.maxScore}, ${percentage}%)`,
+          : appliedPenaltyPercent > 0
+            ? `Graded submission (raw: ${parsedScore}/${submission.maxScore}, effective: ${effectiveScore}/${submission.maxScore}, penalty: -${appliedPenaltyPercent}%)`
+            : `Graded submission (score: ${effectiveScore}/${submission.maxScore}, ${percentage}%)`,
       details: {
         submissionId,
         taskId: submission.task.toString(),
-        score: parsedScore,
+        originalScore: parsedScore,
+        score: effectiveScore,
         maxScore: submission.maxScore,
         percentage,
         status: finalStatus,
+        ...(appliedPenaltyPercent > 0 && {
+          latePenaltyPercent: appliedPenaltyPercent,
+          daysLate,
+        }),
       },
     });
 

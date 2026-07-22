@@ -73,11 +73,14 @@ app/
 - **Integrations** — Slack, GitHub, Google Calendar, Zoom, Notion (OAuth + sync)
 
 ### AI Chatbot
+- **Globally accessible** — rendered in `root.tsx`, available on all routes (auth, dashboard, error pages)
+- **Guest mode** — unauthenticated users can chat with general knowledge base context; personalized score/summary context requires login
+- **Anonymous feedback** — unauthenticated users can rate responses (userId set to null)
 - Streaming responses via OpenCode Zen API
 - Knowledge base RAG context (20+ support articles)
 - Personalized score summaries per user
 - **Feedback loop** with thumbs up/down ratings (stored in `chatFeedback` model)
-- Temperature 0.5, spell-check/grammar-correction prompt
+- Temperature 0.7, spell-check/grammar-correction prompt
 - Beta badge with usage disclaimer
 
 ### Support
@@ -151,6 +154,11 @@ Triggers: pushes to `main`/`testing`, PRs to `main`.
 - [x] Dashboard workflow now caches global summary in Redis (`dashboard:global-summary`, 300s TTL)
 - [x] Dashboard reads cached global summary, preferring it for `totalUsers`/`pendingCount`/`totalSubmissions`
 - [x] QStash cron job set up for `run-dashboard-refresh` (every 5 min)
+- [x] Moved Chatbot from `_dashboard` layout to `root.tsx` — now globally accessible
+- [x] Made chat API allow guest users (no session → guest system prompt, no user-specific context)
+- [x] Made feedback API allow anonymous submissions (userId optional in model and route)
+- [x] Fixed onboarding redirect bug — forwarded `Set-Cookie` header from `auth.api.updateUser` response
+- [x] PR #14 merged — fix for onboarding redirect loop
 
 ---
 

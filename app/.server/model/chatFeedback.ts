@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IChatFeedback extends Document {
-  userId: mongoose.Types.ObjectId;
+  userId?: mongoose.Types.ObjectId | null;
   rating: 1 | -1;
   message: string;
   response: string;
@@ -13,7 +13,6 @@ const ChatFeedbackSchema = new Schema<IChatFeedback>(
     userId: {
       type: mongoose.Types.ObjectId,
       ref: "User",
-      required: true,
     },
     rating: {
       type: Number,

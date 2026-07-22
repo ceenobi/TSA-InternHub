@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import {
   isRouteErrorResponse,
@@ -9,6 +10,8 @@ import {
   ScrollRestoration,
   useMatches,
 } from "react-router";
+
+const Chatbot = lazy(() => import("~/components/chatbot"));
 
 import {
   RiArrowGoBackFill,
@@ -89,6 +92,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </ThemeProvider>
           <ToastProvider />
         </TooltipProvider>
+        <Suspense fallback={null}>
+          <Chatbot />
+        </Suspense>
         <ScrollRestoration />
         <Scripts />
       </body>

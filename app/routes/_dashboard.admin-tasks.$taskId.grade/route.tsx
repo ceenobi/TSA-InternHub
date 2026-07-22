@@ -196,7 +196,26 @@ function GradeTaskInner({
             No submissions yet.
           </p>
         ) : (
-          submissions.map((submission, index) => (
+          submissions.map((submission, index) => {
+            const calcPenalty = (rawScore: number) => {
+              if (!submission.isLate) return { effective: rawScore, penaltyPercent: 0, daysLate: 0 };
+              const dueMs = task.dueDate ? new Date(task.dueDate).getTime() : 0;
+              const submittedMs = new Date(submission.submittedAt).getTime();
+              const msLate = dueMs ? submittedMs - dueMs : 0;
+              const graceMs = (stage.lateGraceHours ?? 24) * 3_600_000;
+              const daysLate = Math.ceil(Math.max(0, msLate - graceMs) / 86_400_000);
+              const flatPenalty = task.latePenaltyPercent || 0;
+              const perDayPenalty = daysLate * (stage.latePenaltyPerDay || 0);
+              const penaltyPercent = Math.min(flatPenalty + perDayPenalty, 100);
+              const effective = penaltyPercent > 0 ? Math.max(0, Math.round(rawScore * (1 - penaltyPercent / 100))) : rawScore;
+              return { effective, penaltyPercent, daysLate };
+            };
+
+            const rawVal = scoreValues[submission._id];
+            const rawNum = rawVal ? Number(rawVal) : NaN;
+            const penalty = calcPenalty(isNaN(rawNum) ? 0 : rawNum);
+
+            return (
             <Card
               key={submission._id}
               className="rounded-sm bg-background dark:bg-muted/30 hover:border-mainBlue/30 dark:hover:border-darkBlue/40 group relative transition-[border-color,box-shadow] duration-300 animate-in fade-in slide-in-from-bottom-3"
@@ -229,7 +248,9 @@ function GradeTaskInner({
                   </div>
                   <div className="flex items-center gap-2">
                     {submission.isLate && (
-                      <Badge variant="destructive">Late</Badge>
+                      <Badge variant="destructive">
+                        Late {penalty.penaltyPercent > 0 && `(-${penalty.penaltyPercent}%)`}
+                      </Badge>
                     )}
                     <Badge className={statusColors[submission.status]}>
                       {submission.status}
@@ -275,6 +296,11 @@ function GradeTaskInner({
                           <span className="text-muted-foreground ml-1">
                             ({submission.percentage}%)
                           </span>
+                          {submission.latePenalty > 0 && (
+                            <span className="text-destructive ml-2 text-xs">
+                              (after -{submission.latePenalty}% late penalty)
+                            </span>
+                          )}
                         </span>
                         <Button
                           variant="ghost"
@@ -325,6 +351,11 @@ function GradeTaskInner({
                         / {submission.maxScore}
                       </span>
                     </div>
+                    {submission.isLate && !isNaN(rawNum) && rawNum >= 0 && penalty.effective !== rawNum && (
+                      <p className="text-xs text-destructive ml-2">
+                        Raw: {rawNum} → Effective: {penalty.effective}/{submission.maxScore} (-{penalty.penaltyPercent}% late penalty)
+                      </p>
+                    )}
                     <div className="flex items-start gap-3">
                       <label htmlFor={`feedback-${submission._id}`} className="text-sm font-medium min-w-16 pt-1.5">
                         Feedback
@@ -381,7 +412,8 @@ function GradeTaskInner({
                 )}
               </CardContent>
             </Card>
-          ))
+            );
+          })
         )}
       </div>
     </>

@@ -37,7 +37,7 @@ export default function EditStage({
         ? new Date(stage.endDate).toISOString().split("T")[0]
         : "",
       lateGraceHours: stage.lateGraceHours ?? 24,
-      latePenaltyPerDay: stage.latePenaltyPerDay ?? 20,
+      latePenaltyPerDay: stage.latePenaltyPerDay ?? 0.5,
     },
   });
   const fetcher = useFetcher();

@@ -25,7 +25,7 @@ export default function CreateStage({ projectId }: { projectId: string }) {
       startDate: "",
       endDate: "",
       lateGraceHours: 24,
-      latePenaltyPerDay: 20,
+      latePenaltyPerDay: 0.5,
     },
   });
   const fetcher = useFetcher();
