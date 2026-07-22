@@ -38,7 +38,7 @@ export default function Search({
   return (
     <>
       <Form
-        className="relative w-full bg-muted group border-white/20 rounded-sm transition-[border-color] duration-300 flex items-center"
+        className="relative w-full border bg-transparent rounded-sm transition-[border-color] duration-300 flex items-center"
         role="search"
         id={id}
         onChange={(event) => {

@@ -14,7 +14,7 @@ import type { TaskData } from "~/types";
 
 const submitSchema = z.object({
   content: z.string().min(10, "Submission must be at least 10 characters"),
-  repoUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  repoUrl: z.url("Must be a valid URL").optional().or(z.literal("")),
 });
 
 type SubmitSchemaType = z.infer<typeof submitSchema>;
@@ -205,7 +205,7 @@ export function SubmitTaskModal({
             text="Submit Task"
             type="submit"
             loading={fetcher.state !== "idle"}
-            classname="mt-4 w-full rounded-sm bg-mainBlue dark:bg-darkBlue text-white"
+            classname="mt-4 w-full rounded-sm bg-mainBlue dark:bg-darkBlue/40 text-white"
           />
         </fetcher.Form>
       </div>

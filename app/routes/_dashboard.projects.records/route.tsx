@@ -144,7 +144,7 @@ export default function ProjectRecordsRoute({
             Records
           </h1>
           <p className="text-muted-foreground text-sm">
-            View user grades and performance per cohort.
+            View students grades and performance per cohort.
           </p>
         </div>
         <div className="flex items-center gap-2 bg-muted/30 px-3 rounded-md border border-border/80">
