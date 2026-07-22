@@ -62,8 +62,8 @@ export default function CreateStage({ projectId }: { projectId: string }) {
     <>
       <Button
         onClick={() => setIsOpen(true)}
-        variant="default"
-        className="rounded-sm h-10"
+        variant="outline"
+        className="rounded-sm h-10 border dark:border-gray-600"
       >
         New Stage
       </Button>

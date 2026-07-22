@@ -223,12 +223,13 @@ export function FormBox<T extends FieldValues>({
             }
           />
         );
-      default:
+        default:
         return (
           <div>
             <Input
               type={type === "password" && isVisible ? "text" : type}
               placeholder={placeholder}
+              step={type === "number" ? "any" : undefined}
               className={cn(
                 "rounded-sm border border-zinc-200 dark:border-accentBlack/60 h-10 pl-2 font-normal",
                 error ? "border-destructive dark:border-destructive" : "",
