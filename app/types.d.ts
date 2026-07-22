@@ -132,6 +132,7 @@ export type TaskData = {
   dueDate?: string;
   maxAttempts: number;
   allowLate: boolean;
+  latePenaltyPercent: number;
 };
 
 export type StageProgressData = {
@@ -179,6 +180,8 @@ export type GradeTaskData = {
     title: string;
     order: number;
     passPercentage: number;
+    lateGraceHours: number;
+    latePenaltyPerDay: number;
   };
   submissions: {
     _id: string;

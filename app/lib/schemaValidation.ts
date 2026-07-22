@@ -331,7 +331,7 @@ export const stageSchema = z
       .max(100, {
         message: "Late penalty cannot exceed 100",
       })
-      .default(20),
+      .default(0.5),
   })
   .refine(
     (data) => {

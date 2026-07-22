@@ -457,7 +457,7 @@ export const stageFields: Array<{
     name: "latePenaltyPerDay",
     label: "Late Penalty Per Day (%)",
     type: "number",
-    placeholder: "e.g. 20",
+    placeholder: "e.g. 0.5",
   },
 ];
 

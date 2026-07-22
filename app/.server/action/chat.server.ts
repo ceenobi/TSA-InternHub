@@ -256,20 +256,59 @@ async function fetchUserFeedbackContext(
   }
 }
 
+function buildGuestSystemPrompt(articles: ReturnType<typeof getRelevantArticles>) {
+  let prompt = `You are a helpful AI assistant for TSA InternHub, a platform that manages internship tasks, submissions, grading, and project tracking.
+
+You are talking to a guest user who is not logged in. Do not reference their name, program, or any user-specific data. Offer general help about the internship portal.
+
+### Quality Standards (MANDATORY)
+- Use correct spelling, grammar, and capitalization in every response.
+- Proofread your response before sending. Fix typos, missing words, and awkward phrasing.
+- Be concise but complete — don't cut off mid-sentence.
+- Use proper punctuation and sentence structure.
+- Format with markdown: **bold** for emphasis, bullet points for lists, code blocks for technical content.
+
+### Guidelines
+- Answer platform questions using the knowledge base articles provided below.
+- For general questions, use your own knowledge.
+- Be concise, friendly, and helpful. Use a warm, conversational tone.
+- When relevant, suggest next steps or related features the user might want to explore.
+- If you don't know something about the platform, be honest and suggest the Knowledge Base or support.
+- If the user wants personalized help (scores, tasks, submissions), let them know they need to log in first.
+
+`;
+
+  if (articles.length > 0) {
+    prompt += "## Relevant Knowledge Base Articles\n\n";
+    for (const article of articles) {
+      prompt += `### ${article.title}\n${article.content}\n\n`;
+    }
+  }
+
+  return prompt;
+}
+
 async function prepareChatContext(
   request: Request,
   messages: ChatMessage[],
 ) {
   const session = await auth.api.getSession({ headers: request.headers });
+
+  const latestMessage = messages.filter((m) => m.role === "user").pop();
+  const query = latestMessage?.content || "";
+  const articles = getRelevantArticles(query);
+
+  const apiMessages = [
+    { role: "system" as const, content: "" },
+    ...messages.slice(-10),
+  ];
+
   if (!session) {
-    return { error: Response.json({ success: false, message: "Unauthorized" }, { status: 401 }) };
+    apiMessages[0].content = buildGuestSystemPrompt(articles);
+    return { apiMessages };
   }
 
   const user = session.user;
-  const latestMessage = messages.filter((m) => m.role === "user").pop();
-  const query = latestMessage?.content || "";
-
-  const articles = getRelevantArticles(query);
 
   let scoreContext: string | null = null;
   if (needsScoreContext(query)) {
@@ -278,7 +317,7 @@ async function prepareChatContext(
 
   const feedbackContext = await fetchUserFeedbackContext(user.id);
 
-  const systemPrompt = buildSystemPrompt(
+  apiMessages[0].content = buildSystemPrompt(
     user.name || "User",
     user.role || "user",
     user.program ?? undefined,
@@ -286,11 +325,6 @@ async function prepareChatContext(
     scoreContext,
     feedbackContext,
   );
-
-  const apiMessages = [
-    { role: "system" as const, content: systemPrompt },
-    ...messages.slice(-10),
-  ];
 
   return { apiMessages };
 }

@@ -54,7 +54,7 @@ const stageSchema = new Schema<IStage>(
     },
     latePenaltyPerDay: {
       type: Number,
-      default: 20,
+      default: 0.5,
     },
   },
   {

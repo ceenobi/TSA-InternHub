@@ -90,12 +90,21 @@ describe("handleChat", () => {
     return (await handleChat(...args)) as Response;
   }
 
-  it("returns 401 if not authenticated", async () => {
+  it("allows unauthenticated users (guest mode)", async () => {
     vi.mocked(mockAuthApi.getSession).mockResolvedValue(null);
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
+      mockFetchResponse({
+        choices: [{ message: { content: "Welcome! I can help with general questions." } }],
+      }),
+    ));
+
     const response = await exec(mockRequest, basicMessages);
-    expect(response.status).toBe(401);
+    expect(response.status).toBe(200);
     const data = await response.json();
-    expect(data.success).toBe(false);
+    expect(data.success).toBe(true);
+    expect(data.reply).toContain("general");
+
+    vi.unstubAllGlobals();
   });
 
   it("returns reply on successful Zen API call", async () => {
@@ -175,10 +184,25 @@ describe("handleChatStream", () => {
     return (await handleChatStream(...args)) as Response;
   }
 
-  it("returns 401 if not authenticated", async () => {
+  it("allows unauthenticated users (guest mode)", async () => {
     vi.mocked(mockAuthApi.getSession).mockResolvedValue(null);
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode("data: {\"choices\":[{\"delta\":{\"content\":\"Hello guest\"}}]}\n\n"));
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      ok: true, status: 200, body: stream, headers: new Headers(),
+    }));
+
     const response = await exec(mockRequest, basicMessages);
-    expect(response.status).toBe(401);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Type")).toBe("text/event-stream");
+
+    vi.unstubAllGlobals();
   });
 
   it("returns SSE response on success", async () => {
@@ -236,10 +260,14 @@ describe("handleTicketChat", () => {
     { role: "user" as const, content: "I can't log into my account" },
   ];
 
-  it("returns 401 if not authenticated", async () => {
+  it("returns 502 on Zen API error (guest)", async () => {
     vi.mocked(mockAuthApi.getSession).mockResolvedValue(null);
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
+      mockFetchResponse({}, 503),
+    ));
     const response = await exec(mockRequest, ticketMessages);
-    expect(response.status).toBe(401);
+    expect(response.status).toBe(502);
+    vi.unstubAllGlobals();
   });
 
   it("creates ticket when Zen API returns a tool call", async () => {

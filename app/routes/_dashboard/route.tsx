@@ -1,4 +1,3 @@
-import { lazy, Suspense } from "react";
 import { Outlet } from "react-router";
 import Header from "~/components/nav/header";
 import Sidebar from "~/components/nav/sidebar";
@@ -9,8 +8,6 @@ import {
   type RouterContext,
 } from "~/middleware/auth.middleware";
 import type { Route } from "./+types/route";
-
-const Chatbot = lazy(() => import("~/components/chatbot"));
 
 export const middleware = [authenticatedMiddleware];
 
@@ -33,13 +30,10 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
         className={`relative min-h-dvh border dark:border-darkBlue/20 shadow ${isOpenSidebar ? "lg:ml-58" : "lg:ml-12"}`}
       >
         <Header isOpenSidebar={isOpenSidebar} user={user} />
-        <main className="relative rounded-none bg-mainWhite dark:bg-accentBlack shadow m-1 xl:mr-2 py-20 px-4 h-dvh xl:h-[99dvh] overflow-y-scroll">
+        <main className="relative bg-mainWhite dark:bg-accentBlack shadow py-20 px-4 md:px-4 lg:px-4 min-h-dvh">
           <Outlet context={{ user }} />
         </main>
       </div>
-      <Suspense fallback={null}>
-        <Chatbot />
-      </Suspense>
       {user.isOnboarded && <OnboardingTour />}
     </>
   );

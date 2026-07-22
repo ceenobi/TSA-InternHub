@@ -1,13 +1,13 @@
 import {
-  RiArrowRightDownLine,
-  RiArrowRightUpLine,
-  RiBarChartBoxLine,
-  RiCalendarCheckLine,
-  RiCheckboxCircleLine,
-  RiFilter3Line,
-  RiGroupLine,
-  RiStarLine,
-  RiTimeLine,
+    RiArrowRightDownLine,
+    RiArrowRightUpLine,
+    RiBarChartBoxLine,
+    RiCalendarCheckLine,
+    RiCheckboxCircleLine,
+    RiFilter3Line,
+    RiGroupLine,
+    RiStarLine,
+    RiTimeLine,
 } from "@remixicon/react";
 import { Suspense, useMemo } from "react";
 import { Await, Link, useOutletContext, useSearchParams } from "react-router";
@@ -16,22 +16,22 @@ import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import DataError from "~/components/ui/data-error";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "~/components/ui/select";
 import { DashboardSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { cn } from "~/lib/utils";
 import { getDashboardQuery } from "~/queries/dashboard.server";
 import type {
-  AdminDashboardData,
-  AnnouncementData,
-  ScoreBoardEntry,
-  UserDashboardData,
-  UserData,
+    AdminDashboardData,
+    AnnouncementData,
+    ScoreBoardEntry,
+    UserDashboardData,
+    UserData,
 } from "~/types";
 import type { Route } from "./+types/route";
 
@@ -223,7 +223,7 @@ function UserDashboard({
             <CardContent>
               {stageBreakdown.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-8">
-                  No stages available yet. Check back once your program starts.
+                  No stages available yet. Check back once your program starts, <br/> or after your first stage task submission.
                 </p>
               ) : (
                 <div className="space-y-4">

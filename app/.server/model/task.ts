@@ -79,7 +79,7 @@ const taskSchema = new Schema<ITask>(
     },
     latePenaltyPercent: {
       type: Number,
-      default: 5,
+      default: 3,
     },
   },
   {
