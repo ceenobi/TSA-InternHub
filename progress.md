@@ -159,6 +159,12 @@ Triggers: pushes to `main`/`testing`, PRs to `main`.
 - [x] Made feedback API allow anonymous submissions (userId optional in model and route)
 - [x] Fixed onboarding redirect bug — forwarded `Set-Cookie` header from `auth.api.updateUser` response
 - [x] PR #14 merged — fix for onboarding redirect loop
+- [x] PR #15 merged — global chatbot, guest chat, late penalty auto-apply, Decimal128 fix
+- [x] Late penalty grading — `calculateLatePenalty` helper, `gradeTask` applies flat + per-day to score, grade UI shows effective score preview
+- [x] Decimal128 → Number — `latePenaltyPerDay` in stage model changed to Number; all defaults set to 0.5%
+- [x] PR #16 merged — `step="any"` on number inputs for decimal support
+- [x] PR #18 merged — prerender static pages: `/privacy`, `/terms`, `/support/guide`, `/delete-account-confirmation`
+- [x] PR #19 merged — AGENTS.md with git workflow instructions
 
 ---
 
