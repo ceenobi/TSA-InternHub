@@ -17,10 +17,10 @@ export function meta({}: Route.MetaArgs) {
 export default function Terms() {
   return (
     <>
-      <div className="fixed top-0 w-full bg-darkWhite dark:accent z-30 border-b">
+      <div className="fixed top-0 w-full bg-darkWhite dark:bg-accent z-30 border-b">
         <div className="container mx-auto py-2 px-4 flex justify-between">
           <Link to="/auth/login" className="flex items-center gap-2">
-            <Logo classname="relative z-20" size={30} />
+            <Logo classname="relative z-20" size={24} />
           </Link>
           <ThemeToggle />
         </div>
