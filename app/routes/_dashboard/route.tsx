@@ -11,14 +11,23 @@ import type { Route } from "./+types/route";
 
 export const middleware = [authenticatedMiddleware];
 
-export async function loader({ context }: Route.LoaderArgs) {
+const SIDEBAR_COOKIE = "sbarTsaInterHub";
+
+export async function loader({ context, request }: Route.LoaderArgs) {
   const { user } = context as unknown as Required<Pick<RouterContext, "user">>;
-  return { user };
+  const sidebarCookie = request.headers
+    .get("cookie")
+    ?.split(";")
+    .find((c) => c.trim().startsWith(`${SIDEBAR_COOKIE}=`));
+  const sidebarOpen = sidebarCookie
+    ? decodeURIComponent(sidebarCookie.split("=")[1]) === "true"
+    : false;
+  return { user, sidebarOpen };
 }
 
 export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
-  const { isOpenSidebar, setIsOpenSidebar } = useSidebar();
-  const { user } = loaderData;
+  const { user, sidebarOpen } = loaderData;
+  const { isOpenSidebar, setIsOpenSidebar } = useSidebar(sidebarOpen);
   return (
     <>
       <Sidebar
