@@ -224,6 +224,13 @@ export async function submitTask(
     const now = new Date();
     const isLate = !!task.dueDate && new Date(task.dueDate) < now;
 
+    if (isLate && task.allowLate === false) {
+      return Response.json(
+        { success: false, message: "Task submission is closed after the due date" },
+        { status: 400 },
+      );
+    }
+
     const cleanUrls = Array.isArray(fileUrls)
       ? fileUrls.filter((f) => f.name.trim() && f.url.trim())
       : [];
