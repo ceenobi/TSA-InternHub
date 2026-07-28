@@ -28,6 +28,7 @@ const ENV_VARS: EnvSpec[] = [
   { key: "SENTRY_AUTH_TOKEN", required: false },
   { key: "SENTRY_ORG", required: false },
   { key: "SENTRY_PROJECT", required: false },
+  { key: "ADMIN_PASS", required: false },
 ];
 
 function getEnvVar(): Record<string, string> {
@@ -104,6 +105,7 @@ interface Env {
   readonly sentryAuthToken: string;
   readonly sentryOrg: string;
   readonly sentryProject: string;
+  readonly adminPass: string;
 }
 
 export const env: Env = {
@@ -135,4 +137,5 @@ export const env: Env = {
   sentryAuthToken: getEnvVar()["SENTRY_AUTH_TOKEN"],
   sentryOrg: getEnvVar()["SENTRY_ORG"],
   sentryProject: getEnvVar()["SENTRY_PROJECT"],
+  adminPass: getEnvVar()["ADMIN_PASS"],
 };

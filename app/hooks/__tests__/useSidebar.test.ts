@@ -1,18 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 
 import useSidebar from "../useSidebar";
 
-function setDocumentCookie(value: string) {
-  Object.defineProperty(document, "cookie", {
-    writable: true,
-    value,
-  });
-}
-
 describe("useSidebar", () => {
   beforeEach(() => {
-    setDocumentCookie("");
+    Object.defineProperty(document, "cookie", {
+      writable: true,
+      value: "",
+    });
   });
 
   it("initializes with sidebar closed by default", () => {
@@ -21,10 +17,8 @@ describe("useSidebar", () => {
     expect(result.current.isOpenSidebar).toBe(false);
   });
 
-  it("restores saved state from cookie", () => {
-    setDocumentCookie("sbarTsaInterHub=true");
-
-    const { result } = renderHook(() => useSidebar());
+  it("accepts initial open state from loader", () => {
+    const { result } = renderHook(() => useSidebar(true));
 
     expect(result.current.isOpenSidebar).toBe(true);
   });
@@ -40,14 +34,28 @@ describe("useSidebar", () => {
   });
 
   it("allows closing the sidebar", () => {
-    setDocumentCookie("sbarTsaInterHub=true");
-
-    const { result } = renderHook(() => useSidebar());
+    const { result } = renderHook(() => useSidebar(true));
 
     act(() => {
       result.current.setIsOpenSidebar(false);
     });
 
     expect(document.cookie).toContain("sbarTsaInterHub=false");
+  });
+
+  it("toggles sidebar state", () => {
+    const { result } = renderHook(() => useSidebar(true));
+
+    act(() => {
+      result.current.setIsOpenSidebar(false);
+    });
+
+    expect(result.current.isOpenSidebar).toBe(false);
+
+    act(() => {
+      result.current.setIsOpenSidebar(true);
+    });
+
+    expect(result.current.isOpenSidebar).toBe(true);
   });
 });

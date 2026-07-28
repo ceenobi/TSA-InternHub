@@ -161,7 +161,7 @@ export async function signUpWithEmailAdmin(
       body: {
         name: result.data.name,
         email: result.data.email,
-        password: "Techstudio!!1",
+        password: env.nodeEnv === "production" ? env.adminPass : "Techstudio!!1",
         program: result.data.program,
         role: "admin",
         callbackURL: `${env.clientUrl}/auth/login`,
@@ -238,17 +238,7 @@ export async function signUpWithEmail(
         { status: 400 },
       );
     }
-    if (verifyInviteCode.inviteCode !== payload.inviteCode) {
-      return Response.json(
-        {
-          success: false,
-          message: "Invite code does not match",
-        },
-        { status: 400 },
-      );
-    }
 
-    //check expires at
     if (verifyInviteCode.expiresAt && verifyInviteCode.expiresAt < new Date()) {
       return Response.json(
         {
@@ -277,20 +267,28 @@ export async function signUpWithEmail(
       return response;
     }
 
-    // Extract user data and add to cohort
-    const authData = await response.clone().json();
-    const userId = authData?.user?.id;
-
-    if (userId && verifyInviteCode.cohort) {
-      await Cohort.findOneAndUpdate(
-        { cohort: verifyInviteCode.cohort.cohort },
-        {
-          $addToSet: { members: userId },
-        },
+    let userId: string | undefined;
+    try {
+      const authData = await response.clone().json();
+      userId = authData?.user?.id;
+    } catch {
+      logger.error("Failed to parse signup response JSON");
+      return Response.json(
+        { success: false, message: "Signup succeeded but failed to process response" },
+        { status: 500 },
       );
     }
 
-    //reset invite code
+    if (userId && verifyInviteCode.cohort) {
+      const updated = await Cohort.findOneAndUpdate(
+        { cohort: verifyInviteCode.cohort.cohort },
+        { $addToSet: { members: userId } },
+      );
+      if (!updated) {
+        logger.warn({ cohort: verifyInviteCode.cohort.cohort, userId }, "Cohort not found during signup — user not added");
+      }
+    }
+
     await InviteCode.findOneAndDelete({ inviteCode: payload.inviteCode });
 
     await AuditLogService.record(request, {

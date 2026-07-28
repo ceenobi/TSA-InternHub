@@ -122,7 +122,7 @@ export default function Register() {
       <div className="flex items-center justify-center gap-2 mt-4 dark:border-gray-900">
         <p className="text-[13px] text-muted-foreground">
           Already have an account?{" "}
-          <Link to="/auth/login" className="font-normal hover:underline">
+          <Link to="/auth/login" className="font-normal text-mainBlue hover:underline">
             Sign In
           </Link>
         </p>
