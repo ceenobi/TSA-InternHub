@@ -761,13 +761,26 @@ describe("requestDeleteAccount", () => {
 });
 
 describe("updateAdminRole", () => {
+  const superAdminSession = {
+    ...mockSession,
+    user: { ...mockSession.user, role: "super_admin" },
+  };
+
   it("returns 401 if not authenticated", async () => {
     vi.mocked(mockAuthApi.getSession).mockResolvedValue(null);
     const response = await updateAdminRole(mockRequest, { role: "admin", id: "user-2" });
     expect(response.status).toBe(401);
   });
 
+  it("returns 401 if insufficient permissions", async () => {
+    const response = await updateAdminRole(mockRequest, { role: "admin", id: "user-2" });
+    expect(response.status).toBe(401);
+    const data = await jsonResponse(response);
+    expect(data.message).toBe("Unauthorized, insufficient permissions");
+  });
+
   it("returns 400 if payload is missing", async () => {
+    vi.mocked(mockAuthApi.getSession).mockResolvedValue(superAdminSession as any);
     const response = await updateAdminRole(mockRequest, undefined as any);
     expect(response.status).toBe(400);
     const data = await jsonResponse(response);
@@ -775,6 +788,7 @@ describe("updateAdminRole", () => {
   });
 
   it("returns 400 if user not found", async () => {
+    vi.mocked(mockAuthApi.getSession).mockResolvedValue(superAdminSession as any);
     vi.mocked(User.findById).mockReturnValue(queryBuilder(null));
     const response = await updateAdminRole(mockRequest, { role: "admin", id: "nonexistent" });
     expect(response.status).toBe(400);
@@ -783,6 +797,7 @@ describe("updateAdminRole", () => {
   });
 
   it("updates role and invalidates cache", async () => {
+    vi.mocked(mockAuthApi.getSession).mockResolvedValue(superAdminSession as any);
     const mockUser = { _id: "user-2", name: "Target", email: "target@example.com", role: "user" };
     vi.mocked(User.findById).mockReturnValue(queryBuilder(mockUser));
     const mockUpdated = { ...mockUser, role: "admin" };

@@ -29,12 +29,9 @@ export const signUpSchema = z.object({
       message: "Password must contain at least one number",
     }),
   inviteCode: z
-    .string({
-      message: "Invite code is required",
-    })
-    .max(8, {
-      message: "Invite code must be at most 8 characters long",
-    }),
+    .string()
+    .min(1, "Invite code is required")
+    .max(8, "Invite code must be at most 8 characters long"),
 });
 
 export const signInSchema = z.object({

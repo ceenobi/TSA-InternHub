@@ -42,79 +42,82 @@ function calculateLatePenalty(
 }
 
 export async function fetchGradeTaskData(request: Request, taskId: string) {
-  await checkRateLimit(request, "general");
-  const session = await auth.api.getSession({ headers: request.headers });
-  if (!session) {
-    return Response.json(
-      { success: false, message: "Unauthorized, session expired" },
-      { status: 401 },
-    );
-  }
-  const cacheKey = `grade:task:${taskId}`;
-  const body = await fetchWithCache(cacheKey, 60, async () => {
-    const task = await Task.findById(taskId).populate("stage").lean();
-    if (!task) return null;
+    return tryCatchWrapper(async () => {
+      await checkRateLimit(request, "general");
+      const session = await auth.api.getSession({ headers: request.headers });
+      if (!session) {
+        return Response.json(
+          { success: false, message: "Unauthorized, session expired" },
+          { status: 401 },
+        );
+      }
+      const cacheKey = `grade:task:${taskId}`;
+      const body = await fetchWithCache(cacheKey, 60, async () => {
+        const task = await Task.findById(taskId).populate("stage").lean();
+        if (!task) return null;
 
-    const submissions = await Submission.find({ task: taskId })
-      .populate("user", "name email image")
-      .sort({ submittedAt: -1 })
-      .lean();
+        const submissions = await Submission.find({ task: taskId })
+          .populate("user", "name email image")
+          .sort({ submittedAt: -1 })
+          .lean();
 
-    const stage = task.stage as any;
-    const populateUser = (u: any) => ({
-      _id: u._id.toString(),
-      name: u.name,
-      email: u.email,
-      image: u.image,
+        const stage = task.stage as any;
+        const populateUser = (u: any) => ({
+          _id: u._id.toString(),
+          name: u.name,
+          email: u.email,
+          image: u.image,
+        });
+
+        return {
+          task: {
+            _id: task._id.toString(),
+            title: task.title,
+            description: task.description,
+            instructions: task.instructions,
+            resources: task.resources as
+              | { name: string; url: string }[]
+              | undefined,
+            type: task.type,
+            maxScore: task.maxScore,
+            isBonus: task.isBonus,
+            dueDate: task.dueDate?.toISOString(),
+            maxAttempts: task.maxAttempts,
+            allowLate: task.allowLate,
+            latePenaltyPercent: task.latePenaltyPercent ?? 0,
+          },
+          stage: {
+            _id: stage._id.toString(),
+            title: stage.title,
+            order: stage.order,
+            passPercentage: stage.passPercentage,
+            lateGraceHours: stage.lateGraceHours ?? 24,
+            latePenaltyPerDay: stage.latePenaltyPerDay ?? 0,
+          },
+          submissions: submissions.map((s) => ({
+            _id: s._id.toString(),
+            user: populateUser(s.user),
+            content: s.content,
+            fileUrls:
+              s.fileUrls as { name: string; url: string }[] | undefined,
+            status: s.status,
+            score: s.score,
+            maxScore: s.maxScore,
+            percentage: s.percentage,
+            feedback: s.feedback,
+            gradedBy: s.gradedBy?.toString(),
+            attemptNumber: s.attemptNumber,
+            submittedAt: s.submittedAt.toISOString(),
+            gradedAt: s.gradedAt?.toISOString(),
+            isLate: s.isLate,
+            latePenalty: s.latePenalty,
+          })),
+        };
+      });
+
+      return Response.json({ success: true, message: "Grade data fetched", body });
     });
-
-    return {
-      task: {
-        _id: task._id.toString(),
-        title: task.title,
-        description: task.description,
-        instructions: task.instructions,
-        resources: task.resources as
-          | { name: string; url: string }[]
-          | undefined,
-        type: task.type,
-        maxScore: task.maxScore,
-        isBonus: task.isBonus,
-        dueDate: task.dueDate?.toISOString(),
-        maxAttempts: task.maxAttempts,
-        allowLate: task.allowLate,
-        latePenaltyPercent: task.latePenaltyPercent ?? 0,
-      },
-      stage: {
-        _id: stage._id.toString(),
-        title: stage.title,
-        order: stage.order,
-        passPercentage: stage.passPercentage,
-        lateGraceHours: stage.lateGraceHours ?? 24,
-        latePenaltyPerDay: stage.latePenaltyPerDay ?? 0,
-      },
-      submissions: submissions.map((s) => ({
-        _id: s._id.toString(),
-        user: populateUser(s.user),
-        content: s.content,
-        fileUrls: s.fileUrls as { name: string; url: string }[] | undefined,
-        status: s.status,
-        score: s.score,
-        maxScore: s.maxScore,
-        percentage: s.percentage,
-        feedback: s.feedback,
-        gradedBy: s.gradedBy?.toString(),
-        attemptNumber: s.attemptNumber,
-        submittedAt: s.submittedAt.toISOString(),
-        gradedAt: s.gradedAt?.toISOString(),
-        isLate: s.isLate,
-        latePenalty: s.latePenalty,
-      })),
-    };
-  });
-
-  return Response.json({ success: true, message: "Grade data fetched", body });
-}
+  }
 
 export async function gradeTask(
   request: Request,
@@ -131,13 +134,6 @@ export async function gradeTask(
     }
 
     const Cohort = (await import("../model/cohort")).default;
-    const activeCohort = await Cohort.findOne({
-      status: "active",
-      program: (session.user as any).program,
-    })
-      .select("_id")
-      .lean();
-    const cohortId = activeCohort?._id.toString();
 
     const { submissionId, score, feedback, status } = payload as {
       submissionId: string;
@@ -181,6 +177,13 @@ export async function gradeTask(
     const task = await Task.findById(submission.task).lean();
     const stage = task ? await Stage.findById(task.stage).lean() : null;
 
+    const project = stage ? await Project.findById(stage.project).lean() : null;
+    const projectCohort = project
+      ? await Cohort.findById(project.cohort).select("members program").lean()
+      : null;
+    const cohortId = projectCohort?._id.toString();
+    const program = projectCohort?.program as string | undefined;
+
     let effectiveScore = parsedScore;
     let appliedPenaltyPercent = 0;
     let daysLate = 0;
@@ -211,7 +214,8 @@ export async function gradeTask(
       gradedBy: session.user.id,
       gradedAt: new Date(),
       status: finalStatus,
-      latePenalty: appliedPenaltyPercent || submission.latePenalty,
+      latePenalty:
+        finalStatus === "returned" ? submission.latePenalty : appliedPenaltyPercent,
     });
 
     // ── Recalculate StageProgress ──
@@ -280,14 +284,11 @@ export async function gradeTask(
       );
 
       // Recalculate project progress
-      if (stage && cohortId) {
+      if (stage && projectCohort) {
         const projectStages = await Stage.find({ project: stage.project })
           .select("_id")
           .lean();
         const projectStageIds = projectStages.map((s) => s._id);
-        const projectCohort = await Cohort.findById(cohortId)
-          .select("members")
-          .lean();
         if (projectCohort?.members?.length && projectStages.length > 0) {
           const progressCounts = await StageProgress.aggregate([
             {
@@ -315,9 +316,18 @@ export async function gradeTask(
       }
     }
 
-    const userProgram = (session.user as any).program as string | undefined;
-    if (userProgram) {
-      await invalidateCache(`tasks:pg${userProgram}:user${submission.user}`);
+    const studentUser = submission.user.toString();
+    if (program) {
+      await Promise.all([
+        invalidateCache(`tasks:pg${program}:user${studentUser}`),
+        invalidateCache(`task-stats:pg${program}:user${studentUser}`),
+        invalidateCache(`task-stats-admin:pg${program}`),
+        invalidateCache(`scoreboard:all`),
+        invalidateCache(`scoreboard:pg${program}`),
+        invalidateCache(`submissions:user${studentUser}:*`),
+        invalidateCache(`hub:data:${cohortId}`),
+        invalidateCache(`project-active:pg${program}`),
+      ]);
     }
     await invalidateCache(`grade:task:${submission.task}`);
 
@@ -352,10 +362,10 @@ export async function gradeTask(
         userId: submission.user.toString(),
         type: "submission_graded",
         title: "Submission Graded",
-        message: `Your submission for "${taskTitle}" has been graded (${parsedScore}/${submission.maxScore}).`,
+        message: `Your submission for "${taskTitle}" has been graded (${effectiveScore}/${submission.maxScore}).`,
         metadata: {
           taskTitle,
-          score: parsedScore,
+          score: effectiveScore,
           maxScore: submission.maxScore,
         },
       });
@@ -365,7 +375,7 @@ export async function gradeTask(
           body: {
             userId: submission.user.toString(),
             taskTitle,
-            score: parsedScore,
+            score: effectiveScore,
             maxScore: submission.maxScore,
             link: `${env.clientUrl}/tasks/submissions`,
           },
@@ -382,7 +392,7 @@ export async function gradeTask(
           cohortId,
           userName: (submission as any).user?.name || "A user",
           taskTitle,
-          score: parsedScore,
+          score: effectiveScore,
           maxScore: submission.maxScore,
           repoUrl: submission.repoUrl,
           feedback: feedback?.trim(),

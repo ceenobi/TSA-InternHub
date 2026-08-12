@@ -112,7 +112,7 @@ export default function CreateStage({ projectId }: { projectId: string }) {
                 }
                 type="submit"
                 loading={fetcher.state !== "idle"}
-                classname="mt-4 w-full rounded-sm  bg-mainBlue dark:bg-darkBlue hover:bg-mainBlue/90 hover:dark:bg-darkBlue/90 text-white"
+                classname="mt-4 w-full rounded-sm  bg-mainBlue dark:bg-darkBlue/40 hover:bg-mainBlue/90 hover:dark:bg-darkBlue/60 text-white"
               />
             </fetcher.Form>
           </div>

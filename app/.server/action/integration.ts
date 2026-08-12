@@ -80,6 +80,7 @@ export async function saveIntegration(
 
 export async function getIntegrations(request: Request) {
   return tryCatchWrapper(async () => {
+    await checkRateLimit(request, "general");
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
       return Response.json(

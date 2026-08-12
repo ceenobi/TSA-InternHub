@@ -112,6 +112,7 @@ async function getOrCreateHubTeam(cohortId: string, stage5Id: string) {
  */
 export async function fetchHubData(request: Request) {
   return tryCatchWrapper(async () => {
+    await checkRateLimit(request, "general");
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
       return Response.json(
@@ -446,7 +447,7 @@ export async function createHubTask(request: Request, payload: unknown) {
       }
     }
 
-    await invalidateCache(`hub:tasks:${cohortId}`);
+    await invalidateCache(`hub:data:${cohortId}`);
 
     return Response.json({ success: true, message: "Task created", body: task });
   });
@@ -528,6 +529,7 @@ export async function updateHubTask(request: Request, payload: unknown) {
  */
 export async function updateHubTaskStatus(request: Request, payload: unknown) {
   return tryCatchWrapper(async () => {
+    await checkRateLimit(request, "general");
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
       return Response.json({ success: false, message: "Unauthorized" }, { status: 401 });
@@ -615,6 +617,7 @@ export async function deleteHubTask(request: Request, payload: unknown) {
  */
 export async function updateMeetingUrl(request: Request, payload: unknown) {
   return tryCatchWrapper(async () => {
+    await checkRateLimit(request, "general");
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
       return Response.json({ success: false, message: "Unauthorized" }, { status: 401 });

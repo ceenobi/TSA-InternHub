@@ -2,11 +2,11 @@ import { RiInformationFill } from "@remixicon/react";
 import { dehydrate } from "@tanstack/react-query";
 import { Suspense } from "react";
 import {
-  Await,
-  NavLink,
-  Outlet,
-  useLocation,
-  useOutletContext,
+    Await,
+    NavLink,
+    Outlet,
+    useLocation,
+    useOutletContext,
 } from "react-router";
 import { sendInviteCode } from "~/.server/action/auth";
 import { PageSection, PageWrapper } from "~/components/provider/page-wrapper";
@@ -15,14 +15,14 @@ import { Alert, AlertTitle } from "~/components/ui/alert";
 import DataError from "~/components/ui/data-error";
 import { MembersSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
+import { hasPermission } from "~/lib/rbac";
 import { cn } from "~/lib/utils";
+import { requirePermission } from "~/middleware/auth.middleware";
 import { getActiveCohortWithMembersQuery } from "~/queries/cohorts.server";
 import type { UserData } from "~/types";
 import type { Route } from "./+types/route";
 import InviteMember from "./invite-member";
 import MembersList from "./members-list";
-import { requirePermission } from "~/middleware/auth.middleware";
-import { hasPermission } from "~/lib/rbac";
 
 export const middleware = [requirePermission("MANAGE_COHORTS", "action")];
 

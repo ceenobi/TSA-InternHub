@@ -29,13 +29,12 @@ export default function Paginate({
   handlePageChange,
   onLimitChange,
   currentPage,
-  limit,
 }: Props) {
   return (
     <div className="flex justify-end items-center py-4 gap-4">
       <div className="flex items-center">
         <p className="text-muted-foreground text-sm font-medium">
-          {currentPage}-{limit} of {totalPages}
+          {currentPage} of {totalPages}
         </p>
         <DropdownMenu>
           <DropdownMenuTrigger
