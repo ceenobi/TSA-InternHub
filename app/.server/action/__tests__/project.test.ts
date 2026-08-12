@@ -54,6 +54,7 @@ const mockStageProgressFind = vi.fn();
 const mockStageProgressDeleteMany = vi.fn();
 const mockSubmissionDeleteMany = vi.fn();
 const mockTaskDeleteMany = vi.fn();
+const mockTaskFind = vi.fn();
 
 vi.mock("~/.server/model/cohort", () => ({
   default: {
@@ -90,7 +91,10 @@ vi.mock("~/.server/model/submission", () => ({
   default: { deleteMany: (...args: any[]) => mockSubmissionDeleteMany(...args) },
 }));
 vi.mock("~/.server/model/task", () => ({
-  default: { deleteMany: (...args: any[]) => mockTaskDeleteMany(...args) },
+  default: {
+    find: (...args: any[]) => mockTaskFind(...args),
+    deleteMany: (...args: any[]) => mockTaskDeleteMany(...args),
+  },
 }));
 
 import {
@@ -285,6 +289,7 @@ describe("deleteProject", () => {
       }),
     );
     mockStageFind.mockReturnValue(queryBuilder([{ _id: "stage-1" }, { _id: "stage-2" }]));
+    mockTaskFind.mockReturnValue(queryBuilder([{ _id: "task-1" }]));
     mockSubmissionDeleteMany.mockResolvedValue({} as any);
     mockTaskDeleteMany.mockResolvedValue({} as any);
     mockStageProgressDeleteMany.mockResolvedValue({} as any);

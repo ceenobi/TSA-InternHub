@@ -1,29 +1,30 @@
 import z from "zod";
+import { hasPermission } from "~/lib/rbac";
 import {
-  adminInviteSchema,
-  changePasswordSchema,
-  forgotPasswordSchema,
-  resetPasswordSchema,
-  sendInviteCodeSchema,
-  signInSchema,
-  signUpSchema,
-  onboardingSchema,
-  updateProfileSchema,
-  updateUserAvatarSchema,
+    adminInviteSchema,
+    changePasswordSchema,
+    forgotPasswordSchema,
+    onboardingSchema,
+    resetPasswordSchema,
+    sendInviteCodeSchema,
+    signInSchema,
+    signUpSchema,
+    updateProfileSchema,
+    updateUserAvatarSchema,
 } from "~/lib/schemaValidation";
 import { tryCatchWrapper } from "~/lib/tryCatchWrapper";
 import { generateInviteCode } from "~/lib/utils";
 import type {
-  AdminInviteSchemaType,
-  ChangePasswordSchemaType,
-  ForgotPasswordSchemaType,
-  OnboardingSchemaType,
-  ResetPasswordSchemaType,
-  SendInviteCodeSchemaType,
-  SignInSchemaType,
-  SignUpSchemaType,
-  UpdateProfileSchemaType,
-  UpdateUserAvatarSchemaType,
+    AdminInviteSchemaType,
+    ChangePasswordSchemaType,
+    ForgotPasswordSchemaType,
+    OnboardingSchemaType,
+    ResetPasswordSchemaType,
+    SendInviteCodeSchemaType,
+    SignInSchemaType,
+    SignUpSchemaType,
+    UpdateProfileSchemaType,
+    UpdateUserAvatarSchemaType,
 } from "~/types";
 import { env } from "../config/keys";
 import logger from "../config/logger";
@@ -53,7 +54,14 @@ export async function sendInviteCode(
         { status: 401 },
       );
     }
-    const { program: userProgram } = session.user;
+    const { program: userProgram, role } = session.user;
+    if (!hasPermission(role, "MANAGE_COHORTS")) {
+          logger.error("Unauthorized");
+          return Response.json(
+            { success: false, message: "Unauthorized, insufficient permissions" },
+            { status: 401 },
+          );
+        }
     const result = sendInviteCodeSchema.safeParse(payload);
     if (!result.success) {
       logger.error({ result }, "Invalid form data");
@@ -562,7 +570,7 @@ export async function updateProfileRequest(
     if (!session) {
       logger.error("Unauthorized");
       return Response.json(
-        { success: false, message: "Unauthorized" },
+        { success: false, message: "Unauthorized, session expired" },
         { status: 401 },
       );
     }
@@ -623,7 +631,7 @@ export async function onboardUser(request: Request, payload: OnboardingSchemaTyp
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
       return Response.json(
-        { success: false, message: "Unauthorized" },
+        { success: false, message: "Unauthorized, session expired" },
         { status: 401 },
       );
     }
@@ -687,7 +695,7 @@ export async function updateAvatarRequest(
     if (!session) {
       logger.error("Unauthorized");
       return Response.json(
-        { success: false, message: "Unauthorized" },
+        { success: false, message: "Unauthorized, session expired" },
         { status: 401 },
       );
     }
@@ -1043,14 +1051,14 @@ export async function updateAdminRole(
         { status: 401 },
       );
     }
-    // const { role } = session.user;
-    // if (!hasPermission(role, "MANAGE_ROLES")) {
-    //   logger.error("Unauthorized");
-    //   return Response.json(
-    //     { success: false, message: "Unauthorized, insufficient permissions" },
-    //     { status: 401 },
-    //   );
-    // }
+    const { role } = session.user;
+    if (!hasPermission(role, "MANAGE_ROLES")) {
+      logger.error("Unauthorized");
+      return Response.json(
+        { success: false, message: "Unauthorized, insufficient permissions" },
+        { status: 401 },
+      );
+    }
     if (!payload) {
       logger.error("Invalid payload, role and id are required");
       return Response.json(

@@ -8,7 +8,7 @@ describe("Button", () => {
     render(<Button>Click me</Button>);
     const button = screen.getByRole("button", { name: /click me/i });
     expect(button).toBeDefined();
-    expect(button.className).toContain("bg-primary");
+    expect(button.className).toContain("bg-mainBlue");
   });
 
   it("renders with outline variant", () => {

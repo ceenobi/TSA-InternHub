@@ -1,8 +1,8 @@
-const isBrowser =
+const isBrowser = () =>
   typeof window !== "undefined" && typeof window.localStorage !== "undefined";
 
 export const safeGetItem = (key: string) => {
-  if (!isBrowser) return null;
+  if (!isBrowser()) return null;
   try {
     return localStorage.getItem(key);
   } catch (error: any) {
@@ -17,7 +17,7 @@ export const safeGetItem = (key: string) => {
 };
 
 export const safeSetItem = (key: string, value: string) => {
-  if (!isBrowser) return false;
+  if (!isBrowser()) return false;
   try {
     localStorage.setItem(key, value);
     return true;
@@ -33,7 +33,7 @@ export const safeSetItem = (key: string, value: string) => {
 };
 
 export const safeRemoveItem = (key: string) => {
-  if (!isBrowser) return false;
+  if (!isBrowser()) return false;
   try {
     localStorage.removeItem(key);
     return true;

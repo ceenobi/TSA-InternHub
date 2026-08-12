@@ -708,7 +708,15 @@ export async function getTaskStatsForAdmins(
       );
     }
 
-    const { program: sessionProgram, id: adminId } = session.user;
+    const { program: sessionProgram, role, id: adminId } = session.user;
+
+    if (programOverride && programOverride !== sessionProgram && role !== "super_admin") {
+      return Response.json(
+        { success: false, message: "Forbidden: Super admins only" },
+        { status: 403 },
+      );
+    }
+
     const program = programOverride ?? sessionProgram;
     const cacheKey = `task-stats-admin:pg${program}`;
 

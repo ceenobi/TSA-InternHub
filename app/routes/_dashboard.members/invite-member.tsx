@@ -27,13 +27,6 @@ export default function InviteMember({ cohort }: { cohort: CohortDataType }) {
     },
   });
   const fetcher = useFetcher();
-  // const cohortList = useMemo(() => {
-  //   if (!Array.isArray(cohort)) return [];
-  //   return cohort.map((member: any) => ({
-  //     name: member?.cohort,
-  //     id: member?.cohort?.toString(),
-  //   }));
-  // }, [cohort]);
 
   const filterFields = formFields.filter((field) =>
     ["name", "email", "cohortName", "program"].includes(field.name),

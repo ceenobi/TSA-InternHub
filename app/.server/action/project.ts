@@ -96,7 +96,8 @@ export async function createProject(
 
     await Stage.insertMany(stageTitles);
 
-    await invalidateCache(`project-active:pg${session.user.program}:*`);
+    await invalidateCache(`project-active:pg${program}`);
+    await invalidateCache(`projects:pg${program}:*`);
 
     await AuditLogService.record(request, {
       action: "CREATE_PROJECT",
@@ -277,6 +278,7 @@ export async function updateProject(
       { returnDocument: "after" },
     );
     await invalidateCache(`project-active:pg${session.user.program}`);
+    await invalidateCache(`projects:pg${session.user.program}:*`);
 
     await AuditLogService.record(request, {
       action: "UPDATE_PROJECT",
@@ -356,16 +358,27 @@ export async function deleteProject(request: Request, payload: { id: string }) {
       .lean();
     const stageIds = stages.map((s) => s._id);
 
+    const tasks = await Task.find({ stage: { $in: stageIds } })
+      .select("_id")
+      .lean();
+    const taskIds = tasks.map((t) => t._id);
+
     await Promise.all([
-      Submission.deleteMany({ stage: { $in: stageIds } }),
+      Submission.deleteMany({ task: { $in: taskIds } }),
       Task.deleteMany({ stage: { $in: stageIds } }),
       StageProgress.deleteMany({ stage: { $in: stageIds } }),
       Stage.deleteMany({ project: payload.id }),
       Project.findByIdAndDelete(payload.id),
     ]);
 
-    await invalidateCache(`project-active:pg${program}:*`);
+    await invalidateCache(`project-active:pg${program}`);
     await invalidateCache(`projects:pg${program}:*`);
+    await invalidateCache(`tasks:pg${program}:*`);
+    await invalidateCache(`task-stats:pg${program}:*`);
+    await invalidateCache(`project-stages:pg${program}:*`);
+    await invalidateCache(`scoreboard:*`);
+    await invalidateCache(`grade:task:*`);
+    await invalidateCache(`submissions:*`);
 
     await AuditLogService.record(request, {
       action: "DELETE_PROJECT",

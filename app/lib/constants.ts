@@ -32,6 +32,12 @@ export const formFields = [
     type: "email",
     placeholder: "Enter email address",
   },
+  // {
+  //   name: "email",
+  //   label: "Email Address",
+  //   type: "textarea",
+  //   placeholder: "name@example.com, name2@example.com, ...",
+  // },
   {
     name: "newEmail",
     label: "New Email",

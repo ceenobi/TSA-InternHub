@@ -165,6 +165,17 @@ Triggers: pushes to `main`/`testing`, PRs to `main`.
 - [x] PR #16 merged — `step="any"` on number inputs for decimal support
 - [x] PR #18 merged — prerender static pages: `/privacy`, `/terms`, `/support/guide`, `/delete-account-confirmation`
 - [x] PR #19 merged — AGENTS.md with git workflow instructions
+- [x] `tryCatchWrapper` now rethrows `Response` instances — 429 rate-limit responses propagate to the client instead of being flattened into generic 500s
+- [x] Fixed `deleteProject` orphaned-submission bug — now deletes submissions by `task._id` (previously deleted by `stage` field which didn't exist); cascade collects task IDs from stages before cleaning submissions/tasks/progress/stages/project + broad program cache invalidation
+- [x] Fixed `project-active` cache invalidation mismatches — `createProject`/`deleteProject` now invalidate the exact key (`project-active:pg<program>`) matching `getCurrentProject`
+- [x] `createProject`/`updateProject` now also invalidate the `projects:pg<program>:*` list cache
+- [x] `gradeTask` now resolves the submission's project cohort (via `task → stage → project → cohort`) instead of the grader's active cohort — correct cohort members for project-progress math and correct `cohortId`/program for integration events and cache invalidation
+- [x] `gradeTask` cache invalidation expanded to cover task-stats (user + admin), scoreboards, project-active, submissions, and hub data for the affected program/cohort
+- [x] `gradeTask` notification/workflow/integration payloads now report the **effective** score (after late-penalty) instead of the raw score
+- [x] `gradeTask` stores fresh `latePenalty` (0 is no longer overridden by a stale `||` fallback for `graded` submissions)
+- [x] `getTaskStatsForAdmins` rejects cross-program `programOverride` unless the caller is a `super_admin`
+- [x] Added missing `checkRateLimit` guards: `fetchGradeTaskData` (now also wrapped in `tryCatchWrapper`), `fetchHubData`, `updateHubTaskStatus`, `updateMeetingUrl`, `getIntegrations`
+- [x] Replaced dead `hub:tasks:<cohortId>` invalidation in `createHubTask` with real `hub:data:<cohortId>` key
 
 ---
 
