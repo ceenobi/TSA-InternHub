@@ -176,6 +176,9 @@ Triggers: pushes to `main`/`testing`, PRs to `main`.
 - [x] `getTaskStatsForAdmins` rejects cross-program `programOverride` unless the caller is a `super_admin`
 - [x] Added missing `checkRateLimit` guards: `fetchGradeTaskData` (now also wrapped in `tryCatchWrapper`), `fetchHubData`, `updateHubTaskStatus`, `updateMeetingUrl`, `getIntegrations`
 - [x] Replaced dead `hub:tasks:<cohortId>` invalidation in `createHubTask` with real `hub:data:<cohortId>` key
+- [x] Hardened grading authorization (CodeRabbit): `fetchGradeTaskData` now rejects non-graders (403), 404s on missing task, and blocks cross-program access for non-`super_admin` before returning any submission content
+- [x] `gradeTask` now validates `MANAGE_TASKS` permission and enforces resolved-project program match against the session program before updating the submission
+- [x] `getTaskStatsForAdmins` now rejects non-admin roles up front (before loading program users, emails, submissions, and stats) via `hasPermission(role, "MANAGE_TASKS")`
 
 ---
 
