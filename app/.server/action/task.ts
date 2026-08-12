@@ -1,4 +1,5 @@
 import z from "zod";
+import { hasPermission } from "~/lib/rbac";
 import { taskSchema } from "~/lib/schemaValidation";
 import { tryCatchWrapper } from "~/lib/tryCatchWrapper";
 import type {
@@ -709,6 +710,13 @@ export async function getTaskStatsForAdmins(
     }
 
     const { program: sessionProgram, role, id: adminId } = session.user;
+
+    if (!hasPermission(role, "MANAGE_TASKS")) {
+      return Response.json(
+        { success: false, message: "Forbidden: Admins only" },
+        { status: 403 },
+      );
+    }
 
     if (programOverride && programOverride !== sessionProgram && role !== "super_admin") {
       return Response.json(

@@ -1,3 +1,4 @@
+import { hasPermission } from "~/lib/rbac";
 import { tryCatchWrapper } from "~/lib/tryCatchWrapper";
 import { env } from "../config/keys";
 import logger from "../config/logger";
@@ -51,6 +52,51 @@ export async function fetchGradeTaskData(request: Request, taskId: string) {
           { status: 401 },
         );
       }
+
+      const role = session.user.role as string;
+      if (!hasPermission(role, "MANAGE_TASKS")) {
+        return Response.json(
+          {
+            success: false,
+            message: "Forbidden: You do not have permission to view grading data",
+          },
+          { status: 403 },
+        );
+      }
+
+      const authTask = await Task.findById(taskId)
+        .populate({
+          path: "stage",
+          populate: {
+            path: "project",
+            populate: { path: "cohort", select: "program" },
+          },
+        })
+        .lean();
+      if (!authTask) {
+        return Response.json(
+          { success: false, message: "Task not found" },
+          { status: 404 },
+        );
+      }
+
+      const taskProgram = (authTask.stage as any)?.project?.cohort
+        ?.program as string | undefined;
+      const sessionProgram = session.user.program as string | undefined;
+      if (
+        taskProgram &&
+        taskProgram !== sessionProgram &&
+        role !== "super_admin"
+      ) {
+        return Response.json(
+          {
+            success: false,
+            message: "Forbidden: You can only view tasks in your program",
+          },
+          { status: 403 },
+        );
+      }
+
       const cacheKey = `grade:task:${taskId}`;
       const body = await fetchWithCache(cacheKey, 60, async () => {
         const task = await Task.findById(taskId).populate("stage").lean();
@@ -183,6 +229,31 @@ export async function gradeTask(
       : null;
     const cohortId = projectCohort?._id.toString();
     const program = projectCohort?.program as string | undefined;
+
+    const role = session.user.role as string;
+    if (!hasPermission(role, "MANAGE_TASKS")) {
+      return Response.json(
+        {
+          success: false,
+          message: "Forbidden: You do not have permission to grade tasks",
+        },
+        { status: 403 },
+      );
+    }
+    const sessionProgram = session.user.program as string | undefined;
+    if (
+      program &&
+      program !== sessionProgram &&
+      role !== "super_admin"
+    ) {
+      return Response.json(
+        {
+          success: false,
+          message: "Forbidden: You can only grade tasks in your program",
+        },
+        { status: 403 },
+      );
+    }
 
     let effectiveScore = parsedScore;
     let appliedPenaltyPercent = 0;
