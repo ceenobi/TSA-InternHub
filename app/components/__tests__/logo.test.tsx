@@ -1,10 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-
-vi.mock("@remixicon/react", () => ({
-  RiUserCommunityFill: () => <svg data-testid="mock-icon" />,
-}));
 
 import Logo from "../ui/logo";
 
@@ -20,14 +16,14 @@ describe("Logo", () => {
     expect(link).toHaveAttribute("href", "/");
   });
 
-  it("shows icon by default", () => {
+  it("shows the logo image by default", () => {
     render(
       <MemoryRouter>
         <Logo />
       </MemoryRouter>,
     );
 
-    expect(screen.getByTestId("mock-icon")).toBeDefined();
+    expect(screen.getByRole("img", { name: "Logo" })).toBeDefined();
   });
 
   it("hides text when showLogoText is false", () => {
