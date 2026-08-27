@@ -94,7 +94,7 @@ app/
 
 ## Testing
 
-### Unit Tests (Vitest) — 39 files, 415 tests
+### Unit Tests (Vitest) — 39 files, 417 tests
 | Category | Files | Focus |
 |----------|-------|-------|
 | Components | 5 | Badge, Button, AccessDenied, ActionButton, Logo |
@@ -179,12 +179,13 @@ Triggers: pushes to `main`/`testing`, PRs to `main`.
 - [x] Hardened grading authorization (CodeRabbit): `fetchGradeTaskData` now rejects non-graders (403), 404s on missing task, and blocks cross-program access for non-`super_admin` before returning any submission content
 - [x] `gradeTask` now validates `MANAGE_TASKS` permission and enforces resolved-project program match against the session program before updating the submission
 - [x] `getTaskStatsForAdmins` now rejects non-admin roles up front (before loading program users, emails, submissions, and stats) via `hasPermission(role, "MANAGE_TASKS")`
+- [x] **Security (PR #27):** Resolved dependency advisories — bumped `react-router` + `@react-router/{node,serve,fs-routes,dev}` `7.17.0` → `7.18.2` (clears 5 CVEs: 2 high — DoS GHSA-chx6-hx7r-mcp5, CSRF GHSA-qwww-vcr4-c8h2; 3 moderate — open redirect GHSA-wrjc-x8rr-h8h6, XSS GHSA-h8fp-f39c-q6mh, constructor injection GHSA-337j-9hxr-rhxg) and `eslint` `^9.20.1` → `^10.9.1` (clears EOL deprecation). Stayed on 7.x to avoid the 8.x major breaking change. `yarn npm audit` → no findings; typecheck clean; 417 tests pass
 
 ---
 
 ## Known Issues / Blockers
 
 - **Flaky test on CI** — Non-reproducible test failure on merge commit; re-running CI resolves it
-- **Node 20 deprecation warning** — `actions/checkout@v4`, `actions/setup-node@v4`, `dorny/test-reporter@v2` target Node 20 (will need v5 upgrades)
+- **Node 20 deprecation warning** — Resolved: CI now uses `actions/checkout@v5` and `actions/setup-node@v5`
 - **No E2E in CI** — Playwright tests run locally only; no `npx playwright install` step in CI
 - **CLIENT_URL env var** — Set to `https://tsa-internhub.vercel.app`; verify redirects/links work with production origin
