@@ -120,7 +120,8 @@ let Cohort: any,
   Stage: any,
   Task: any,
   Submission: any,
-  StageProgress: any;
+  StageProgress: any,
+  Certificate: any;
 
 // action modules
 let createCohort: any,
@@ -134,6 +135,7 @@ let createTask: any, submitTask: any, activateStage: any, fetchTasksData: any,
   getTaskStatsForUser: any, getTaskStatsForAdmins: any;
 let gradeTask: any, fetchGradeTaskData: any;
 let getUserTaskSubmissions: any;
+let getUserCertificates: any;
 let runStatusUpdatesWorkflow: any;
 
 const json = (res: any) => res.json();
@@ -153,6 +155,7 @@ beforeAll(async () => {
     import("~/.server/model/task"),
     import("~/.server/model/submission"),
     import("~/.server/model/stageProgress"),
+    import("~/.server/model/certificate"),
   ]);
   Cohort = models[0].default;
   Project = models[1].default;
@@ -160,6 +163,7 @@ beforeAll(async () => {
   Task = models[3].default;
   Submission = models[4].default;
   StageProgress = models[5].default;
+  Certificate = models[6].default;
 
   const cohortMod = await import("~/.server/action/cohort");
   const projectMod = await import("~/.server/action/project");
@@ -167,6 +171,7 @@ beforeAll(async () => {
   const taskMod = await import("~/.server/action/task");
   const gradeMod = await import("~/.server/action/grade");
   const subMod = await import("~/.server/action/submissions");
+  const certMod = await import("~/.server/action/certificate");
   const wfMod = await import("~/.server/workflows/status.workflow");
 
   createCohort = cohortMod.createCohort;
@@ -191,6 +196,7 @@ beforeAll(async () => {
   fetchGradeTaskData = gradeMod.fetchGradeTaskData;
 
   getUserTaskSubmissions = subMod.getUserTaskSubmissions;
+  getUserCertificates = certMod.getUserCertificates;
   runStatusUpdatesWorkflow = wfMod.runStatusUpdatesWorkflow;
 });
 
@@ -645,6 +651,45 @@ describe("Late penalty, returned, and resubmission", () => {
     expect(finalSub!.status).toBe("graded");
     expect(finalSub!.score).toBe(90);
   });
+
+  it("does not double-count a returned→resubmitted attempt in stage percentage", async () => {
+    const { stages } = await seedCohortAndProject([INTERN_A]);
+    const task = await createTaskInStage(stages[0]._id.toString(), 1);
+
+    // activate stage and submit (attempt 1)
+    setSession(internSession(INTERN_A));
+    await activateStage(req(), { stageId: stages[0]._id.toString() });
+    await submitTask(req(), { taskId: task._id.toString(), content: "v1" });
+
+    // admin returns it with a score (attempt 1 = returned, score 50)
+    let sub = await Submission.findOne({ task: task._id, user: INTERN_A }).lean();
+    setSession(adminSession);
+    await gradeTask(req(), {
+      submissionId: sub!._id.toString(),
+      score: 50,
+      status: "returned",
+    });
+
+    // intern resubmits (attempt 2) and admin grades it 100
+    setSession(internSession(INTERN_A));
+    await submitTask(req(), { taskId: task._id.toString(), content: "v2" });
+    sub = await Submission.findOne({ task: task._id, user: INTERN_A })
+      .sort({ attemptNumber: -1 })
+      .lean();
+    setSession(adminSession);
+    await gradeTask(req(), {
+      submissionId: sub!._id.toString(),
+      score: 100,
+    });
+
+    const progress = await StageProgress.findOne({
+      user: INTERN_A,
+      stage: stages[0]._id,
+    }).lean();
+    // Only the latest graded attempt (100) should count, not 50 + 100.
+    expect(progress!.percentage).toBe(100);
+    expect(progress!.totalScore).toBe(100);
+  });
 });
 
 describe("Multi-member progress aggregation", () => {
@@ -811,5 +856,134 @@ describe("User-facing data reads", () => {
 
     const board = await getProjectTaskScoreBoard(req());
     expect(board.status).toBe(200);
+  });
+});
+
+describe("Stage auto-fail on default createProject stages", () => {
+  it("distributes stage endDates (closing the default-flow auto-fail gap) and auto-fails an unstarted active stage", async () => {
+    const cohortRes = await createCohort(req(), {
+      cohort: "FS-DEFA",
+      program: "full-stack",
+    });
+    const cohort = (await json(cohortRes)).cohort;
+    await Cohort.findByIdAndUpdate(cohort._id, { $set: { members: [INTERN_C] } });
+
+    const projectRes = await createProject(req(), {
+      title: "Distributed Project",
+      description: "A sufficiently long project description.",
+      cohortId: cohort._id.toString(),
+      startDate: futureDate(1),
+      endDate: futureDate(60),
+    });
+    expect(projectRes.status).toBe(201);
+    const project = (await json(projectRes)).project;
+
+    const stages = await Stage.find({ project: project._id })
+      .sort({ order: 1 })
+      .lean();
+    // createProject should now distribute endDate across the 5 stages
+    expect(stages[0].endDate).toBeTruthy();
+    const start = new Date(project.startDate).getTime();
+    const end = new Date(project.endDate).getTime();
+    expect(new Date(stages[0].endDate).getTime()).toBeGreaterThanOrEqual(start);
+    expect(new Date(stages[4].endDate).getTime()).toBeLessThanOrEqual(end);
+    for (let i = 1; i < stages.length; i++) {
+      expect(new Date(stages[i].endDate).getTime()).toBeGreaterThan(
+        new Date(stages[i - 1].endDate).getTime(),
+      );
+    }
+
+    // Simulate time passing: force every stage overdue, then activate one for the intern.
+    await Stage.updateMany(
+      { project: project._id },
+      { $set: { endDate: new Date(Date.now() - 86400000) } },
+    );
+    setSession(internSession(INTERN_C));
+    const activate = await activateStage(req(), {
+      stageId: stages[0]._id.toString(),
+    });
+    expect(activate.status).toBe(200);
+
+    const fakeContext = { run: async (_l: string, fn: any) => fn() };
+    await runStatusUpdatesWorkflow(fakeContext as any);
+
+    const progress = await StageProgress.findOne({
+      user: INTERN_C,
+      stage: stages[0]._id,
+    }).lean();
+    expect(progress!.status).toBe("failed");
+  });
+});
+
+describe("Certificate generation on project completion", () => {
+  it("issues a certificate to members who completed all stages and none to others", async () => {
+    const { stages, project } = await seedCohortAndProject([
+      INTERN_A,
+      INTERN_B,
+    ]);
+
+    // Mark every stage completed for INTERN_A; leave INTERN_B with an active stage.
+    await StageProgress.insertMany(
+      stages.map((stage: any) => ({
+        user: INTERN_A,
+        stage: stage._id,
+        status: "completed",
+        passed: true,
+        totalScore: 100,
+        maxPossibleScore: 100,
+        percentage: 100,
+        completedAt: new Date(),
+      })),
+    );
+    await StageProgress.create({
+      user: INTERN_B,
+      stage: stages[0]._id,
+      status: "active",
+      passed: false,
+      totalScore: 0,
+      maxPossibleScore: 100,
+      percentage: 0,
+    });
+
+    // Force project to be completed (endDate in the past).
+    await Project.findByIdAndUpdate(project._id, {
+      $set: {
+        status: "active",
+        startDate: new Date(Date.now() - 86400000 * 60),
+        endDate: new Date(Date.now() - 86400000),
+      },
+    });
+
+    const fakeContext = { run: async (_l: string, fn: any) => fn() };
+    await runStatusUpdatesWorkflow(fakeContext as any);
+
+    const certA = await Certificate.findOne({
+      user: INTERN_A,
+      project: project._id,
+    }).lean();
+    const certB = await Certificate.findOne({
+      user: INTERN_B,
+      project: project._id,
+    }).lean();
+
+    expect(certA).toBeTruthy();
+    expect(certA!.type).toBe("completion");
+    expect(certA!.certificateId).toBeTruthy();
+    expect(certB).toBeFalsy();
+
+    // The non-completing member's active progress is failed at project end.
+    const bProgress = await StageProgress.findOne({
+      user: INTERN_B,
+      stage: stages[0]._id,
+    }).lean();
+    expect(bProgress!.status).toBe("failed");
+
+    // The completing member can read their certificate.
+    setSession(internSession(INTERN_A));
+    const certRes = await getUserCertificates(req());
+    expect(certRes.status).toBe(200);
+    const certBody = (await json(certRes)).body;
+    expect(certBody.length).toBe(1);
+    expect(certBody[0].certificateId).toBe(certA!.certificateId);
   });
 });

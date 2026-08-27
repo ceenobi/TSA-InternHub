@@ -1,7 +1,9 @@
+import { randomUUID } from "crypto";
 import { WorkflowContext } from "@upstash/workflow";
 import { env } from "../config/keys.js";
 import logger from "../config/logger.js";
 import { dispatchIntegrationEvent } from "../integrations/registry";
+import Certificate from "../model/certificate";
 import Cohort from "../model/cohort";
 import Project from "../model/project";
 import Stage from "../model/stage";
@@ -108,8 +110,13 @@ export const runStatusUpdatesWorkflow = async (
 
         for (const project of projectsToComplete) {
           const cohort = await Cohort.findById(project.cohort)
-            .select("members")
+            .select("members program")
             .lean();
+          const stageDocs = await Stage.find({ project: project._id })
+            .select("_id")
+            .lean();
+          const stageIds = stageDocs.map((s) => s._id);
+
           if (cohort?.members?.length) {
             for (const userId of cohort.members) {
               NotificationService.send({
@@ -134,6 +141,92 @@ export const runStatusUpdatesWorkflow = async (
                     err,
                   ),
                 );
+
+              // Issue a completion certificate to members who finished every stage.
+              if (stageIds.length > 0) {
+                const completedStages = await StageProgress.countDocuments({
+                  stage: { $in: stageIds },
+                  user: userId,
+                  status: "completed",
+                });
+                if (completedStages === stageIds.length) {
+                  const cert = await Certificate.findOneAndUpdate(
+                    { user: userId, project: project._id },
+                    {
+                      $setOnInsert: {
+                        user: userId,
+                        project: project._id,
+                        cohort: project.cohort,
+                        program: cohort!.program,
+                        type: "completion",
+                        certificateId: randomUUID(),
+                        issuedAt: now,
+                      },
+                    },
+                    { upsert: true, new: true },
+                  ).lean();
+                  if (cert) {
+                    NotificationService.send({
+                      userId: userId.toString(),
+                      type: "certificate_issued",
+                      title: "Certificate Issued",
+                      message: `You earned a completion certificate for "${project.title}".`,
+                      metadata: {
+                        projectTitle: project.title,
+                        certificateId: cert.certificateId,
+                      },
+                    });
+                    await workflowClient
+                      .trigger({
+                        url: `${env.clientUrl}/api/v1/workflow/certificate-issued`,
+                        body: {
+                          userId: userId.toString(),
+                          projectTitle: project.title,
+                          certificateId: cert.certificateId,
+                          link: `${env.clientUrl}/certificates`,
+                        },
+                      })
+                      .catch((err: any) =>
+                        logger.error(
+                          "Failed to trigger certificate-issued notification:",
+                          err,
+                        ),
+                      );
+                  }
+                }
+              }
+            }
+
+            // Any stage progress still "active" at project end is now failed.
+            if (stageIds.length > 0) {
+              const failRes = await StageProgress.updateMany(
+                { stage: { $in: stageIds }, status: "active" },
+                {
+                  $set: {
+                    status: "failed",
+                    completedAt: now,
+                    passed: false,
+                  },
+                },
+              );
+              if (failRes.modifiedCount > 0) {
+                for (const userId of cohort.members) {
+                  const remainingActive = await StageProgress.countDocuments({
+                    stage: { $in: stageIds },
+                    user: userId,
+                    status: "active",
+                  });
+                  if (remainingActive > 0) {
+                    NotificationService.send({
+                      userId: userId.toString(),
+                      type: "stage_failed",
+                      title: "Stage Failed",
+                      message: `A stage in "${project.title}" was not completed before the project ended.`,
+                      metadata: { projectTitle: project.title },
+                    });
+                  }
+                }
+              }
             }
           }
           dispatchIntegrationEvent("project_completed", {
