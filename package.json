@@ -1,6 +1,7 @@
 {
   "name": "internportal",
   "private": true,
+  "packageManager": "yarn@4.16.0",
   "type": "module",
   "scripts": {
     "build": "react-router build",
