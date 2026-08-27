@@ -10,7 +10,7 @@ export interface IUser extends Document {
   phone: string;
   image: string;
   imagePublicId: string;
-  role: "user" | "admin";
+  role: "user" | "admin" | "super_admin";
   gender?: "male" | "female" | "other";
   program?:
     | "full-stack"
