@@ -77,7 +77,7 @@ export default function ManageTasks({ loaderData }: Route.ComponentProps) {
           </h1>
           <p className="text-muted-foreground text-sm">
             Create, edit, and grade tasks{" "}
-            {currentPath && currentTask && currentTask?.project
+            {currentPath && currentTask?.project
               ? `for "${currentTask?.project?.title}"`
               : null}
           </p>
@@ -109,7 +109,7 @@ export default function ManageTasks({ loaderData }: Route.ComponentProps) {
             <Await resolve={tasksData} errorElement={<DataError />}>
               {(resolvedTask) => (
                 <>
-                  {!resolvedTask || !resolvedTask.project ? (
+                  {!resolvedTask?.project ? (
                     <NotFound
                       title="No active project"
                       message="Create a project first to manage tasks."
@@ -155,6 +155,7 @@ function TaskList({ stages }: { stages: StageWithData[] }) {
             </CardTitle>
             {stageData.tasks.length === 0 && (
               <button
+                type="button"
                 onClick={() => setCreateStageId(stageData.stage._id)}
                 className="px-4 py-2 rounded-sm text-mainBlue dark:text-muted-foreground group-hover:dark:text-darkBlue transition-[color]"
               >
