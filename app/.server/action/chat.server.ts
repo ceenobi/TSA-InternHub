@@ -532,7 +532,15 @@ export async function handleChatStream(
       );
     }
 
-    const stream = response.body!.pipeThrough(createZenTransformStream());
+    const body = response.body;
+    if (!body) {
+      return Response.json(
+        { success: false, message: "AI service returned an empty response." },
+        { status: 502 },
+      );
+    }
+
+    const stream = body.pipeThrough(createZenTransformStream());
 
     return new Response(stream, {
       headers: {
