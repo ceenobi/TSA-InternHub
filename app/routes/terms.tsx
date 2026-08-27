@@ -20,7 +20,7 @@ export default function Terms() {
       <div className="fixed top-0 w-full bg-darkWhite dark:bg-accent z-30 border-b">
         <div className="container mx-auto py-2 px-4 flex justify-between">
           <Link to="/auth/login" className="flex items-center gap-2">
-            <Logo classname="relative z-20" size={24} />
+            <Logo classname="relative z-20"/>
           </Link>
           <ThemeToggle />
         </div>

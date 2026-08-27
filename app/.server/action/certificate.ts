@@ -15,6 +15,13 @@ export async function getUserCertificates(request: Request) {
       );
     }
 
+    if (session.user.role !== "user") {
+      return Response.json(
+        { success: false, message: "Certificates are only available to members" },
+        { status: 403 },
+      );
+    }
+
     const cacheKey = `certificates:user${session.user.id}`;
     const body = await fetchWithCache(cacheKey, 300, async () => {
       const certificates = await Certificate.find({ user: session.user.id })

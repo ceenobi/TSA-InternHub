@@ -20,7 +20,7 @@ export default function SupportLayout({}: Route.ComponentProps) {
     <main>
       <div className="fixed top-0 w-full bg-accent z-30 border-b">
         <div className="container mx-auto px-4 py-2 flex justify-between items-center">
-          <Logo size={24} />
+          <Logo size="size-9" />
            <ThemeToggle />
           {/*<div className="flex gap-3 lg:gap-2 items-center">
             <Profile user={user} />

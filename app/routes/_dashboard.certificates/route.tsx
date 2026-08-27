@@ -8,6 +8,7 @@ import {
 } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
 import { getUserCertificates } from "~/.server/action/certificate";
+import type { RouterContext } from "~/middleware/auth.middleware";
 import type { Route } from "./+types/route";
 
 interface CertificateItem {
@@ -31,14 +32,38 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ context, request }: Route.LoaderArgs) {
+  const user = (context as unknown as RouterContext).user;
+  if (!user || user.role !== "user") {
+    return { restricted: true, certificates: [] as CertificateItem[] };
+  }
   const res = await getUserCertificates(request);
   const data = await res.json();
-  return { certificates: (data.body ?? []) as CertificateItem[] };
+  return {
+    restricted: false,
+    certificates: (data.body ?? []) as CertificateItem[],
+  };
 }
 
 export default function Certificates({ loaderData }: Route.ComponentProps) {
-  const { certificates } = loaderData;
+  const { certificates, restricted } = loaderData;
+
+  if (restricted) {
+    return (
+      <PageWrapper>
+        <PageSection index={0}>
+          <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 px-4 text-center">
+            <RiAwardFill className="text-muted-foreground" size={48} />
+            <h1 className="text-xl font-semibold">Certificates</h1>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Certificates are only available to members. Admins and super
+              admins do not have access to this page.
+            </p>
+          </div>
+        </PageSection>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper>
