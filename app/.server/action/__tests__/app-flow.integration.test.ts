@@ -304,7 +304,7 @@ async function fulfill(userId: mongoose.Types.ObjectId, stages: any[], tasksBySt
 
   for (const stage of stages) {
     const tasks = tasksByStage.find(
-      (t) => t[0].stage.toString() === stage._id.toString(),
+      (t: any) => t[0].stage.toString() === stage._id.toString(),
     )!;
     setSession(internSession(userId));
     for (const task of tasks) {
@@ -417,7 +417,7 @@ describe("Project lifecycle", () => {
     expect(updated!.status).toBe("completed");
     expect(
       vi.mocked(dispatchIntegrationEvent).mock.calls.some(
-        (c) => c[0] === "project_completed",
+         (c: any) => c[0] === "project_completed",
       ),
     ).toBe(true);
   });
@@ -549,7 +549,7 @@ describe("Full intern fulfillment flow (single member → project 100%)", () => 
     // all stage progresses for the intern are completed
     const progresses = await StageProgress.find({ user: INTERN_A }).lean();
     expect(progresses.length).toBe(5);
-    expect(progresses.every((p) => p.status === "completed")).toBe(true);
+    expect(progresses.every((p: any) => p.status === "completed")).toBe(true);
 
     // recompute completion state from DB
     const project = await Project.findOne({}).lean();
@@ -614,12 +614,12 @@ describe("Late penalty, returned, and resubmission", () => {
 
     // returned grading must NOT fire the submission_graded notification
     const gradedNotifyCalls = vi.mocked(NotificationService.send).mock.calls.filter(
-      (c) => c[0].type === "submission_graded",
+      (c: any) => c[0].type === "submission_graded",
     );
     expect(gradedNotifyCalls.length).toBe(notifyBefore);
     expect(
       vi.mocked(AuditLogService.record).mock.calls.some(
-        (c) => c[1].action === "RETURN_SUBMISSION",
+         (c: any) => c[1].action === "RETURN_SUBMISSION",
       ),
     ).toBe(true);
 
@@ -693,7 +693,7 @@ describe("Stage auto-fail (status workflow)", () => {
     expect(progress!.passed).toBe(false);
     expect(
       vi.mocked(dispatchIntegrationEvent).mock.calls.some(
-        (c) => c[0] === "project_completed",
+         (c: any) => c[0] === "project_completed",
       ),
     ).toBe(false);
   });
@@ -763,22 +763,22 @@ describe("Side-effects on grade & completion", () => {
 
     expect(
       vi.mocked(NotificationService.send).mock.calls.some(
-        (c) => c[0].type === "submission_graded",
+        (c: any) => c[0].type === "submission_graded",
       ),
     ).toBe(true);
     expect(
-      vi.mocked(workflowClient.trigger).mock.calls.some((c) =>
+      vi.mocked(workflowClient.trigger).mock.calls.some((c: any) =>
         c[0].url.includes("/api/v1/workflow/submission-graded"),
       ),
     ).toBe(true);
     expect(
       vi.mocked(dispatchIntegrationEvent).mock.calls.some(
-        (c) => c[0] === "submission_graded",
+        (c: any) => c[0] === "submission_graded",
       ),
     ).toBe(true);
     expect(
       vi.mocked(AuditLogService.record).mock.calls.some(
-        (c) => c[1].action === "GRADE_TASK",
+         (c: any) => c[1].action === "GRADE_TASK",
       ),
     ).toBe(true);
   });

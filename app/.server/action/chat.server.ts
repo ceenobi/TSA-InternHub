@@ -1,11 +1,11 @@
-import { createTicketSchema } from "~/lib/schemaValidation";
-import { generateTicketId } from "~/lib/utils";
-import { helpdeskKnowledgeBase } from "~/lib/knowledge-base";
-import type { CreateTicketSchemaType } from "~/types";
 import { env } from "~/.server/config/keys";
+import logger from "~/.server/config/logger";
 import { auth } from "~/.server/services/better-auth";
 import { invalidateCache } from "~/.server/utils/cache";
-import logger from "~/.server/config/logger";
+import { helpdeskKnowledgeBase } from "~/lib/knowledge-base";
+import { createTicketSchema } from "~/lib/schemaValidation";
+import { generateTicketId } from "~/lib/utils";
+
 
 export type ChatMessage = {
   role: "user" | "assistant" | "tool";
@@ -353,7 +353,7 @@ async function callZenApi(
   tools?: typeof createTicketTool[],
 ) {
   const body: Record<string, unknown> = {
-    model: "deepseek-v4-flash-free",
+    model: "nemotron-3.5-lightning-free",
     messages: apiMessages,
     max_tokens: 4096,
     temperature: 0.7,
