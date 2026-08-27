@@ -24,7 +24,9 @@ export default function Chatbot() {
   const [ratings, setRatings] = useState<Record<number, 1 | -1 | null>>({});
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages.length > 0 || isPending) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages, isPending]);
 
   useEffect(() => {
