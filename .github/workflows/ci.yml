@@ -26,6 +26,8 @@ jobs:
         with:
           node-version: 22
           cache: "yarn"
+      - run: corepack enable
+      - run: corepack prepare yarn@4.16.0 --activate
       - run: yarn install --immutable
       - run: yarn typecheck
 
@@ -37,6 +39,8 @@ jobs:
         with:
           node-version: 22
           cache: "yarn"
+      - run: corepack enable
+      - run: corepack prepare yarn@4.16.0 --activate
       - run: yarn install --immutable
       - run: yarn test --reporter=verbose 2>&1 | tail -50
 
@@ -48,6 +52,8 @@ jobs:
         with:
           node-version: 22
           cache: "yarn"
+      - run: corepack enable
+      - run: corepack prepare yarn@4.16.0 --activate
       - run: yarn install --immutable
       - run: npx eslint app/ --max-warnings 0
         continue-on-error: true
