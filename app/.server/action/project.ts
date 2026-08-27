@@ -78,20 +78,27 @@ export async function createProject(
       );
     }
 
+    const projectStart = new Date(parsed.data.startDate);
+    const projectEnd = new Date(`${parsed.data.endDate}T23:59:59.999Z`);
     const project = await Project.create({
       title: parsed.data.title,
       description: parsed.data.description,
       cohort: parsed.data.cohortId,
-      startDate: new Date(parsed.data.startDate),
-      endDate: new Date(`${parsed.data.endDate}T23:59:59.999Z`),
+      startDate: projectStart,
+      endDate: projectEnd,
       createdBy: session.user.id,
     });
 
     const program = cohort.program as Program;
+    const stageCount = 5;
+    const totalSpanMs = projectEnd.getTime() - projectStart.getTime();
     const stageTitles = [1, 2, 3, 4, 5].map((order) => ({
       order,
       title: getStageTitle(program, order),
       project: project._id,
+      endDate: new Date(
+        projectStart.getTime() + (totalSpanMs * order) / stageCount,
+      ),
     }));
 
     await Stage.insertMany(stageTitles);

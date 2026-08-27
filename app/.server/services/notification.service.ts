@@ -18,6 +18,7 @@ type NotificationType =
   | "session_revoked"
   | "profile_updated"
   | "cohort_assigned"
+  | "certificate_issued"
   | "role_updated"
   | "account_deleted"
   | "hub_team_leader_assigned"

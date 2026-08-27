@@ -294,11 +294,24 @@ export async function gradeTask(
       const tasksInStage = await Task.find({ stage: task.stage }).lean();
       const taskIds = tasksInStage.map((t) => t._id);
 
-      const gradedSubmissions = await Submission.find({
+      const allSubmissions = await Submission.find({
         task: { $in: taskIds },
         user: submission.user,
-        status: { $in: ["graded", "returned"] },
       }).lean();
+
+      // Keep only the latest *graded* submission per task. Returned attempts
+      // are excluded (they were not accepted), which also prevents resubmissions
+      // from being double-counted toward the stage score.
+      const latestGradedByTask = new Map<string, (typeof allSubmissions)[number]>();
+      for (const s of allSubmissions) {
+        if (s.status !== "graded") continue;
+        const key = s.task.toString();
+        const prev = latestGradedByTask.get(key);
+        if (!prev || s.attemptNumber > prev.attemptNumber) {
+          latestGradedByTask.set(key, s);
+        }
+      }
+      const gradedSubmissions = [...latestGradedByTask.values()];
 
       const totalScore = gradedSubmissions.reduce(
         (sum, s) => sum + (s.score || 0),
