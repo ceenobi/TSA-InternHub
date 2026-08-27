@@ -1,3 +1,9 @@
 {
-  "framework": "react-router"
+  "framework": "react-router",
+  "crons": [
+    {
+      "path": "/api/v1/cron/status-updates",
+      "schedule": "*/15 * * * *"
+    }
+  ]
 }

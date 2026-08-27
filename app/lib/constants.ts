@@ -15,7 +15,8 @@ import {
   RiTimeLine,
   RiTodoFill,
   RiBuilding3Fill,
-  RiMegaphoneFill
+  RiMegaphoneFill,
+  RiAwardFill
 } from "@remixicon/react";
 import type { CohortDataType, ProjectData, UserData } from "~/types";
 
@@ -204,6 +205,11 @@ export const sidebarLinks = [
         name: "Calendar",
         href: "/calendar",
         icon: RiCalendar2Fill,
+      },
+      {
+        name: "Certificates",
+        href: "/certificates",
+        icon: RiAwardFill,
       },
     ],
   },
