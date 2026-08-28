@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+# Least-privilege default token for all jobs (CodeQL: actions/missing-workflow-permissions)
+permissions:
+  contents: read
+
 jobs:
   check-source-branch:
     if: github.event_name == 'pull_request' && github.base_ref == 'main'
