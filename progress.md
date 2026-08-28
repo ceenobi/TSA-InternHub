@@ -190,6 +190,8 @@ Triggers: pushes to `main`/`testing`, PRs to `main`.
 
 - [x] **Certificates user-only + logo redesign (PR #42):** Restricted the certificates feature to the `user` role only — the `/certificates` sidebar nav entry is hidden for `admin`/`super_admin`, the certificate route renders a restricted UI when a non-`user` visits, and `getUserCertificates` returns 403 for non-`user` callers. Restored in-progress working-tree edits: `Logo` now renders an `<img>` with a string `size` prop (tailwind class) instead of the icon, with `logo.test.tsx` updated to match; fixed `support/route.tsx` `<Logo size={24}>` → `size="size-9"`. Typecheck clean; 481 tests pass.
 
+- [x] **Lint gate fixed (PR #43):** ESLint was a no-op — no `eslint.config.*` existed and the CI `lint` job used `continue-on-error: true`, so it always passed. Added a flat `eslint.config.js` (typescript-eslint recommended + `react-hooks/rules-of-hooks` enforced as errors; `no-explicit-any` / `no-unused-vars` relaxed to warnings for now), added a `lint` script to `package.json`, and removed `continue-on-error` from the CI lint job so lint now actually gates merges. `eslint-plugin-react` was intentionally omitted (peer conflict with ESLint 10); only `react-hooks` is used. Verified: `yarn lint` clean (0 errors), typecheck clean, 481 tests pass.
+
 ---
 
 ## Known Issues / Blockers

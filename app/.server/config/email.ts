@@ -31,7 +31,7 @@ const sendEmail = async (options: SendEmailOptions): Promise<void> => {
       .trim();
 
     // Production recipient or development test address
-    let recipient = options.email;
+    const recipient = options.email;
     const payload = {
       sender: {
         name: "TSA InternHub",

@@ -52,5 +52,4 @@ jobs:
       - run: corepack enable
       - run: corepack prepare yarn@4.16.0 --activate
       - run: yarn install --immutable
-      - run: npx eslint app/ --max-warnings 0
-        continue-on-error: true
+      - run: yarn lint

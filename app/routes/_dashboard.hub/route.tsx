@@ -193,6 +193,25 @@ function HubView({
     }
   }, [hubData?.hubTeam?.meetingUrl]);
 
+  const memberOptions = useMemo(
+    () =>
+      (hubData.members ?? []).map((m) => ({
+        name: `${m.name} (${m.email})`,
+        id: m._id,
+      })),
+    [hubData.members],
+  );
+
+  const getStatusList = useMemo(() => {
+    const cache: Record<string, NonNullable<typeof hubData.tasks>> = {};
+    return (status: "todo" | "in-progress" | "in-review" | "done") => {
+      if (!cache[status]) {
+        cache[status] = (hubData.tasks ?? []).filter((t) => t.status === status);
+      }
+      return cache[status];
+    };
+  }, [hubData.tasks]);
+
   if (!hubData.isQualified) {
     return (
       <PageWrapper>
@@ -245,28 +264,10 @@ function HubView({
     );
   }
 
-  const { hubTeam, tasks, members, stage5Task } = hubData;
+  const { hubTeam, members, stage5Task } = hubData;
   const teamLeader = hubTeam?.teamLeader;
   const isLeader = hubData.isTeamLeader;
   const hasEditRights = isLeader || hubData.isAdmin;
-  const memberOptions = useMemo(
-    () =>
-      members.map((m) => ({
-        name: `${m.name} (${m.email})`,
-        id: m._id,
-      })),
-    [members],
-  );
-
-  const getStatusList = useMemo(() => {
-    const cache: Record<string, typeof tasks> = {};
-    return (status: "todo" | "in-progress" | "in-review" | "done") => {
-      if (!cache[status]) {
-        cache[status] = tasks.filter((t) => t.status === status);
-      }
-      return cache[status];
-    };
-  }, [tasks]);
 
   const handleUpdateStatus = (
     taskId: string,
@@ -280,7 +281,7 @@ function HubView({
       "done",
     ];
     const currentIndex = statuses.indexOf(currentStatus as any);
-    let nextIndex = currentIndex + (direction === "next" ? 1 : -1);
+    const nextIndex = currentIndex + (direction === "next" ? 1 : -1);
     if (nextIndex >= 0 && nextIndex < statuses.length) {
       fetcher.submit(
         {

@@ -97,7 +97,7 @@ export function OnboardingTour() {
 
   const targetRect = current.target ? getTargetRect(current.target) : null;
 
-  let tooltipStyle: React.CSSProperties = {
+  const tooltipStyle: React.CSSProperties = {
     position: "fixed",
     zIndex: 9999,
     width: 300,
