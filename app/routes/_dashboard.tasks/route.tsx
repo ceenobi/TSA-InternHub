@@ -20,7 +20,7 @@ import NotFound from "~/components/ui/not-found";
 import { TaskViewSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { cn } from "~/lib/utils";
-import { getTasksQuery } from "~/queries/tasks.server";
+import { getTasksClientQuery } from "~/queries/tasks";
 import type { TaskData, TasksPageData, UserData } from "~/types";
 import type { Route } from "./+types/route";
 import { StageDetail } from "./stage-detail";
@@ -38,13 +38,23 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
+  return { dehydratedState: undefined, tasksData: undefined };
+}
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const queryClient = getQueryClientRsc();
-  const tasksData = queryClient.ensureQueryData(getTasksQuery(request));
+  const tasksData = queryClient.ensureQueryData(getTasksClientQuery(request));
   return {
     dehydratedState: dehydrate(queryClient),
     tasksData,
   };
+}
+
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback() {
+  return <TaskViewSkeleton />;
 }
 
 export async function action({ request }: Route.ActionArgs) {

@@ -14,7 +14,7 @@ import {
   deleteAnnouncement,
   togglePinAnnouncement,
 } from "~/.server/action/announcement";
-import { fetchCohorts } from "~/.server/action/cohort";
+import { getAnnouncementsClientQuery } from "~/queries/announcements";
 import { PageSection, PageWrapper } from "~/components/provider/page-wrapper";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
@@ -33,7 +33,6 @@ import { AnnouncementSkeleton } from "~/components/ui/skeleton-ui";
 import { getOptimizedImageUrl } from "~/lib/cloudinary";
 import { hasPermission } from "~/lib/rbac";
 import { cn } from "~/lib/utils";
-import { getAnnouncementsQuery } from "~/queries/announcements.server";
 import type {
   AnnouncementData,
   AnnouncementsQueryResult,
@@ -70,22 +69,34 @@ export async function action({ request }: Route.ActionArgs) {
     }
   }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
+  return { dehydratedState: undefined, announcements: undefined, cohorts: undefined };
+}
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const { getQueryClientRsc } = await import("~/lib/getQueryClient");
+  const { dehydrate } = await import("@tanstack/react-query");
   const queryClient = getQueryClientRsc();
-  const cohortsRes = await fetchCohorts({
-    request,
-    page: 1,
-    limit: 100,
-    query: undefined,
+  const announcements = queryClient.ensureQueryData(
+    getAnnouncementsClientQuery(request),
+  );
+  const cohortsRes = await fetch("/api/v1/cohorts?page=1&limit=100", {
+    headers: request.headers,
   });
   const cohortsData = cohortsRes.ok
     ? (await cohortsRes.json()).body?.cohorts
     : [];
-  const announcements = queryClient.ensureQueryData(
-    getAnnouncementsQuery(request),
-  );
-  return { announcements, cohorts: cohortsData };
+  return {
+    dehydratedState: dehydrate(queryClient),
+    announcements,
+    cohorts: cohortsData,
+  };
+}
+
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback() {
+  return <AnnouncementSkeleton />;
 }
 
 export default function AnnouncementsRoute({

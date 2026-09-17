@@ -8,7 +8,7 @@ import DataError from "~/components/ui/data-error";
 import { AuditLogsSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { requirePermission } from "~/middleware/auth.middleware";
-import { getAllAuditLogsQuery } from "~/queries/auditlogs.server";
+import { getAllAuditLogsClientQuery } from "~/queries/auditlogs";
 import type { UserData } from "~/types";
 import { AuditLogList } from "../_dashboard.audit-logs/audit-log-list";
 import type { Route } from "./+types/route";
@@ -25,13 +25,23 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
+  return { dehydratedState: undefined, logs: undefined };
+}
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const queryClient = getQueryClientRsc();
-  const logs = queryClient.ensureQueryData(getAllAuditLogsQuery(request));
+  const logs = queryClient.ensureQueryData(getAllAuditLogsClientQuery(request));
   return {
     dehydratedState: dehydrate(queryClient),
     logs,
   };
+}
+
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback() {
+  return <AuditLogsSkeleton />;
 }
 
 export default function AuditLogsGeneral({ loaderData }: Route.ComponentProps) {

@@ -1,7 +1,7 @@
 import { dehydrate } from "@tanstack/react-query";
 import { PageSection, PageWrapper } from "~/components/provider/page-wrapper";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
-import { getCalendarQuery } from "~/queries/calendar.server";
+import { getCalendarClientQuery } from "~/queries/calendar";
 import type { Route } from "./+types/route";
 import { CalendarView } from "./calendar-view";
 
@@ -15,15 +15,31 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
+  return { dehydratedState: undefined, calendarData: undefined };
+}
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const queryClient = getQueryClientRsc();
   const calendarData = await queryClient.ensureQueryData(
-    getCalendarQuery(request),
+    getCalendarClientQuery(request),
   );
   return {
     dehydratedState: dehydrate(queryClient),
     calendarData,
   };
+}
+
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback() {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="h-32 bg-muted animate-pulse rounded" />
+      ))}
+    </div>
+  );
 }
 
 export default function CalendarRoute({ loaderData }: Route.ComponentProps) {

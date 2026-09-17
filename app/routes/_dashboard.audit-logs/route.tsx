@@ -14,7 +14,7 @@ import { AuditLogsSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { hasPermission } from "~/lib/rbac";
 import { cn } from "~/lib/utils";
-import { getUserAuditLogsQuery } from "~/queries/auditlogs.server";
+import { getUserAuditLogsClientQuery } from "~/queries/auditlogs";
 import type { UserData } from "~/types";
 import type { Route } from "./+types/route";
 import { AuditLogList } from "./audit-log-list";
@@ -29,13 +29,23 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
+  return { dehydratedState: undefined, logs: undefined };
+}
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const queryClient = getQueryClientRsc();
-  const logs = queryClient.ensureQueryData(getUserAuditLogsQuery(request));
+  const logs = queryClient.ensureQueryData(getUserAuditLogsClientQuery(request));
   return {
     dehydratedState: dehydrate(queryClient),
     logs,
   };
+}
+
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback() {
+  return <AuditLogsSkeleton />;
 }
 
 export default function AuditLogsRoute({ loaderData }: Route.ComponentProps) {

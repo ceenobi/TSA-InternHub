@@ -17,7 +17,7 @@ import {
 } from "~/components/ui/select";
 import TableView from "~/components/ui/table-view";
 import { useIsMobile } from "~/hooks/useMobile";
-import { getScoreBoardQuery } from "~/queries/scoreboard.server";
+import { getScoreBoardClientQuery } from "~/queries/projects";
 import type { ScoreBoardUser, UserData } from "~/types";
 import type { Route } from "./+types/route";
 
@@ -31,13 +31,34 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
+  return { dehydratedState: undefined, scoreboard: undefined };
+}
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const { getQueryClientRsc } = await import("~/lib/getQueryClient");
+  const { dehydrate } = await import("@tanstack/react-query");
+  const { getScoreBoardClientQuery } = await import("~/queries/projects");
   const queryClient = getQueryClientRsc();
   const scoreboard = await queryClient.ensureQueryData(
-    getScoreBoardQuery(request),
+    getScoreBoardClientQuery(request),
   );
-  return scoreboard;
+  return {
+    dehydratedState: dehydrate(queryClient),
+    scoreboard,
+  };
+}
+
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback() {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="h-10 bg-muted animate-pulse rounded" />
+      ))}
+    </div>
+  );
 }
 
 function statusIcon(status: string) {
@@ -70,7 +91,7 @@ function GradeBadge({ percentage }: { percentage: number }) {
 export default function ProjectRecordsRoute({
   loaderData,
 }: Route.ComponentProps) {
-  const scoreboard = loaderData;
+  const { scoreboard } = loaderData;
   const { user } = useOutletContext() as { user: UserData };
   const [selectedCohortId, setSelectedCohortId] = useState<string>(
     scoreboard.length > 0 ? scoreboard[0].cohort._id : "",

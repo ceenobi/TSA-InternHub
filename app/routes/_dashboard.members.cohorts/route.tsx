@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import DataError from "~/components/ui/data-error";
 import { CohortSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
-import { getCohortsQuery } from "~/queries/cohorts.server";
+import { getCohortsClientQuery } from "~/queries/projects";
 import type { Route } from "./+types/route";
 import ListCohort from "./list-cohort";
 
@@ -21,13 +21,23 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
+  return { dehydratedState: undefined, cohorts: undefined };
+}
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const queryClient = getQueryClientRsc();
-  const cohorts = queryClient.ensureQueryData(getCohortsQuery(request));
+  const cohorts = queryClient.ensureQueryData(getCohortsClientQuery(request));
   return {
     dehydratedState: dehydrate(queryClient),
     cohorts,
   };
+}
+
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback() {
+  return <CohortSkeleton />;
 }
 
 export default function MembersCohortsRoute({
