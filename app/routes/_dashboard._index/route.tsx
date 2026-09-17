@@ -9,6 +9,7 @@ import {
     RiStarLine,
     RiTimeLine,
 } from "@remixicon/react";
+import { dehydrate } from "@tanstack/react-query";
 import { Suspense, useMemo } from "react";
 import { Await, Link, useOutletContext, useSearchParams } from "react-router";
 import { PageSection, PageWrapper } from "~/components/provider/page-wrapper";
@@ -25,7 +26,8 @@ import {
 import { DashboardSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { cn } from "~/lib/utils";
-import { getDashboardQuery } from "~/queries/dashboard.server";
+import { getDashboardClientQuery } from "~/queries/dashboard";
+import type { RouterContext } from "~/middleware/auth.middleware";
 import type {
     AdminDashboardData,
     AnnouncementData,
@@ -42,10 +44,26 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ context }: Route.LoaderArgs) {
+  const { user } = context as unknown as Required<Pick<RouterContext, "user">>;
+  return { user, dehydratedState: undefined, dashboardData: undefined };
+}
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const queryClient = getQueryClientRsc();
-  const dashboardData = queryClient.ensureQueryData(getDashboardQuery(request));
-  return { dashboardData };
+  const dashboardData = queryClient.ensureQueryData(
+    getDashboardClientQuery(request),
+  );
+  return {
+    dehydratedState: dehydrate(queryClient),
+    dashboardData,
+  };
+}
+
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback() {
+  return <DashboardSkeleton />;
 }
 
 export default function DashboardRoute({ loaderData }: Route.ComponentProps) {

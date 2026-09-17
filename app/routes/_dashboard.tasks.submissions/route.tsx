@@ -8,7 +8,7 @@ import DataError from "~/components/ui/data-error";
 import NotFound from "~/components/ui/not-found";
 import { ProjectListSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
-import { getTasksSubmissionsQuery } from "~/queries/tasks.server";
+import { getTasksSubmissionsClientQuery } from "~/queries/tasks";
 import type { UserData } from "~/types";
 import type { Route } from "./+types/route";
 import SubmissionList from "./submission-list";
@@ -23,15 +23,25 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
+  return { dehydratedState: undefined, taskSubmissions: undefined };
+}
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const queryClient = getQueryClientRsc();
   const taskSubmissions = queryClient.ensureQueryData(
-    getTasksSubmissionsQuery(request),
+    getTasksSubmissionsClientQuery(request),
   );
   return {
     dehydratedState: dehydrate(queryClient),
     taskSubmissions,
   };
+}
+
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback() {
+  return <ProjectListSkeleton />;
 }
 
 export default function TaskSubmissions({ loaderData }: Route.ComponentProps) {

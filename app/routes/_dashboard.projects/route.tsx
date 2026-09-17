@@ -19,8 +19,7 @@ import { ProjectListSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { cn } from "~/lib/utils";
 import { requirePermission } from "~/middleware/auth.middleware";
-import { getActiveCohortWithMembersQuery } from "~/queries/cohorts.server";
-import { getCurrentProjectQuery } from "~/queries/projects.server";
+import { getProjectsLayoutClientQuery } from "~/queries/projects";
 import type { UserData } from "~/types";
 import type { Route } from "./+types/route";
 import NewProject from "./new-project";
@@ -53,19 +52,26 @@ export async function action({ request }: Route.ActionArgs) {
   }
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
+  return { dehydratedState: undefined, cohorts: undefined, currentProject: undefined };
+}
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const queryClient = getQueryClientRsc();
-  const cohorts = await queryClient.ensureQueryData(
-    getActiveCohortWithMembersQuery(request),
-  );
-  const currentProject = queryClient.ensureQueryData(
-    getCurrentProjectQuery(request),
+  const layoutData = await queryClient.ensureQueryData(
+    getProjectsLayoutClientQuery(request),
   );
   return {
     dehydratedState: dehydrate(queryClient),
-    cohorts,
-    currentProject,
+    cohorts: layoutData.cohorts,
+    currentProject: layoutData.currentProject,
   };
+}
+
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback() {
+  return <ProjectListSkeleton />;
 }
 
 export default function ProjectRoute({ loaderData }: Route.ComponentProps) {

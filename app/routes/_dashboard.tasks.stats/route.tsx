@@ -27,20 +27,30 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import DataError from "~/components/ui/data-error";
 import { TaskStatsSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
-import { getTaskStatsQuery } from "~/queries/tasks.server";
+import { getTaskStatsClientQuery } from "~/queries/tasks";
 import type { Route } from "./+types/route";
 
 type TaskStatsData = Awaited<
-  ReturnType<ReturnType<typeof getTaskStatsQuery>["queryFn"]>
+  ReturnType<ReturnType<typeof getTaskStatsClientQuery>["queryFn"]>
 >;
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
+  return { dehydratedState: undefined, stats: undefined };
+}
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const queryClient = getQueryClientRsc();
-  const stats = queryClient.ensureQueryData(getTaskStatsQuery(request));
+  const stats = queryClient.ensureQueryData(getTaskStatsClientQuery(request));
   return {
     dehydratedState: dehydrate(queryClient),
     stats,
   };
+}
+
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback() {
+  return <TaskStatsSkeleton />;
 }
 
 export function meta({}: Route.MetaArgs) {

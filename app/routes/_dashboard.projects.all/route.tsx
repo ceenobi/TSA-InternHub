@@ -18,7 +18,7 @@ import {
 import { ProjectListSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { requirePermission } from "~/middleware/auth.middleware";
-import { getProjectsQuery } from "~/queries/projects.server";
+import { getProjectsAllClientQuery } from "~/queries/projects";
 import type { UserData } from "~/types";
 import ProjectList from "../_dashboard.projects/project-list";
 import type { Route } from "./+types/route";
@@ -35,13 +35,25 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
+  return { dehydratedState: undefined, projects: undefined };
+}
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const queryClient = getQueryClientRsc();
-  const projects = queryClient.ensureQueryData(getProjectsQuery(request));
+  const projects = queryClient.ensureQueryData(
+    getProjectsAllClientQuery(request),
+  );
   return {
     dehydratedState: dehydrate(queryClient),
     projects,
   };
+}
+
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback() {
+  return <ProjectListSkeleton />;
 }
 
 export default function AllProjectsRoute({ loaderData }: Route.ComponentProps) {
