@@ -5,7 +5,8 @@ import { HydratedRouter } from "react-router/dom";
 
 if (typeof document !== "undefined") {
   const dsn = import.meta.env.VITE_SENTRY_DSN as string | undefined;
-  if (dsn) {
+  const isProd = import.meta.env.VITE_NODE_ENV === "production";
+  if (dsn && isProd) {
     init({
       dsn,
       environment: import.meta.env.VITE_NODE_ENV || "development",

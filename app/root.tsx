@@ -244,7 +244,7 @@ interface HandleErrorArgs {
 
 export const handleError = async (error: unknown, args: HandleErrorArgs) => {
 	if (!args.request.signal.aborted) {
-		if (process.env.SENTRY_DSN) {
+		if (process.env.SENTRY_DSN && process.env.NODE_ENV === "production") {
 			const Sentry = await import("@sentry/react-router");
 			Sentry.captureException(error, {
 				mechanism: { type: "react-router", handled: false },
