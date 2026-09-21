@@ -13,13 +13,13 @@ export async function loader({ request }: Route.LoaderArgs) {
     fetchCohorts({ request, page: 1, limit: 100, query: undefined }),
   ]);
 
-  const announcements = await announcementsRes.json();
+  const announcementsJson = await announcementsRes.json();
   const cohorts = await cohortsRes.json();
 
   return Response.json({
     success: true,
     body: {
-      announcements: announcements.body,
+      ...announcementsJson.body,
       cohorts: cohorts.body,
     },
   });
