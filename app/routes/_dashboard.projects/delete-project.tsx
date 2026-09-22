@@ -52,7 +52,7 @@ export default function DeleteProject({
         />
       )}
       <div className="flex items-start gap-4">
-        <button className="shrink-0 flex items-center justify-center w-10 h-10 rounded-lg border border-destructive/20 text-destructive bg-destructive/5 hover:bg-destructive/10 transition-colors">
+        <button type="button" className="shrink-0 flex items-center justify-center w-10 h-10 rounded-lg border border-destructive/20 text-destructive bg-destructive/5 hover:bg-destructive/10 transition-colors">
           <RiAlertLine className="w-6 h-6" />
         </button>
         <p className="text-sm text-muted-foreground">
@@ -73,7 +73,7 @@ export default function DeleteProject({
           onClick={() =>
             fetcher.submit(
               { id: project._id, intent: "delete-project" },
-              { method: "delete" },
+              { method: "delete", encType: "application/json" },
             )
           }
         />
