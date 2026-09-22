@@ -1,7 +1,6 @@
 import { RiFilter3Line } from "@remixicon/react";
-import { dehydrate } from "@tanstack/react-query";
-import { Suspense } from "react";
-import { Await, useOutletContext, useSearchParams } from "react-router";
+import { dehydrate, useQuery } from "@tanstack/react-query";
+import { useOutletContext, useSearchParams } from "react-router";
 import Search from "~/components/nav/search";
 import { PageSection } from "~/components/provider/page-wrapper";
 import { CanPermit } from "~/components/provider/rbac-permit";
@@ -18,7 +17,7 @@ import {
 import { ProjectListSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { requirePermission } from "~/middleware/auth.middleware";
-import { getProjectsAllClientQuery } from "~/queries/projects";
+import { projectsQueryOptions } from "~/queries/projects";
 import type { UserData } from "~/types";
 import ProjectList from "../_dashboard.projects/project-list";
 import type { Route } from "./+types/route";
@@ -36,17 +35,21 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader() {
-  return { dehydratedState: undefined, projects: undefined };
+  return { dehydratedState: undefined };
 }
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const queryClient = getQueryClientRsc();
-  const projects = queryClient.ensureQueryData(
-    getProjectsAllClientQuery(request),
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get("page")) || 1;
+  const limit = Number(url.searchParams.get("limit")) || 20;
+  const query = url.searchParams.get("query") || undefined;
+  const status = url.searchParams.get("status") || undefined;
+  await queryClient.ensureQueryData(
+    projectsQueryOptions({ page, limit, query, status }),
   );
   return {
     dehydratedState: dehydrate(queryClient),
-    projects,
   };
 }
 
@@ -56,11 +59,19 @@ export function HydrateFallback() {
   return <ProjectListSkeleton />;
 }
 
-export default function AllProjectsRoute({ loaderData }: Route.ComponentProps) {
-  const { projects } = loaderData;
+export default function AllProjectsRoute() {
   const { user } = useOutletContext() as { user: UserData };
   const [searchParams, setSearchParams] = useSearchParams();
   const currentStatus = searchParams.get("status") || "all";
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 20;
+  const query = searchParams.get("query") || undefined;
+  const status = searchParams.get("status") || undefined;
+  const {
+    data: resolvedProjects,
+    isPending,
+    isError,
+  } = useQuery(projectsQueryOptions({ page, limit, query, status }));
 
   const handleStatusChange = (value: string | null) => {
     const newParams = new URLSearchParams(searchParams);
@@ -113,31 +124,27 @@ export default function AllProjectsRoute({ loaderData }: Route.ComponentProps) {
             </Select>
           </div>
         </div>
-        <Suspense fallback={<ProjectListSkeleton />}>
-          <Await resolve={projects} errorElement={<DataError />}>
-            {(resolvedProjects) => (
-              <>
-                {resolvedProjects?.projects.length === 0 ? (
-                  <NotFound
-                    title="No projects found"
-                    message="Your project is currently empty. Come back later to see your project."
-                  />
-                ) : (
-                  <>
-                    {resolvedProjects?.projects?.map((project) => (
-                      <ProjectList
-                        key={project._id}
-                        project={project}
-                        user={user}
-                      />
-                    ))}
-                    <Paginated meta={resolvedProjects.meta} />
-                  </>
-                )}
-              </>
-            )}
-          </Await>
-        </Suspense>
+        {isPending ? (
+          <ProjectListSkeleton />
+        ) : isError || !resolvedProjects ? (
+          <DataError />
+        ) : resolvedProjects.projects.length === 0 ? (
+          <NotFound
+            title="No projects found"
+            message="Your project is currently empty. Come back later to see your project."
+          />
+        ) : (
+          <>
+            {resolvedProjects.projects.map((project) => (
+              <ProjectList
+                key={project._id}
+                project={project}
+                user={user}
+              />
+            ))}
+            <Paginated meta={resolvedProjects.meta} />
+          </>
+        )}
       </PageSection>
     </CanPermit>
   );

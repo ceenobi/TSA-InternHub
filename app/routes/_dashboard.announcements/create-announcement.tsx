@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RiAddFill, RiLoaderLine } from "@remixicon/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useFetcher } from "react-router";
@@ -21,6 +22,7 @@ export default function CreateAnnouncement({
 }) {
 	const [isOpen, setIsOpen] = useState(false);
 	const fetcher = useFetcher();
+	const queryClient = useQueryClient();
 	const {
 		register,
 		handleSubmit,
@@ -49,8 +51,9 @@ export default function CreateAnnouncement({
 			toast.success(actionData.message || "Announcement created");
 			reset();
 			setIsOpen(false);
+			queryClient.invalidateQueries({ queryKey: ["announcements"] });
 		}
-	}, [actionData, reset]);
+	}, [actionData, reset, queryClient]);
 
 	useEffect(() => {
 		if (isOpen) {

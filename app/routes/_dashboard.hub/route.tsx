@@ -45,6 +45,7 @@ import {
   updateMeetingUrl,
 } from "~/.server/action/hub";
 import ActionButton from "~/components/ui/action-button";
+import ConfirmDialog from "~/components/ui/confirm-dialog";
 import { HubSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { getHubDataQuery } from "~/queries/hub.server";
@@ -132,6 +133,7 @@ function HubView({
   const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<HubTaskData | null>(null);
   const [selectedLeaderId, setSelectedLeaderId] = useState<string>("");
+  const [taskToDeleteId, setTaskToDeleteId] = useState<string | null>(null);
 
   const actionData = fetcher.data as
     { success?: boolean; message?: string } | undefined;
@@ -295,12 +297,16 @@ function HubView({
   };
 
   const handleDeleteTask = (taskId: string) => {
-    if (confirm("Are you sure you want to delete this task?")) {
-      fetcher.submit({ intent: "delete-task", taskId } as any, {
-        method: "post",
-        encType: "application/json",
-      });
-    }
+    setTaskToDeleteId(taskId);
+  };
+
+  const confirmDeleteTask = () => {
+    if (!taskToDeleteId) return;
+    fetcher.submit({ intent: "delete-task", taskId: taskToDeleteId } as any, {
+      method: "post",
+      encType: "application/json",
+    });
+    setTaskToDeleteId(null);
   };
 
   const onTaskSubmit = (values: TaskFormValues) => {
@@ -853,6 +859,18 @@ function HubView({
           />
         </fetcher.Form>
       </Modal>
+
+      <ConfirmDialog
+        open={taskToDeleteId !== null}
+        onOpenChange={(open) => {
+          if (!open) setTaskToDeleteId(null);
+        }}
+        title="Delete task"
+        description="Are you sure you want to delete this task? This action cannot be undone."
+        confirmText="Delete"
+        onConfirm={confirmDeleteTask}
+        loading={fetcher.state !== "idle"}
+      />
     </PageWrapper>
   );
 }

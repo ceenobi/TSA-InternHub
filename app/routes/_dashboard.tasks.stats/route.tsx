@@ -6,9 +6,7 @@ import {
   RiTimeFill,
   RiTrophyFill,
 } from "@remixicon/react";
-import { dehydrate } from "@tanstack/react-query";
-import { Suspense } from "react";
-import { Await } from "react-router";
+import { dehydrate, useQuery } from "@tanstack/react-query";
 import {
   Bar,
   BarChart,
@@ -27,23 +25,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import DataError from "~/components/ui/data-error";
 import { TaskStatsSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
-import { getTaskStatsClientQuery } from "~/queries/tasks";
+import { taskStatsQueryOptions } from "~/queries/tasks";
 import type { Route } from "./+types/route";
 
-type TaskStatsData = Awaited<
-  ReturnType<ReturnType<typeof getTaskStatsClientQuery>["queryFn"]>
->;
-
 export async function loader() {
-  return { dehydratedState: undefined, stats: undefined };
+  return { dehydratedState: undefined };
 }
 
-export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+export async function clientLoader() {
   const queryClient = getQueryClientRsc();
-  const stats = queryClient.ensureQueryData(getTaskStatsClientQuery(request));
+  await queryClient.ensureQueryData(taskStatsQueryOptions());
   return {
     dehydratedState: dehydrate(queryClient),
-    stats,
   };
 }
 
@@ -63,16 +56,23 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function TaskStatsRoute({ loaderData }: Route.ComponentProps) {
-  const { stats } = loaderData;
+export default function TaskStatsRoute() {
+  const {
+    data: resolved,
+    isPending,
+    isError,
+  } = useQuery(taskStatsQueryOptions());
 
   return (
     <PageSection index={1} className="space-y-8">
-      <Suspense fallback={<TaskStatsSkeleton />}>
-        <Await resolve={stats} errorElement={<DataError />}>
-          {(resolved: TaskStatsData) => {
-            const { summary, trends } = resolved;
-            return (
+      {isPending ? (
+        <TaskStatsSkeleton />
+      ) : isError || !resolved ? (
+        <DataError />
+      ) : (
+        (() => {
+          const { summary, trends } = resolved;
+          return (
               <>
                 {/* ── Stat Cards ── */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -345,13 +345,12 @@ export default function TaskStatsRoute({ loaderData }: Route.ComponentProps) {
                     )}
                   </CardContent>
                 </Card>
-              </>
-            );
-          }}
-        </Await>
-      </Suspense>
-    </PageSection>
-  );
+                </>
+              );
+            })()
+          )}
+      </PageSection>
+    );
 }
 
 // ── Stat Card Component ──

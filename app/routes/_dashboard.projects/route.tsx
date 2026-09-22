@@ -1,12 +1,5 @@
-import { dehydrate } from "@tanstack/react-query";
-import { Suspense } from "react";
-import {
-  Await,
-  NavLink,
-  Outlet,
-  useLocation,
-  useOutletContext,
-} from "react-router";
+import { dehydrate, useQuery } from "@tanstack/react-query";
+import { NavLink, Outlet, useLocation, useOutletContext } from "react-router";
 import {
   createProject,
   deleteProject,
@@ -14,12 +7,11 @@ import {
 } from "~/.server/action/project";
 import { PageSection, PageWrapper } from "~/components/provider/page-wrapper";
 import { CanPermit } from "~/components/provider/rbac-permit";
-import DataError from "~/components/ui/data-error";
 import { ProjectListSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { cn } from "~/lib/utils";
 import { requirePermission } from "~/middleware/auth.middleware";
-import { getProjectsLayoutClientQuery } from "~/queries/projects";
+import { projectsLayoutQueryOptions } from "~/queries/projects";
 import type { UserData } from "~/types";
 import type { Route } from "./+types/route";
 import NewProject from "./new-project";
@@ -53,18 +45,14 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export async function loader() {
-  return { dehydratedState: undefined, cohorts: undefined, currentProject: undefined };
+  return { dehydratedState: undefined };
 }
 
-export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+export async function clientLoader() {
   const queryClient = getQueryClientRsc();
-  const layoutData = await queryClient.ensureQueryData(
-    getProjectsLayoutClientQuery(request),
-  );
+  await queryClient.ensureQueryData(projectsLayoutQueryOptions());
   return {
     dehydratedState: dehydrate(queryClient),
-    cohorts: layoutData.cohorts,
-    currentProject: layoutData.currentProject,
   };
 }
 
@@ -74,11 +62,15 @@ export function HydrateFallback() {
   return <ProjectListSkeleton />;
 }
 
-export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
-  const { cohorts, currentProject } = loaderData;
+export default function ProjectRoute() {
   const { user } = useOutletContext() as { user: UserData };
   const location = useLocation();
   const currentPath = location.pathname === "/projects";
+  const { data: layoutData, isPending, isError } = useQuery(
+    projectsLayoutQueryOptions(),
+  );
+  const cohorts = layoutData?.cohorts;
+  const currentProject = layoutData?.currentProject;
 
   return (
     <PageWrapper>
@@ -94,7 +86,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
             </p>
           </div>
           <CanPermit user={user} permission="MANAGE_COHORTS">
-            <NewProject cohorts={cohorts} />
+            {cohorts && <NewProject cohorts={cohorts} />}
           </CanPermit>
         </div>
       </PageSection>
@@ -135,13 +127,15 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
         {currentPath ? (
           <>
             <PageSection index={1} className="space-y-6">
-              <Suspense fallback={<ProjectListSkeleton />}>
-                <Await resolve={currentProject} errorElement={<DataError />}>
-                  {(resolvedProject) => (
-                    <ProjectList project={resolvedProject} user={user} />
-                  )}
-                </Await>
-              </Suspense>
+              {isPending ? (
+                <ProjectListSkeleton />
+              ) : isError ? (
+                <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
+                  Failed to load project. Please try again.
+                </div>
+              ) : (
+                <ProjectList project={currentProject} user={user} />
+              )}
             </PageSection>
           </>
         ) : (

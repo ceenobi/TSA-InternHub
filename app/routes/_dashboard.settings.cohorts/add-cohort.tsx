@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RiTeamLine } from "@remixicon/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useFetcher } from "react-router";
@@ -22,6 +23,7 @@ export default function AddCohort() {
     mode: "onChange",
   });
   const fetcher = useFetcher();
+  const queryClient = useQueryClient();
   const filterFields = formFields.filter((field) =>
     ["cohort", "program"].includes(field.name),
   );
@@ -34,8 +36,10 @@ export default function AddCohort() {
     if (actionData?.success) {
       toast.success(actionData.message || "Cohort added successfully");
       setIsOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["cohorts"] });
+      queryClient.invalidateQueries({ queryKey: ["projects-layout"] });
     }
-  }, [actionData]);
+  }, [actionData, queryClient]);
 
   const onFormSubmit = (data: CohortSchemaType) => {
     fetcher.submit(

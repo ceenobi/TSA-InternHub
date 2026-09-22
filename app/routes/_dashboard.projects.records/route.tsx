@@ -5,9 +5,10 @@ import {
   RiTimeLine,
 } from "@remixicon/react";
 import type { ColumnDef } from "@tanstack/react-table";
+import { dehydrate, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { useOutletContext } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import DataError from "~/components/ui/data-error";
 import NotFound from "~/components/ui/not-found";
 import {
   Select,
@@ -17,8 +18,9 @@ import {
 } from "~/components/ui/select";
 import TableView from "~/components/ui/table-view";
 import { useIsMobile } from "~/hooks/useMobile";
-import { getScoreBoardClientQuery } from "~/queries/projects";
-import type { ScoreBoardUser, UserData } from "~/types";
+import { getQueryClientRsc } from "~/lib/getQueryClient";
+import { scoreboardQueryOptions } from "~/queries/projects";
+import type { ScoreBoardUser } from "~/types";
 import type { Route } from "./+types/route";
 
 export function meta({}: Route.MetaArgs) {
@@ -32,20 +34,14 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader() {
-  return { dehydratedState: undefined, scoreboard: undefined };
+  return { dehydratedState: undefined };
 }
 
-export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-  const { getQueryClientRsc } = await import("~/lib/getQueryClient");
-  const { dehydrate } = await import("@tanstack/react-query");
-  const { getScoreBoardClientQuery } = await import("~/queries/projects");
+export async function clientLoader() {
   const queryClient = getQueryClientRsc();
-  const scoreboard = await queryClient.ensureQueryData(
-    getScoreBoardClientQuery(request),
-  );
+  await queryClient.ensureQueryData(scoreboardQueryOptions());
   return {
     dehydratedState: dehydrate(queryClient),
-    scoreboard,
   };
 }
 
@@ -88,17 +84,18 @@ function GradeBadge({ percentage }: { percentage: number }) {
   );
 }
 
-export default function ProjectRecordsRoute({
-  loaderData,
-}: Route.ComponentProps) {
-  const { scoreboard } = loaderData;
-  const { user } = useOutletContext() as { user: UserData };
+export default function ProjectRecordsRoute() {
+  const {
+    data: scoreboard,
+    isPending,
+    isError,
+  } = useQuery(scoreboardQueryOptions());
   const [selectedCohortId, setSelectedCohortId] = useState<string>(
-    scoreboard.length > 0 ? scoreboard[0].cohort._id : "",
+    scoreboard && scoreboard.length > 0 ? scoreboard[0].cohort._id : "",
   );
   const isMobile = useIsMobile({ MOBILE_BREAKPOINT: 768 });
 
-  const selectedEntry = scoreboard.find(
+  const selectedEntry = scoreboard?.find(
     (e) => e.cohort._id === selectedCohortId,
   );
 
@@ -156,6 +153,19 @@ export default function ProjectRecordsRoute({
 
     return cols;
   }, [stages]);
+
+  if (isPending) {
+    return (
+      <div className="space-y-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="h-10 bg-muted animate-pulse rounded" />
+        ))}
+      </div>
+    );
+  }
+  if (isError || !scoreboard) {
+    return <DataError />;
+  }
 
   return (
     <div className="space-y-6">

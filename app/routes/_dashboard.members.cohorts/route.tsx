@@ -1,13 +1,12 @@
-import { dehydrate } from "@tanstack/react-query";
-import { Suspense } from "react";
-import { Await, Outlet, useLocation } from "react-router";
+import { dehydrate, useQuery } from "@tanstack/react-query";
+import { Outlet, useLocation, useSearchParams } from "react-router";
 import Search from "~/components/nav/search";
 import { PageSection } from "~/components/provider/page-wrapper";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import DataError from "~/components/ui/data-error";
 import { CohortSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
-import { getCohortsClientQuery } from "~/queries/projects";
+import { cohortsQueryOptions, getCohortsClientQuery } from "~/queries/projects";
 import type { Route } from "./+types/route";
 import ListCohort from "./list-cohort";
 
@@ -22,15 +21,14 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader() {
-  return { dehydratedState: undefined, cohorts: undefined };
+  return { dehydratedState: undefined };
 }
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const queryClient = getQueryClientRsc();
-  const cohorts = queryClient.ensureQueryData(getCohortsClientQuery(request));
+  await queryClient.ensureQueryData(getCohortsClientQuery(request));
   return {
     dehydratedState: dehydrate(queryClient),
-    cohorts,
   };
 }
 
@@ -40,12 +38,18 @@ export function HydrateFallback() {
   return <CohortSkeleton />;
 }
 
-export default function MembersCohortsRoute({
-  loaderData,
-}: Route.ComponentProps) {
-  const { cohorts } = loaderData;
+export default function MembersCohortsRoute() {
   const location = useLocation();
   const currentPath = location.pathname === "/members/cohorts";
+  const [searchParams] = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 10;
+  const query = searchParams.get("query") || undefined;
+  const {
+    data: resolvedCohorts,
+    isPending,
+    isError,
+  } = useQuery(cohortsQueryOptions({ page, limit, query }));
 
   return (
     <>
@@ -66,22 +70,22 @@ export default function MembersCohortsRoute({
                 />
               </CardTitle>
               <CardContent className="mt-8 px-0">
-                <Suspense fallback={<CohortSkeleton />}>
-                  <Await resolve={cohorts} errorElement={<DataError />}>
-                    {(resolvedCohorts) => (
-                      <ListCohort
-                        cohorts={resolvedCohorts?.cohorts}
-                        meta={
-                          resolvedCohorts?.meta ?? {
-                            totalPages: 0,
-                            hasMore: false,
-                            currentPage: 1,
-                          }
-                        }
-                      />
-                    )}
-                  </Await>
-                </Suspense>
+                {isPending ? (
+                  <CohortSkeleton />
+                ) : isError ? (
+                  <DataError />
+                ) : (
+                  <ListCohort
+                    cohorts={resolvedCohorts?.cohorts ?? []}
+                    meta={
+                      resolvedCohorts?.meta ?? {
+                        totalPages: 0,
+                        hasMore: false,
+                        currentPage: 1,
+                      }
+                    }
+                  />
+                )}
               </CardContent>
             </CardHeader>
           </Card>

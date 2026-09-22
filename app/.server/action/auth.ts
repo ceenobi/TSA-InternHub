@@ -619,9 +619,14 @@ export async function updateProfileRequest(
       message: "Your profile information has been updated.",
     });
 
+    const successHeaders = new Headers();
+    for (const cookie of response.headers.getSetCookie()) {
+      successHeaders.append("Set-Cookie", cookie);
+    }
+
     return Response.json(
       { success: true, message: "Profile updated successfully" },
-      { status: 200 },
+      { status: 200, headers: successHeaders },
     );
   });
 }
@@ -661,7 +666,10 @@ export async function onboardUser(request: Request, payload: OnboardingSchemaTyp
       asResponse: true,
     });
 
-    const setCookieHeader = updateRes.headers.get("Set-Cookie");
+    const onboardHeaders = new Headers({ "Content-Type": "application/json" });
+    for (const cookie of updateRes.headers.getSetCookie()) {
+      onboardHeaders.append("Set-Cookie", cookie);
+    }
 
     await AuditLogService.record(request, {
       action: "ONBOARDING_COMPLETE",
@@ -674,10 +682,7 @@ export async function onboardUser(request: Request, payload: OnboardingSchemaTyp
       JSON.stringify({ success: true, message: "Onboarding complete. Welcome!" }),
       {
         status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          ...(setCookieHeader ? { "Set-Cookie": setCookieHeader } : {}),
-        },
+        headers: onboardHeaders,
       },
     );
   });
@@ -745,9 +750,14 @@ export async function updateAvatarRequest(
       message: "Your profile avatar has been updated.",
     });
 
+    const successHeaders = new Headers();
+    for (const cookie of response.headers.getSetCookie()) {
+      successHeaders.append("Set-Cookie", cookie);
+    }
+
     return Response.json(
       { success: true, message: "Avatar updated successfully" },
-      { status: 200 },
+      { status: 200, headers: successHeaders },
     );
   });
 }

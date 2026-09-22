@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RiAddLine } from "@remixicon/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useFetcher } from "react-router";
@@ -28,6 +29,7 @@ export default function NewProject({ cohorts }: { cohorts: CohortDataType }) {
     },
   });
   const fetcher = useFetcher();
+  const queryClient = useQueryClient();
   const filterFields = formFields.filter((field) =>
     ["title", "description", "startDate", "endDate"].includes(field.name),
   );
@@ -40,8 +42,11 @@ export default function NewProject({ cohorts }: { cohorts: CohortDataType }) {
       toast.success(actionData.message || "Project created successfully");
       form.reset();
       setIsOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["projects-layout"] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["scoreboard"] });
     }
-  }, [actionData, form]);
+  }, [actionData, form, queryClient]);
 
   useEffect(() => {
     if (isOpen) {

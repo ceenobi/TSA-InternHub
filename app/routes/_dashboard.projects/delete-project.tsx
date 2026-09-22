@@ -1,4 +1,5 @@
 import { RiAlertLine } from "@remixicon/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
 import { toast } from "sonner";
@@ -19,6 +20,7 @@ export default function DeleteProject({
   onClose: () => void;
 }) {
   const fetcher = useFetcher();
+  const queryClient = useQueryClient();
   const actionData = fetcher.data as
     | { success?: boolean; message?: string; body?: any }
     | undefined;
@@ -27,8 +29,11 @@ export default function DeleteProject({
     if (actionData?.success) {
       toast.success(actionData.message || "Project deleted successfully");
       onClose();
+      queryClient.invalidateQueries({ queryKey: ["projects-layout"] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["scoreboard"] });
     }
-  }, [actionData]);
+  }, [actionData, onClose, queryClient]);
 
   return (
     <Modal

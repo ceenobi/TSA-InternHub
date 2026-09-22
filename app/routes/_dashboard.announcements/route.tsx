@@ -7,9 +7,9 @@ import {
 	RiTeamLine,
 	RiUserLine,
 } from "@remixicon/react";
-import { useQueryClient } from "@tanstack/react-query";
-import { memo, Suspense, useEffect, useState } from "react";
-import { Await, useFetcher, useOutletContext, useSearchParams } from "react-router";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { memo, useEffect, useState } from "react";
+import { useFetcher, useOutletContext, useSearchParams } from "react-router";
 import { toast } from "sonner";
 import {
 	createAnnouncement,
@@ -35,12 +35,8 @@ import ConfirmDialog from "~/components/ui/confirm-dialog";
 import { getOptimizedImageUrl } from "~/lib/cloudinary";
 import { hasPermission } from "~/lib/rbac";
 import { cn } from "~/lib/utils";
-import { getAnnouncementsClientQuery } from "~/queries/announcements";
-import type {
-	AnnouncementData,
-	AnnouncementsQueryResult,
-	UserData,
-} from "~/types";
+import { announcementsQueryOptions } from "~/queries/announcements";
+import type { AnnouncementData, UserData } from "~/types";
 import type { Route } from "./+types/route";
 import CreateAnnouncement from "./create-announcement";
 
@@ -75,7 +71,6 @@ export async function action({ request }: Route.ActionArgs) {
 export async function loader() {
 	return {
 		dehydratedState: undefined,
-		announcements: undefined,
 		cohorts: undefined,
 	};
 }
@@ -84,8 +79,11 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
 	const { getQueryClientRsc } = await import("~/lib/getQueryClient");
 	const { dehydrate } = await import("@tanstack/react-query");
 	const queryClient = getQueryClientRsc();
-	const announcements = queryClient.ensureQueryData(
-		getAnnouncementsClientQuery(request),
+	const url = new URL(request.url);
+	const priority = url.searchParams.get("priority") || "all";
+	const target = url.searchParams.get("target") || "all";
+	await queryClient.ensureInfiniteQueryData(
+		announcementsQueryOptions({ priority, target }),
 	);
 	const cohortsRes = await fetch("/api/v1/cohorts?page=1&limit=100", {
 		headers: request.headers,
@@ -95,7 +93,6 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
 		: [];
 	return {
 		dehydratedState: dehydrate(queryClient),
-		announcements,
 		cohorts: cohortsData,
 	};
 }
@@ -110,11 +107,26 @@ export default function AnnouncementsRoute({
 	loaderData,
 }: Route.ComponentProps) {
 	const { user } = useOutletContext() as { user: UserData };
-	const { announcements: initialAnnouncements, cohorts } = loaderData;
+	const { cohorts } = loaderData;
 	const isAdmin = hasPermission(user.role, "MANAGE_MEMBERS");
 	const [searchParams, setSearchParams] = useSearchParams();
 	const currentPriority = searchParams.get("priority") || "all";
 	const currentTarget = searchParams.get("target") || "all";
+
+	const {
+		data,
+		isPending,
+		isError,
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+	} = useInfiniteQuery(
+		announcementsQueryOptions({
+			priority: currentPriority,
+			target: currentTarget,
+		}),
+	);
+	const announcements = data?.pages.flatMap((p) => p.announcements) ?? [];
 
 	const handleFilterChange = (key: string, value: string | null) => {
 		const newParams = new URLSearchParams(searchParams);
@@ -206,30 +218,28 @@ export default function AnnouncementsRoute({
 							</Select>
 						</div>
 					</div>
-					<Suspense fallback={<AnnouncementSkeleton />}>
-						<Await resolve={initialAnnouncements} errorElement={<DataError />}>
-							{(resolvedAnnouncements) => (
-								<>
-									{resolvedAnnouncements.announcements.length === 0 ? (
-										<NotFound
-											title="No announcements"
-											message={
-												isAdmin
-													? "No announcements yet. Create the first one!"
-													: "No announcements yet. Check back later."
-											}
-										/>
-									) : (
-										<Announcements
-											resolvedAnnouncements={resolvedAnnouncements}
-											user={user}
-											isAdmin={isAdmin}
-										/>
-									)}
-								</>
-							)}
-						</Await>
-					</Suspense>
+					{isPending ? (
+						<AnnouncementSkeleton />
+					) : isError ? (
+						<DataError />
+					) : announcements.length === 0 ? (
+						<NotFound
+							title="No announcements"
+							message={
+								isAdmin
+									? "No announcements yet. Create the first one!"
+									: "No announcements yet. Check back later."
+							}
+						/>
+					) : (
+					<Announcements
+						announcements={announcements}
+						isAdmin={isAdmin}
+						hasNextPage={hasNextPage}
+						isFetchingNextPage={isFetchingNextPage}
+						onLoadMore={() => fetchNextPage()}
+					/>
+					)}
 				</div>
 			</PageSection>
 		</PageWrapper>
@@ -237,50 +247,32 @@ export default function AnnouncementsRoute({
 }
 
 function Announcements({
-	resolvedAnnouncements,
-	user,
+	announcements,
 	isAdmin,
+	hasNextPage,
+	isFetchingNextPage,
+	onLoadMore,
 }: {
-	resolvedAnnouncements: AnnouncementsQueryResult;
-	user: UserData;
+	announcements: AnnouncementData[];
 	isAdmin: boolean;
+	hasNextPage: boolean;
+	isFetchingNextPage: boolean;
+	onLoadMore: () => void;
 }) {
-	const [page, setPage] = useState(1);
-	const [allAnnouncements, setAllAnnouncements] = useState<AnnouncementData[]>(
-		resolvedAnnouncements.announcements,
-	);
-	const [hasMore, setHasMore] = useState(resolvedAnnouncements.meta.hasMore);
-	const loadMore = async () => {
-		const nextPage = page + 1;
-		const url = new URL(window.location.href);
-		url.searchParams.set("page", String(nextPage));
-		const res = await fetch(url.toString());
-		const json = await res.json();
-		if (json.body) {
-			setAllAnnouncements((prev) => [...prev, ...json.body.announcements]);
-			setPage(nextPage);
-			setHasMore(json.body.meta.hasMore);
-		}
-	};
-
 	return (
 		<>
-			{allAnnouncements.map((a) => (
-				<AnnouncementCard
-					key={a._id}
-					announcement={a}
-					isAdmin={isAdmin}
-					user={user}
-				/>
+			{announcements.map((a) => (
+				<AnnouncementCard key={a._id} announcement={a} isAdmin={isAdmin} />
 			))}
-			{hasMore && (
+			{hasNextPage && (
 				<div className="flex justify-center pt-2">
 					<Button
 						variant="outline"
 						className="rounded-full px-8"
-						onClick={loadMore}
+						onClick={onLoadMore}
+						disabled={isFetchingNextPage}
 					>
-						Load More
+						{isFetchingNextPage ? "Loading…" : "Load More"}
 					</Button>
 				</div>
 			)}
@@ -319,11 +311,9 @@ const timeAgo = (d: string) => {
 const AnnouncementCard = memo(function AnnouncementCard({
 	announcement,
 	isAdmin,
-	user,
 }: {
 	announcement: AnnouncementData;
 	isAdmin: boolean;
-	user: UserData;
 }) {
 	const [expanded, setExpanded] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
