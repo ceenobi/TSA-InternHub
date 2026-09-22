@@ -70,7 +70,7 @@ export default function DeleteStage({
           onClick={() =>
             fetcher.submit(
               { stageId: stage._id, projectId, intent: "delete-stage" },
-              { method: "delete" },
+              { method: "delete", encType: "application/json" },
             )
           }
         />

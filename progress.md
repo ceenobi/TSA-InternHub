@@ -140,6 +140,8 @@ Triggers: pushes to `main`/`testing`, PRs to `main`.
 
 ## Recent Accomplishments (This Session)
 
+- [x] **Delete action JSON body fix:** `delete-project.tsx` and `delete-stage.tsx` submitted via `fetcher.submit` without `encType`, so React Router sent form-urlencoded bodies (`id=…`) while the route actions call `request.json()` → `Unexpected token 'i', "id=6ab2542…" is not valid JSON`. Added `encType: "application/json"` to both. Audited all 41 `fetcher.submit` call sites — all now set `encType`. Verified: typecheck clean.
+
 - [x] **Automatic revalidation overhaul (PR #50):** Fixed stale UI after mutations across profile, announcements, tasks, projects, and cohorts. Profile/avatar/onboarding now forward refreshed Better Auth `Set-Cookie` headers (`getSetCookie()` loop) so the `cookieCache` never serves stale user data; settings profile form resets after save. Converted announcements (infinite query), tasks, task stats, task submissions, projects (layout/all/records), and members cohorts from `Await`/`ensureQueryData` (stale within 60s `staleTime`) to active `useQuery`/`useInfiniteQuery` observers, and added `queryClient.invalidateQueries` on every mutation success effect (create/delete/pin announcement, activate-stage, submit-task, create/update/delete project, add/update cohort). Query builders are now browser-safe (no `request.headers` forwarding; ambient same-origin cookies). Replaced hub native `confirm()` with the shared `ConfirmDialog`. Verified: typecheck clean, lint 0 errors (581 warnings, below prior baseline), 481 tests pass.
 - [x] Improved chat response quality (temperature 0.5, spell-check, completeness prompt)
 - [x] Added chat feedback loop — thumbs up/down UI, feedback API endpoint, Mongoose model
