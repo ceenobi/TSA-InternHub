@@ -1,7 +1,6 @@
-import { dehydrate } from "@tanstack/react-query";
-import { Suspense, useEffect, useState } from "react";
+import { dehydrate, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import {
-  Await,
   NavLink,
   Outlet,
   useFetcher,
@@ -20,7 +19,7 @@ import NotFound from "~/components/ui/not-found";
 import { TaskViewSkeleton } from "~/components/ui/skeleton-ui";
 import { getQueryClientRsc } from "~/lib/getQueryClient";
 import { cn } from "~/lib/utils";
-import { getTasksClientQuery } from "~/queries/tasks";
+import { tasksQueryOptions } from "~/queries/tasks";
 import type { TaskData, TasksPageData, UserData } from "~/types";
 import type { Route } from "./+types/route";
 import { StageDetail } from "./stage-detail";
@@ -39,15 +38,14 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader() {
-  return { dehydratedState: undefined, tasksData: undefined };
+  return { dehydratedState: undefined };
 }
 
-export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+export async function clientLoader() {
   const queryClient = getQueryClientRsc();
-  const tasksData = queryClient.ensureQueryData(getTasksClientQuery(request));
+  await queryClient.ensureQueryData(tasksQueryOptions());
   return {
     dehydratedState: dehydrate(queryClient),
-    tasksData,
   };
 }
 
@@ -67,14 +65,18 @@ export async function action({ request }: Route.ActionArgs) {
   }
 }
 
-export default function MyTaskRoute({ loaderData }: Route.ComponentProps) {
-  const { tasksData } = loaderData;
+export default function MyTaskRoute() {
   const { user } = useOutletContext() as { user: UserData };
   const location = useLocation();
   const currentPath = location.pathname === "/tasks";
+  const {
+    data: resolvedTask,
+    isPending,
+    isError,
+  } = useQuery(tasksQueryOptions());
 
   return (
-    <>
+
       <PageWrapper>
         <PageSection index={0} className="space-y-8 xl:px-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -112,29 +114,24 @@ export default function MyTaskRoute({ loaderData }: Route.ComponentProps) {
               permission="MANAGE_TASK"
               fallback={<AccessDenied />}
             >
-              <Suspense fallback={<TaskViewSkeleton />}>
-                <Await resolve={tasksData} errorElement={<DataError />}>
-                  {(resolvedTask) => (
-                    <>
-                      {!resolvedTask || !resolvedTask.project ? (
-                        <NotFound
-                          title="No active project"
-                          message="Tasks haven't been created yet. Come back later."
-                        />
-                      ) : (
-                        <TaskView resolvedTask={resolvedTask} />
-                      )}
-                    </>
-                  )}
-                </Await>
-              </Suspense>
+              {isPending ? (
+                <TaskViewSkeleton />
+              ) : isError ? (
+                <DataError />
+              ) : !resolvedTask || !resolvedTask.project ? (
+                <NotFound
+                  title="No active project"
+                  message="Tasks haven't been created yet. Come back later."
+                />
+              ) : (
+                <TaskView resolvedTask={resolvedTask} />
+              )}
             </CanPermit>
           ) : (
             <Outlet context={{ user }} />
           )}
         </PageSection>
       </PageWrapper>
-    </>
   );
 }
 
@@ -143,6 +140,7 @@ function TaskView({ resolvedTask }: { resolvedTask: TasksPageData }) {
   const [selectedTask, setSelectedTask] = useState<TaskData | null>(null);
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const fetcher = useFetcher();
+  const queryClient = useQueryClient();
   const isActivating = fetcher.state === "submitting";
 
   const actionData = fetcher.data as
@@ -152,10 +150,13 @@ function TaskView({ resolvedTask }: { resolvedTask: TasksPageData }) {
   useEffect(() => {
     if (actionData?.success) {
       toast.success(actionData.message || "Stage unlocked successfully");
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["task-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks-submissions"] });
     } else if (actionData !== undefined && actionData.success === false) {
       setShowAlert(true);
     }
-  }, [actionData]);
+  }, [actionData, queryClient]);
 
   const handleActivate = (stageId: string) => {
     fetcher.submit(

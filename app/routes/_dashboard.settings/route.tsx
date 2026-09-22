@@ -115,6 +115,8 @@ export default function Settings() {
       setShowAlert(true);
       if (activeForm === "password-form") {
         passwordForm.reset();
+      } else {
+        profileForm.reset(profileForm.getValues());
       }
     }
   }, [actionData]);

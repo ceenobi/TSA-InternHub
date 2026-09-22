@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useFetcher } from "react-router";
@@ -38,6 +39,7 @@ export default function EditProject({
     },
   });
   const fetcher = useFetcher();
+  const queryClient = useQueryClient();
   const filterFields = formFields.filter((field) =>
     ["title", "description", "status", "startDate", "endDate"].includes(
       field.name,
@@ -53,8 +55,11 @@ export default function EditProject({
       toast.success(actionData.message || "Project updated successfully");
       form.reset();
       onClose();
+      queryClient.invalidateQueries({ queryKey: ["projects-layout"] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["scoreboard"] });
     }
-  }, [actionData, form]);
+  }, [actionData, form, onClose, queryClient]);
 
   const onFormSubmit = (data: ProjectSchemaType) => {
     fetcher.submit(

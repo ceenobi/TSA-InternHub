@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RiAddLine, RiCloseLine } from "@remixicon/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useFetcher } from "react-router";
@@ -39,6 +40,7 @@ export function SubmitTaskModal({
     { name: "", url: "" },
   ]);
   const fetcher = useFetcher();
+  const queryClient = useQueryClient();
 
   const actionData = fetcher.data as
     | { success?: boolean; message?: string }
@@ -50,8 +52,11 @@ export function SubmitTaskModal({
       form.reset();
       setFileUrls([{ name: "", url: "" }]);
       setIsOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["task-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks-submissions"] });
     }
-  }, [actionData, form, setIsOpen]);
+  }, [actionData, form, setIsOpen, queryClient]);
 
   useEffect(() => {
     if (isOpen) {

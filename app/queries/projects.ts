@@ -1,6 +1,7 @@
+import { queryOptions } from "@tanstack/react-query";
 import type { CohortDataType, ScoreBoardEntry } from "~/types";
 
-type ProjectsQueryResult = {
+export type ProjectsQueryResult = {
   projects: any[];
   meta: {
     currentPage: number;
@@ -11,13 +12,18 @@ type ProjectsQueryResult = {
   };
 };
 
-export const getProjectsAllClientQuery = (request: Request) => {
-  const url = new URL(request.url);
-  const page = Number(url.searchParams.get("page")) || 1;
-  const limit = Number(url.searchParams.get("limit")) || 20;
-  const query = url.searchParams.get("query") || undefined;
-  const status = url.searchParams.get("status") || undefined;
-  return {
+export const projectsQueryOptions = ({
+  page,
+  limit,
+  query,
+  status,
+}: {
+  page: number;
+  limit: number;
+  query?: string;
+  status?: string;
+}) =>
+  queryOptions({
     queryKey: ["projects", page, limit, query, status],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -25,9 +31,7 @@ export const getProjectsAllClientQuery = (request: Request) => {
       params.set("limit", String(limit));
       if (query) params.set("query", query);
       if (status) params.set("status", status);
-      const response = await fetch(`/api/v1/projects/all?${params}`, {
-        headers: request.headers,
-      });
+      const response = await fetch(`/api/v1/projects/all?${params}`);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || "Failed to fetch projects");
@@ -35,16 +39,13 @@ export const getProjectsAllClientQuery = (request: Request) => {
       const data = await response.json();
       return data.body as ProjectsQueryResult;
     },
-  };
-};
+  });
 
-export const getScoreBoardClientQuery = (request: Request) => {
-  return {
+export const scoreboardQueryOptions = () =>
+  queryOptions({
     queryKey: ["scoreboard"],
     queryFn: async () => {
-      const response = await fetch("/api/v1/scoreboard", {
-        headers: request.headers,
-      });
+      const response = await fetch("/api/v1/scoreboard");
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || "Failed to fetch scoreboard");
@@ -52,53 +53,70 @@ export const getScoreBoardClientQuery = (request: Request) => {
       const data = await response.json();
       return data.body as ScoreBoardEntry[];
     },
-  };
+  });
+
+export type ProjectsLayoutData = {
+  cohorts: CohortDataType;
+  currentProject: any;
 };
 
-export const getProjectsLayoutClientQuery = (request: Request) => {
-  return {
+export const projectsLayoutQueryOptions = () =>
+  queryOptions({
     queryKey: ["projects-layout"],
     queryFn: async () => {
-      const response = await fetch("/api/v1/projects", {
-        headers: request.headers,
-      });
+      const response = await fetch("/api/v1/projects");
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to fetch projects layout data");
+        throw new Error(
+          errorData.message || "Failed to fetch projects layout data",
+        );
       }
       const data = await response.json();
-      return data.body as {
-        cohorts: CohortDataType;
-        currentProject: any;
-      };
+      return data.body as ProjectsLayoutData;
     },
+  });
+
+export type CohortsQueryResult = {
+  cohorts: CohortDataType[];
+  meta: {
+    currentPage: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasMore: boolean;
   };
 };
 
-export const getCohortsClientQuery = (request: Request) => {
-  const url = new URL(request.url);
-  const page = Number(url.searchParams.get("page")) || 1;
-  const limit = Number(url.searchParams.get("limit")) || 10;
-  const query = url.searchParams.get("query") || undefined;
-  return {
+export const cohortsQueryOptions = ({
+  page,
+  limit,
+  query,
+}: {
+  page: number;
+  limit: number;
+  query?: string;
+}) =>
+  queryOptions({
     queryKey: ["cohorts", page, limit, query],
     queryFn: async () => {
       const params = new URLSearchParams();
       params.set("page", String(page));
       params.set("limit", String(limit));
       if (query) params.set("query", query);
-      const response = await fetch(`/api/v1/cohorts?${params}`, {
-        headers: request.headers,
-      });
+      const response = await fetch(`/api/v1/cohorts?${params}`);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || "Failed to fetch cohorts");
       }
       const data = await response.json();
-      return data.body as {
-        cohorts: CohortDataType[];
-        meta: { currentPage: number; limit: number; total: number; totalPages: number; hasMore: boolean };
-      };
+      return data.body as CohortsQueryResult;
     },
-  };
+  });
+
+export const getCohortsClientQuery = (request: Request) => {
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get("page")) || 1;
+  const limit = Number(url.searchParams.get("limit")) || 10;
+  const query = url.searchParams.get("query") || undefined;
+  return cohortsQueryOptions({ page, limit, query });
 };
